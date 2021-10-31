@@ -5,10 +5,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
 public class Constants {
-
-//hi
     //--------------------------------ENCODERS-------------------------
-
     /**
      * Enum of encoder counts by motor, add new motor counts in here.
      * Includes instance function for countsPerInch()
@@ -26,7 +23,7 @@ public class Constants {
         double counts_per_rev;
 
         /**
-         * @param counts_per_rev    Counts per revolution of specified enum value
+         * @param counts_per_rev    Counts per revolution of specified enum element
          */
         encoderCounts(double counts_per_rev) {
             this.counts_per_rev = counts_per_rev;
@@ -61,22 +58,25 @@ public class Constants {
 
     }
 
+    /**
+     * Enum of diameter in inches by object with circumference (wheels), add new circumference objects here.
+     */
     public enum circumferenceObject{
         GO_BILDA_STANDARD_MECANUM(4),
         GREEN_COMPLIANT_WHEEL(4);
 
+        /**
+         * Diameter in inches
+         */
         double diameter;
 
+        /**
+         * @param diameterInches    Diameter in inches of specific enum element
+         */
         circumferenceObject(double diameterInches) {
             this.diameter = diameterInches;
         }
     }
-
-    /**
-     * Counts per revolut
-     */
-    public static final double COUNTS_PER_MOTOR_REV = 1120;
-    public static final double COUNTS_PER_MOTOR_TETRIX = 1440;
 
     /**
      * Counts per revolution of a GoBilda 312 RPM Motor
@@ -93,88 +93,130 @@ public class Constants {
      */
     public static final double COUNTS_PER_MOTOR_REV_CORE_HEX_MOTOR = 288;
 
-    public static final double DRIVE_GEAR_REDUCTION = 1.0;
-    public static final double DRIVE_GEAR_REDUCTION_NEW = 2.0/3.0;
-    public static final double DRIVE_GEAR_REDUCTION_EVENNEWER = 2.0;
-    public static final double WHEEL_DIAMETER_INCHES = 4.0;
-    public static final double WHEEL_DIAMETER_INCHES_NEW = 3.94;
-    public static final double SPOOL_DIAMETER_INCHES = 1.25;
+    /**
+     * Drive Gear Reduction of a GoBilda 312 RPM Motor
+     */
+    public static final double DRIVE_GEAR_REDUCTION_GOBILDA_312_RPM = 2.0/3.0;
 
-    public static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-            (WHEEL_DIAMETER_INCHES * 3.1415);                   // Conversion: Encoder Count to Inches
+    /**
+     * Drive Gear Reduction of a GoBilda 435 RPM Motor
+     */
+    public static final double DRIVE_GEAR_REDUCTION_GOBILDA_435_RPM = 2.0;
 
+    /**
+     * Drive Gear Reduction of a REV Core HEX Motor
+     */
+    public static final double DRIVE_GEAR_REDUCTION_REV_CORE_HEX_MOTOR = 1.0;
 
-    public static final double COUNTS_PER_TETRIX_INCH = (COUNTS_PER_MOTOR_TETRIX * DRIVE_GEAR_REDUCTION) /
-            (WHEEL_DIAMETER_INCHES * 3.1415);               // Conversion: Encoder Counts Motor Tetrix to Inches
+    /**
+     * Wheel Diameter of the wheels on our GoBilda 312 RPM Motors
+     */
+    public static final double WHEEL_DIAMETER_INCHES_GOBILDA_312_RPM = 4.0;
 
+    /**
+     * Wheel Diameter of the wheels on our GoBilda 435 RPM Motors
+     */
+    public static final double WHEEL_DIAMETER_INCHES_GOBILDA_435_RPM = 3.94;
 
-    public static final double COUNTS_PER_GOBUILDA312RPM_INCH = (COUNTS_PER_MOTOR_GOBILDA_312_RPM * DRIVE_GEAR_REDUCTION_NEW) /
-            (WHEEL_DIAMETER_INCHES * 3.1415);
+    /**
+     * Wheel Diameter of the wheels on our REV Core HEX Motors
+     */
+    public static final double WHEEL_DIAMETER_INCHES_REV_CORE_HEX_MOTOR = 1.25;
 
+    /**
+     * Counts per inch calculated of a GoBilda 312 RPM Motor
+     */
+    public static final double COUNTS_PER_INCH_GOBILDA_312_RPM = (COUNTS_PER_MOTOR_GOBILDA_312_RPM * DRIVE_GEAR_REDUCTION_GOBILDA_312_RPM) /
+            (WHEEL_DIAMETER_INCHES_GOBILDA_312_RPM * Math.PI);
 
-    public static final double COUNTS_PER_GOBUILDA435RPM_INCH = (COUNTS_PER_MOTOR_GOBILDA_435_RPM * DRIVE_GEAR_REDUCTION_EVENNEWER) /
-            (WHEEL_DIAMETER_INCHES_NEW * 3.1415);
+    /**
+     * Counts per inch calculated of a GoBilda 435 RPM Motor
+     */
+    public static final double COUNTS_PER_INCH_GOBILDA_435_RPM = (COUNTS_PER_MOTOR_GOBILDA_435_RPM * DRIVE_GEAR_REDUCTION_GOBILDA_435_RPM) /
+            (WHEEL_DIAMETER_INCHES_GOBILDA_435_RPM * Math.PI);
 
-
-    public static final double COUNTS_PER_COREHEXMOTOR_INCH = (COUNTS_PER_MOTOR_REV_CORE_HEX_MOTOR * DRIVE_GEAR_REDUCTION) /
-            (SPOOL_DIAMETER_INCHES * 3.1415);
-    public static final double COUNTS_PER_GOBUILDA312RPM_ROT = (COUNTS_PER_MOTOR_GOBILDA_312_RPM * DRIVE_GEAR_REDUCTION_NEW);
+    /**
+     * Counts per inch calculated of a REV Core HEX Motor
+     */
+    public static final double COUNTS_PER_INCH_REV_CORE_HEX_MOTOR = (COUNTS_PER_MOTOR_REV_CORE_HEX_MOTOR * DRIVE_GEAR_REDUCTION_REV_CORE_HEX_MOTOR) /
+            (WHEEL_DIAMETER_INCHES_REV_CORE_HEX_MOTOR * Math.PI);
 
     //--------------------------------TELE-OP VALUES--------------------
+    /**
+     * Joystick Dead Zone Threshold
+     */
     public static final double DEAD_ZONE_SIZE = 0.1;
 
     //--------------------------------VUFORIA----------------------------
-
+    /**
+     * Generated Key for Vuforia use
+     */
     public static final String VUFORIA_KEY = "ASYtBET/////AAABmSTQiLUzLEx3qLnHm6hu7Y1aNDWPDgMBKY8lFonYrzU8M5f9mAV5KiaJ9YZWCSgoUx6/AKuobb1cLgB8R+mDHgx6FoP3XS3K8bAwShz98sojuAKmTGzJMZVUjH8mjW+9ebYjtw3oZr/ZM2F2NZuCPN4Rx+K5koMfR2IE1OQKoZbkgLJSc36yUmis7MN91L0xIgntCKhqpZkRX45VjWsZi4BcKQnK5L2YfUqueZ7qvPzpF7sWDDcWYqkLZNbxfRk+gUVdabq/uOPYR8v0O0EFONv7h2kiU3E1s7Rm8WOukfwfqa5Nsw7FSNF2kjL0PhPbGPBQ6kVbLQMsvmxM7x/AA2owHe8l1yHgzyCgd7YTFOdi";
 
+    /**
+     * Generated Key for Tensorflow use
+     */
     public static final String TENSORFLOW_KEY = "Adb83BH/////AAABmTheak2ntU3VnH1pRcX2UDVJc60lqKXP9o54kAOKZoMvggLhrVVWOQ06E0yXEF3xRwJADjy5U2N519egNSjJ+Kj6jr05a6UmqLTEXS8elc2jYhx+T5P0pbc3ByKBdqw0lwBzL15jcqFrNDmbTH5hsuZjRP0RfvE1k/S2VW3wvD8U3GNtd2wb7xdQbmysXoDrNk0s+bgyn4mCX8jNL33RvYuIYfDKkC215c+jbYjn4rDAHNyM02Va777s5mcbYTb3LAX0iVYQApbtX4MjcPyU+D5p5dRQVYTE2hVtbMVvJg66m7ZcZ8aRV1GwTEYYVhq6z/iT3+cDH2pjNXtb0mGwHwyAnCwSMVqFtpbQ4DrC/3uj";
 
-    // Since ImageTarget trackables use mm to specifiy their dimensions, we must use mm for all the physical dimension.
-    // We will define some constants and conversions here
+    /**
+     * Conversion factor of inch to mm since Vuforia uses mm, so mm must be used for all physical dimensions
+     */
     public static final float mmPerInch = 25.4f;
-    public static final float mmFTCFieldWidth = (12 * 6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
-    public static final float mmTargetHeight = (6) * mmPerInch;          // the height of the center of the target image above the floor
 
-    // Select which camera you want use.  The FRONT camera is the one on the same side as the screen.
-    // Valid choices are:  BACK or FRONT
+    /**
+     * The width of the FTC field from one side to the other
+     */
+    public static final float mmFTCFieldWidth = (12/*ft*/ * 12/*in*/) * mmPerInch;
+
+    /**
+     * Half of the width of the FTC field
+     */
+    public static final float mmFTCHalfFieldWidth = mmFTCFieldWidth/2f;
+
+    /**
+     * Quarter of the width of the FTC field
+     */
+    public static final float mmFTCQuadFieldWidth = mmFTCFieldWidth/4f;
+
+    /**
+     * The height of the ImageTarget (from the image center to the floor)
+     */
+    public static final float mmTargetHeight = (6/*in*/) * mmPerInch;
+
+    /**
+     * Select which camera you want use.  The FRONT camera is the one on the same side as the screen.
+     * Valid choices are:  BACK or FRONT
+     */
     public static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
 
+    /**
+     * Orientation of phone used for Vuforia
+      */
+    public static final boolean PHONE_IS_PORTRAIT = false;
 
     //--------------------------------CONFIGURATION VALUES--------------------
-
+    /**
+     * Front right motor name
+     */
     public static final String motorFRS = "motorFR";
+
+    /**
+     * Front left motor name
+     */
     public static final String motorFLS = "motorFL";
+
+    /**
+     * Back right motor name
+     */
     public static final String motorBRS = "motorBR";
+
+    /**
+     * Back left motor name
+     */
     public static final String motorBLS = "motorBL";
-    public static final String flys = "fly";
-    public static final String collections = "collection";
-    public static final String shooterLeftS = "shooterLeft";
-    public static final String shooterRightS = "shooterRight";
 
-    public static final String feederLeftS = "feederLeft";
-    public static final String feederRightS = "feederRight";
-
-    public static final String claws = "claw";
-   // public static final String grabbers = "grabber";M
-    public static final String lifters = "lifter";
-
-    public static final String pincher = "pinch";
-    public static final String whacker = "whacker";
-//    //public static final String ultraFrontS = "ultraFront";
-//    public static final String leftSenseS = "leftSense";
-//   // public static final String frontSenseS = "frontSense";
-//    public static final String rightfrontSenseS = "rightfrontSense";
-//    public static final String rightbackSenseS = "rightbackSense";
-//    public static final String backSenseS = "backSense";
-
+    /**
+     * IMU name
+     */
     public static final String imuS = "imu";
-
-    public static final String leftFronts = "leftFront";
-    public static final String Backs = "Back";
-//    public static final String rightFronts = "rightFront";
-//    public static final String rightBacks = "rightBack";
-    public static final String Rights = "Right";
-    public static final String Lefts = "Left";
-    public static final String Fronts = "Front";
-    public static final String colorSensorS = "color";
 }
