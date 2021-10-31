@@ -219,4 +219,12 @@ public class Constants {
      * IMU name
      */
     public static final String imuS = "imu";
+
+    /**
+     * Ultrasonic names
+     */
+    public static final String backUltraS = "Back";
+    public static final String rightUltraS = "Right";
+    public static final String leftUltraS = "Left";
+    public static final String frontUltraS = "Front";
 }

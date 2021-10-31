@@ -46,6 +46,10 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.motorBLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFRS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.backUltraS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.rightUltraS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.leftUltraS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.frontUltraS;
 
 import static org.firstinspires.ftc.teamcode.Control.Constants.VUFORIA_KEY;
 import static org.firstinspires.ftc.teamcode.Control.Constants.mmPerInch;
@@ -70,6 +74,11 @@ public class Goal {
 
     public static double speedAdjust = 20.0 / 41.0;
     public static double yToXRatio = 1.25;
+
+    public ModernRoboticsI2cRangeSensor backUltrasonic;
+    public ModernRoboticsI2cRangeSensor rightUltrasonic;
+    public ModernRoboticsI2cRangeSensor leftUltrasonic;
+    public ModernRoboticsI2cRangeSensor frontUltrasonic;
 
     /** ------------------------------- VUFORIA ------------------------------- **/
     public OpenGLMatrix lastLocation = null;
@@ -127,14 +136,10 @@ public class Goal {
         for (setupType type: setup) {
             switch (type) {
                 case autonomous:
-                    setupDrivetrain();
-                    setupUltra();
-                    setupIMU();
+                    setupAuton();
                     break;
                 case teleop:
-                    setupDrivetrain();
-                    setupUltra();
-                    setupIMU();
+                    setupTeleop();
                     break;
                 case drivetrain_system:
                     setupDrivetrain();
@@ -160,6 +165,18 @@ public class Goal {
         central.telemetry.addLine(i.toString());
         central.telemetry.update();
 
+    }
+
+    public void setupAuton() throws InterruptedException {
+        setupDrivetrain();
+        setupUltra();
+        setupIMU();
+    }
+
+    public void setupTeleop() throws InterruptedException {
+        setupDrivetrain();
+        setupUltra();
+        setupIMU();
     }
 
     public void setupIMU() throws InterruptedException {
@@ -195,10 +212,10 @@ public class Goal {
     }
 
     public void setupUltra() throws InterruptedException {
-        Back = ultrasonicSensor(Backs);
-        Right = ultrasonicSensor(Rights);
-        Front = ultrasonicSensor(Fronts);
-        Left = ultrasonicSensor(Lefts);
+        backUltrasonic = ultrasonicSensor(backUltraS);
+        rightUltrasonic = ultrasonicSensor(rightUltraS);
+        frontUltrasonic = ultrasonicSensor(leftUltraS);
+        leftUltrasonic = ultrasonicSensor(frontUltraS);
     }
 
     public void setupOpenCV() throws InterruptedException {
@@ -428,7 +445,7 @@ public class Goal {
 
             for (DcMotor motor : drivetrain){
                 int x = Arrays.asList(drivetrain).indexOf(motor);
-                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_GOBUILDA435RPM_INCH);
+                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_INCH_GOBILDA_435_RPM);
             }
             for (DcMotor motor: drivetrain){
                 int x = Arrays.asList(drivetrain).indexOf(motor);
@@ -487,7 +504,7 @@ public class Goal {
 
             for (DcMotor motor : motors){
                 int x = Arrays.asList(motors).indexOf(motor);
-                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_GOBUILDA435RPM_INCH);
+                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_INCH_GOBILDA_435_RPM);
             }
             for (DcMotor motor: motors){
                 int x = Arrays.asList(motors).indexOf(motor);
@@ -533,78 +550,6 @@ public class Goal {
         }
     }
 
-    public void PIDFly(double totalTime, double targetPow, double targetSpeed, double p, double i, double d, double sleepTime, double correct, double bias){
-        double initTime = runtime.seconds();
-        double lastError = 0;
-        double lastIntegral = 0;
-        double lastTime = initTime;
-        double lastCount = fly.getCurrentPosition();
-
-        double st = sleepTime*1000;
-
-
-        while(runtime.seconds()-initTime<totalTime){
-            double timeElapsed = runtime.seconds() - lastTime;
-            double countChange = fly.getCurrentPosition() - lastCount;
-
-
-            double error = targetSpeed - Math.abs(countChange/timeElapsed);
-            double integral = lastIntegral + error * (timeElapsed);
-            double derivative = (error - lastError)/(timeElapsed);
-
-            double total_correct = p * error + i * integral + d * derivative + bias;
-/*
-            central.telemetry.addData("speed value", targetPow + (-1*(total_correct*correct)));
-            central.telemetry.addData("p correct", p*error);
-            central.telemetry.addData("i correct", i*integral);
-            central.telemetry.addData("d correct", d*derivative);
-            central.telemetry.addData("velocity error", error);
-            central.telemetry.addData("integral", integral);
-            central.telemetry.addData("derivative", derivative);
-            central.telemetry.addData("count change", countChange);
-            central.telemetry.addData("time elapsed", timeElapsed);
-            central.telemetry.addData("Actual velocity", Math.abs(countChange/timeElapsed));
-
-            central.telemetry.update();
-*/
-            lastError = error;
-            lastIntegral = integral;
-            lastTime += timeElapsed;
-            lastCount += countChange;
-
-            if (targetPow + (-1*(total_correct*correct)) > -1) {
-
-                fly.setPower(targetPow + (-1*(total_correct * correct)));
-                central.sleep((long)st);
-            }
-            else {
-                fly.setPower(-1);
-                central.sleep((long)st);
-            }
-
- /*           whack.setPosition(0.45);
-            central.sleep(500);
-
-
-            whack.setPosition(0);
-            central.sleep(500);
-*/
-
-//            p *= 2;
-//            i *= 2;
-//            d *= 2;
-        }
-    }
-
-    public double velocityFly(){
-        int curr = fly.getCurrentPosition();
-        double initTime = runtime.seconds();
-        while(runtime.seconds()-initTime<0.01){
-        }
-        int newPos = fly.getCurrentPosition();
-        return ((double)(newPos-curr)/0.01);
-    }
-
     public void encodeCoreHexMovement(double speed, double distance, double timeoutS, long waitAfter, movements movement, DcMotor... motors) throws InterruptedException {
 
         int[] targets = new int[motors.length];
@@ -616,7 +561,7 @@ public class Goal {
 
             for (DcMotor motor : motors){
                 int x = Arrays.asList(motors).indexOf(motor);
-                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_COREHEXMOTOR_INCH);
+                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_INCH_REV_CORE_HEX_MOTOR);
             }
             for (DcMotor motor: motors){
                 int x = Arrays.asList(motors).indexOf(motor);
