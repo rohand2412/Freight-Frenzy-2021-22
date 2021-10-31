@@ -39,76 +39,102 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
-import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_COREHEXMOTOR_INCH;
-import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_GOBUILDA435RPM_INCH;
-import static org.firstinspires.ftc.teamcode.Control.Constants.claws;
-import static org.firstinspires.ftc.teamcode.Control.Constants.collections;
-import static org.firstinspires.ftc.teamcode.Control.Constants.feederLeftS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.feederRightS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.flys;
+import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_REV_CORE_HEX_MOTOR;
+import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_GOBILDA_435_RPM;
 import static org.firstinspires.ftc.teamcode.Control.Constants.imuS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.lifters;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFRS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.pincher;
-import static org.firstinspires.ftc.teamcode.Control.Constants.Backs;
-import static org.firstinspires.ftc.teamcode.Control.Constants.Rights;
-import static org.firstinspires.ftc.teamcode.Control.Constants.Fronts;
-import static org.firstinspires.ftc.teamcode.Control.Constants.Lefts;
-//import static org.firstinspires.ftc.teamcode.Control.Constants.rightBacks;
-//import static org.firstinspires.ftc.teamcode.Control.Constants.rightFronts;
-import static org.firstinspires.ftc.teamcode.Control.Constants.shooterLeftS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.shooterRightS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.whacker;
-//import static org.firstinspires.ftc.teamcode.Control.Constants.backSenseS;
-//import static org.firstinspires.ftc.teamcode.Control.Constants.leftSenseS;
-//import static org.firstinspires.ftc.teamcode.Control.Constants.frontSenseS;
-//import static org.firstinspires.ftc.teamcode.Control.Constants.rightSenseS;
 
+import static org.firstinspires.ftc.teamcode.Control.Constants.VUFORIA_KEY;
+import static org.firstinspires.ftc.teamcode.Control.Constants.mmPerInch;
+import static org.firstinspires.ftc.teamcode.Control.Constants.mmFTCFieldWidth;
+import static org.firstinspires.ftc.teamcode.Control.Constants.mmFTCHalfFieldWidth;
+import static org.firstinspires.ftc.teamcode.Control.Constants.mmFTCQuadFieldWidth;
+import static org.firstinspires.ftc.teamcode.Control.Constants.mmTargetHeight;
+import static org.firstinspires.ftc.teamcode.Control.Constants.CAMERA_CHOICE;
+import static org.firstinspires.ftc.teamcode.Control.Constants.PHONE_IS_PORTRAIT;
 
 public class Goal {
 
+    /** Instance variables **/
+    public Orientation angles;
+
+    /** Initialized in constructor **/
+    public ElapsedTime runtime;
+    public Central central;
+    public HardwareMap hardwareMap;
+
+    public int[] wheelAdjust = {-1, -1, -1, -1};
+
+    public static double speedAdjust = 20.0 / 41.0;
+    public static double yToXRatio = 1.25;
+
+    /** ------------------------------- VUFORIA ------------------------------- **/
+    public OpenGLMatrix lastLocation = null;
+    public OpenGLMatrix robotFromCamera;
+    public VuforiaLocalizer vuforia = null;
+    public OpenCvWebcam webcam;
+
+    /**Trackable data **/
+    public List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+    public VuforiaTrackables targetsUltimateGoal;
+
+    /** Temp variables **/
+    public boolean targetVisible = false;
+
+    /** Vuforia init data **/
+    public int cameraMonitorViewId;
+    public VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+
+    /**
+     * This is the webcam we are to use. As with other hardware devices such as motors and
+     * servos, this device is identified using the robot configuration tool in the FTC application.
+     */
+    public WebcamName webcamName = null;
+
+    /** ---------------------------- DRIVETRAIN ----------------------------- **/
+    public DcMotor motorFR;
+    public DcMotor motorFL;
+    public DcMotor motorBR;
+    public DcMotor motorBL;
+
+    /** Set in motorDriveMode() for drivetrain movement functions **/
+    public DcMotor[] drivetrain;
+
+    /** -------------------------------- IMU ------------------------------- **/
+    public BNO055IMUImpl imu;
+
+    /** IMU params **/
+    public Orientation current;
+    public BNO055IMUImpl.Parameters imuparameters = new BNO055IMUImpl.Parameters();
+
+    /** Temp variables **/
+    public static boolean isnotstopped;
+    public float initorient;
+
     public Goal(HardwareMap hardwareMap, ElapsedTime runtime, Central central, setupType... setup) throws InterruptedException {
+        //Update instance variables
         this.hardwareMap = hardwareMap;
         this.runtime = runtime;
         this.central = central;
 
+        //For sending to control hub via telemetry
         StringBuilder i = new StringBuilder();
 
+        //Take action based on setup mode(s)
         for (setupType type: setup) {
             switch (type) {
                 case autonomous:
                     setupDrivetrain();
-                    setupStorage();
-                    setupCollection();
-                    setupFly();
-                    setupWobbleGoalSystem();
                     setupUltra();
                     setupIMU();
                     break;
                 case teleop:
                     setupDrivetrain();
-                    setupStorage();
-                    setupCollection();
-                    setupFly();
-                    setupWobbleGoalSystem();
                     setupUltra();
                     setupIMU();
-                    break;
-                case storage:
-                    setupStorage();
-                    setupFly();
-                    break;
-                case wobblegoal:
-                    setupWobbleGoalSystem();
-                    break;
-                case flywheel:
-                    setupFly();
-                    break;
-                case collectionsystem:
-                    setupCollection();
                     break;
                 case drivetrain_system:
                     setupDrivetrain();
@@ -123,131 +149,18 @@ public class Goal {
                     setupOpenCV();
                     break;
 
-                case shooter:
-                    setupShooter();
-                    break;
-
             }
 
+            //Update string with setup type
             i.append(type.name()).append(" ");
 
         }
+
+        //Send string to control hub
         central.telemetry.addLine(i.toString());
         central.telemetry.update();
 
     }
-
-    // important non-confdiguration field
-    public Orientation angles;
-    public ElapsedTime runtime;     //set in constructor to the runtime of running class
-    public Central central;
-    public HardwareMap hardwareMap;
-
-    public boolean target = false;
-    public boolean moving1 = false;
-    public boolean moving2 = false;
-    public boolean moving3 = false;
-    public boolean stop = false;
-    public boolean straight = false;
-    public int x = 0;
-    public int y = 0;
-    public int blockNumber = 0;
-
-    public int[] wheelAdjust = {-1, -1, -1, -1};
-
-    public static double speedAdjust = 20.0 / 41.0;
-    public static double yToXRatio = 1.25;
-
-    public void setWheelAdjust(int fr, int fl, int br, int bl) {
-        wheelAdjust[0] = fr;
-        wheelAdjust[1] = fl;
-        wheelAdjust[2] = br;
-        wheelAdjust[3] = bl;
-    }
-    //----specfic non-configuration fields
-    //none rnh
-
-
-    // Vuforia Variables
-    public static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
-    public static final boolean PHONE_IS_PORTRAIT = false  ;
-
-
-    public final String VUFORIA_KEY =
-            " AYzLd0v/////AAABmR035tu9m07+uuZ6k86JLR0c/MC84MmTzTQa5z2QOC45RUpRTBISgipZ2Aop4XzRFFIvrLEpsop5eEBl5yu5tJxK6jHbMppJyWH8lQbvjz4PAK+swG4ALuz2M2MdFXWl7Xh67s/XfIFSq1UJpX0DgwmZnoDCYHmx/MnFbyxvpWIMLZziaJqledMpZtmH11l1/AS0oH+mrzWQLB57w1Ur0FRdhpxcrZS9KG09u6I6vCUc8EqkHqG7T2Zm4QdnytYWpVBBu17iRNhmsd3Ok3w8Pn22blBYRo6dZZ8oscyQS1ZtilM1YT49ORQHc8mu/BMWh06LxdstWctSiGiBV0+Wn3Zk++xQ750c64lg3QLjNkXc";
-
-    // Since ImageTarget trackables use mm to specifiy their dimensions, we must use mm for all the physical dimension.
-    // We will define some constants and conversions here
-    public static final float mmPerInch        = 25.4f;
-    public static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
-
-    // Constants for perimeter targets
-    public static final float halfField = 72 * mmPerInch;
-    public static final float quadField  = 36 * mmPerInch;
-
-    // Class Members
-    public OpenGLMatrix lastLocation = null;
-    public VuforiaLocalizer vuforia = null;
-
-    /**
-     * This is the webcam we are to use. As with other hardware devices such as motors and
-     * servos, this device is identified using the robot configuration tool in the FTC application.
-     */
-    public WebcamName webcamName = null;
-
-
-    public List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
-    public VuforiaTrackables targetsUltimateGoal;
-    public boolean targetVisible = false;
-    public OpenGLMatrix robotFromCamera;
-    public int cameraMonitorViewId;
-    public VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-
-
-    //OpenCV Variables
-    public OpenCvWebcam webcam;
-
-
-    //----------------CONFIGURATION FIELDS--------------------
-    public DcMotor[] drivetrain;   //set in motorDriveMode() for drivetrain movement functions
-
-    public DcMotor motorFR;
-    public DcMotor motorFL;
-    public DcMotor motorBR;
-    public DcMotor motorBL;
-
-    public DcMotor fly;
-    public DcMotor collection;
-    public DcMotor claw;
-    public Servo whack;
-    public Servo pinch;
-    public Servo lifter;
-    public ModernRoboticsI2cRangeSensor Back, Right, Front, Left;
-
-    public DcMotor shooterLeft;
-    public DcMotor shooterRight;
-
-    public CRServo feederLeft;
-    public CRServo feederRight;
-
-    public BNO055IMUImpl imu;
-
-
-//    public ModernRoboticsI2cRangeSensor leftSense;
-//    public ModernRoboticsI2cRangeSensor frontSense;
-//    public Rev2mDistanceSensor rightfrontSense;
-//    public Rev2mDistanceSensor rightbackSense;
-//    public ModernRoboticsI2cRangeSensor backSense;
-
-
-    public double StrafetoTotalPower = 2.0/3.0;
-
-    //----       IMU        ----
-
-    public BNO055IMUImpl.Parameters imuparameters = new BNO055IMUImpl.Parameters();
-    public Orientation current;
-    public static boolean isnotstopped;
-    public float initorient;
 
     public void setupIMU() throws InterruptedException {
         imuparameters.angleUnit = BNO055IMUImpl.AngleUnit.DEGREES;
@@ -267,8 +180,6 @@ public class Goal {
         imu.initialize(parameters);
 
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
-
-
     }
 
 
@@ -283,44 +194,6 @@ public class Goal {
         motorDriveMode(EncoderMode.ON, motorFR, motorFL, motorBR, motorBL);
     }
 
-
-    public void setupStorage() throws InterruptedException {
-        whack = servo(whacker, Servo.Direction.FORWARD, 0, 1, 0);
-        lifter = servo(lifters, Servo.Direction.FORWARD, 0, 1 , 1);
-        // teleop .98
-        encoder(EncoderMode.OFF, fly);
-    }
-
-    public void setupCollection() throws InterruptedException {
-        collection = motor(collections, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
-
-        encoder(EncoderMode.ON, collection);
-
-    }
-
-    public void setupFly() throws InterruptedException {
-        fly = motor(flys, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.FLOAT);
-
-        encoder(EncoderMode.OFF, fly);
-
-
-    }
-
-    public void setupShooter() throws InterruptedException{
-        shooterLeft = motor(shooterLeftS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.FLOAT);
-        shooterRight = motor(shooterRightS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.FLOAT);
-        feederLeft = servo(feederLeftS, CRServo.Direction.FORWARD, 0);
-        feederRight = servo(feederRightS, DcMotorSimple.Direction.FORWARD, 0);
-    }
-
-    public void setupWobbleGoalSystem() throws InterruptedException {
-        claw = motor(claws, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
-        pinch = servo(pincher, Servo.Direction.FORWARD, 0, 1, 0.2);
-
-        encoder(EncoderMode.OFF, claw);
-
-    }
-
     public void setupUltra() throws InterruptedException {
         Back = ultrasonicSensor(Backs);
         Right = ultrasonicSensor(Rights);
@@ -332,14 +205,6 @@ public class Goal {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
     }
-//    public void setupMapping() throws InterruptedException {
-//
-//        leftSense = ultrasonicSensor(leftSenseS);
-//        //frontSense = ultrasonicSensor(frontSenseS);
-//        rightfrontSense = therealUS(rightfrontSenseS);
-//        rightbackSense = therealUS(rightbackSenseS);
-//        backSense = ultrasonicSensor(backSenseS);
-//    }
 
     public void setupVuforia() throws InterruptedException {
         float phoneXRotate    = 0;
@@ -407,22 +272,22 @@ public class Goal {
 
         //Set the position of the perimeter targets with relation to origin (center of field)
         redAllianceTarget.setLocation(OpenGLMatrix
-                .translation(0, -halfField, mmTargetHeight)
+                .translation(0, -mmFTCHalfFieldWidth, mmTargetHeight)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180)));
 
         blueAllianceTarget.setLocation(OpenGLMatrix
-                .translation(0, halfField, mmTargetHeight)
+                .translation(0, mmFTCHalfFieldWidth, mmTargetHeight)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0)));
         frontWallTarget.setLocation(OpenGLMatrix
-                .translation(-halfField, 0, mmTargetHeight)
+                .translation(-mmFTCHalfFieldWidth, 0, mmTargetHeight)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90)));
 
         // The tower goal targets are located a quarter field length from the ends of the back perimeter wall.
         blueTowerGoalTarget.setLocation(OpenGLMatrix
-                .translation(halfField, quadField, mmTargetHeight)
+                .translation(mmFTCHalfFieldWidth, mmFTCQuadFieldWidth, mmTargetHeight)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , -90)));
         redTowerGoalTarget.setLocation(OpenGLMatrix
-                .translation(halfField, -quadField, mmTargetHeight)
+                .translation(mmFTCHalfFieldWidth, -mmFTCQuadFieldWidth, mmTargetHeight)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
 
         //
@@ -1084,7 +949,7 @@ public class Goal {
         ON, OFF;
     }
     public enum setupType{
-        autonomous, teleop, collectionsystem, storage, flywheel, drivetrain_system, wobblegoal, ultra, imu, openCV, shooter;
+        autonomous, teleop, drivetrain_system, ultra, imu, openCV;
     }
 
 
