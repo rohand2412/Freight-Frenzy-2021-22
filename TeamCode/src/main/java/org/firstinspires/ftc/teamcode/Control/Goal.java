@@ -434,67 +434,18 @@ public class Goal {
     }
 
     public void driveTrainEncoderMovement(double speed, double distance, double timeoutS, long waitAfter, movements movement) throws InterruptedException {
-
-        int[] targets = new int[drivetrain.length];
-        double[] signs = movement.getDirections();
-
-        // Ensure that the opmode is still active
-        if (central.opModeIsActive()) {
-            // Determine new target position, and pass to motor controller
-
-
-            for (DcMotor motor : drivetrain){
-                int x = Arrays.asList(drivetrain).indexOf(motor);
-                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_INCH_GOBILDA_435_RPM);
-            }
-            for (DcMotor motor: drivetrain){
-                int x = Arrays.asList(drivetrain).indexOf(motor);
-                motor.setTargetPosition(targets[x]);
-            }
-            for (DcMotor motor: drivetrain){
-                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            }
-            runtime.reset();
-
-            for (DcMotor motor:drivetrain){
-                motor.setPower(Math.abs(speed));
-            }
-
-            // keep looping while we are still active, and there is time left, and both motors are running.
-            boolean x = true;
-            while (central.opModeIsActive() &&
-                    (runtime.seconds() < timeoutS) &&
-                    (x)) {
-
-                // Display it for the driver.
-                // Allow time for other processes to run.
-                central.idle();
-
-                for (int i = 0; i < drivetrain.length; i++) {
-                    DcMotor motor = drivetrain[i];
-                    if (!motor.isBusy() && signs[i] != 0) {
-                        x = false;
-                    }
-                }
-            }
-
-            // Stop all motion;
-            for (DcMotor motor: drivetrain){
-                motor.setPower(0);
-            }
-
-            // Turn off RUN_TO_POSITION
-            for (DcMotor motor: drivetrain){
-                motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            }
-            central.sleep(waitAfter);
-
-
-        }
+        driveTrainEncoderMovementSpecific435Motors(speed, distance, timeoutS, waitAfter, movement, drivetrain);
     }
 
-    public void encoderMovement(double speed, double distance, double timeoutS, long waitAfter, movements movement, DcMotor... motors) throws InterruptedException {
+    public void driveTrainEncoderMovementSpecific435Motors(double speed, double distance, double timeoutS, long waitAfter, movements movement, DcMotor... motors) throws InterruptedException {
+        driveTrainEncoderMovementSpecificMotorsTypes(speed, distance, timeoutS, waitAfter, movement, COUNTS_PER_INCH_GOBILDA_435_RPM, motors);
+    }
 
+    public void driveTrainEncoderMovementCoreHexMotors(double speed, double distance, double timeoutS, long waitAfter, movements movement, DcMotor... motors) throws InterruptedException {
+        driveTrainEncoderMovementSpecificMotorsTypes(speed, distance, timeoutS, waitAfter, movement, COUNTS_PER_INCH_REV_CORE_HEX_MOTOR, motors);
+    }
+
+    public void driveTrainEncoderMovementSpecificMotorsTypes(double speed, double distance, double timeoutS, long waitAfter, movements movement, double COUNTS_PER_INCH_OF_MOTOR, DcMotor... motors) throws InterruptedException {
         int[] targets = new int[motors.length];
         double[] signs = movement.getDirections();
 
@@ -504,7 +455,7 @@ public class Goal {
 
             for (DcMotor motor : motors){
                 int x = Arrays.asList(motors).indexOf(motor);
-                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_INCH_GOBILDA_435_RPM);
+                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_INCH_OF_MOTOR);
             }
             for (DcMotor motor: motors){
                 int x = Arrays.asList(motors).indexOf(motor);
@@ -545,65 +496,6 @@ public class Goal {
                 motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             }
             central.sleep(waitAfter);
-
-
-        }
-    }
-
-    public void encodeCoreHexMovement(double speed, double distance, double timeoutS, long waitAfter, movements movement, DcMotor... motors) throws InterruptedException {
-
-        int[] targets = new int[motors.length];
-        double[] signs = movement.getDirections();
-
-        // Ensure that the opmode is still active
-        if (central.opModeIsActive()) {
-            // Determine new target position, and pass to motor controller
-
-            for (DcMotor motor : motors){
-                int x = Arrays.asList(motors).indexOf(motor);
-                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_INCH_REV_CORE_HEX_MOTOR);
-            }
-            for (DcMotor motor: motors){
-                int x = Arrays.asList(motors).indexOf(motor);
-                motor.setTargetPosition(targets[x]);
-            }
-            for (DcMotor motor: motors){
-                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            }
-            runtime.reset();
-
-            for (DcMotor motor:motors){
-                motor.setPower(Math.abs(speed));
-            }
-
-            // keep looping while we are still active, and there is time left, and both motors are running.
-            boolean x = true;
-            while (central.opModeIsActive() &&
-                    (runtime.seconds() < timeoutS) &&
-                    (x)) {
-
-                // Display it for the driver.
-                // Allow time for other processes to run.
-                central.idle();
-                for (DcMotor motor: motors){
-                    if (!motor.isBusy()){
-                        x =false;
-                    }
-                }
-            }
-
-            // Stop all motion;
-            for (DcMotor motor: motors){
-                motor.setPower(0);
-            }
-
-            // Turn off RUN_TO_POSITION
-            for (DcMotor motor: motors){
-                motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            }
-            central.sleep(waitAfter);
-
-
         }
     }
 
