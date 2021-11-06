@@ -54,6 +54,9 @@ captures/
 
 #RIDGE ROBOTICS CHANGES
 .idea/*
+**/.classpath
+**/.project
+**/.settings
 #END OF CHANGES
 
 # Keystore files
