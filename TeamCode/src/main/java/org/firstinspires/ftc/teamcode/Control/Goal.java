@@ -346,9 +346,9 @@ public class Goal {
 
 
     //-----------------------HARDWARE SETUP FUNCTIONS---------------------------------------
-    public DcMotor motor(String name, DcMotor.Direction directionm, DcMotor.ZeroPowerBehavior zeroPowerBehavior) throws InterruptedException {
+    public DcMotor motor(String name, DcMotor.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior) throws InterruptedException {
         DcMotor motor = hardwareMap.dcMotor.get(name);
-        motor.setDirection(DcMotor.Direction.FORWARD);
+        motor.setDirection(direction);
         motor.setZeroPowerBehavior(zeroPowerBehavior);
         motor.setPower(0);
         return motor;
