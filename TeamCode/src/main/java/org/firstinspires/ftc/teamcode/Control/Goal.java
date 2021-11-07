@@ -46,6 +46,8 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.motorBLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFRS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.intakeS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.pivotS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.backUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.rightUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.leftUltraS;
@@ -106,6 +108,8 @@ public class Goal {
     public DcMotor motorFL;
     public DcMotor motorBR;
     public DcMotor motorBL;
+    public DcMotor intake;
+    public DcMotor pivot;
 
     /** Set in motorDriveMode() for drivetrain movement functions **/
     public DcMotor[] drivetrain;
@@ -141,6 +145,9 @@ public class Goal {
                     break;
                 case drivetrain_system:
                     setupDrivetrain();
+                    break;
+                case intake:
+                    setupIntake();
                     break;
                 case ultra:
                     setupUltra();
@@ -207,6 +214,11 @@ public class Goal {
         motorBL = motor(motorBLS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
 
         motorDriveMode(EncoderMode.ON, motorFR, motorFL, motorBR, motorBL);
+    }
+
+    public void setupIntake() throws InterruptedException {
+        intake = motor(intakeS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+        pivot = motor(pivotS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void setupUltra() throws InterruptedException {
@@ -784,7 +796,7 @@ public class Goal {
         ON, OFF;
     }
     public enum setupType{
-        autonomous, teleop, drivetrain_system, ultra, imu, openCV;
+        autonomous, teleop, drivetrain_system, ultra, intake, imu, openCV;
     }
 
 

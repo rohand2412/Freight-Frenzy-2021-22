@@ -218,6 +218,16 @@ public class Constants {
     public static final String motorBLS = "motorBL";
 
     /**
+     *
+     */
+    public static final String intakeS = "intake";
+
+    /**
+     * Intake pivot motor name
+      */
+    public static final String pivotS = "spin";
+
+    /**
      * IMU name
      */
     public static final String imuS = "imu";
