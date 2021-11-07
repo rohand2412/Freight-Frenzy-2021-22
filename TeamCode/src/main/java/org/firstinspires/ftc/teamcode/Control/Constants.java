@@ -79,6 +79,11 @@ public class Constants {
     }
 
     /**
+     * Conversion factor of inch to mm since Vuforia uses mm, so mm must be used for all physical dimensions
+     */
+    public static final float mmPerInch = 25.4f;
+
+    /**
      * Counts per revolution of a GoBilda 312 RPM Motor
      */
     public static final double COUNTS_PER_MOTOR_GOBILDA_312_RPM = 537.6;
@@ -116,7 +121,7 @@ public class Constants {
     /**
      * Wheel Diameter of the wheels on our GoBilda 435 RPM Motors
      */
-    public static final double WHEEL_DIAMETER_INCHES_GOBILDA_435_RPM = 3.94;
+    public static final double WHEEL_DIAMETER_INCHES_GOBILDA_435_RPM = 96 / mmPerInch;
 
     /**
      * Wheel Diameter of the wheels on our REV Core HEX Motors
@@ -132,7 +137,7 @@ public class Constants {
     /**
      * Counts per inch calculated of a GoBilda 435 RPM Motor
      */
-    public static final double COUNTS_PER_INCH_GOBILDA_435_RPM = (COUNTS_PER_MOTOR_GOBILDA_435_RPM * DRIVE_GEAR_REDUCTION_GOBILDA_435_RPM) /
+    public static final double COUNTS_PER_INCH_GOBILDA_435_RPM = COUNTS_PER_MOTOR_GOBILDA_435_RPM /
             (WHEEL_DIAMETER_INCHES_GOBILDA_435_RPM * Math.PI);
 
     /**
@@ -140,6 +145,8 @@ public class Constants {
      */
     public static final double COUNTS_PER_INCH_REV_CORE_HEX_MOTOR = (COUNTS_PER_MOTOR_REV_CORE_HEX_MOTOR * DRIVE_GEAR_REDUCTION_REV_CORE_HEX_MOTOR) /
             (WHEEL_DIAMETER_INCHES_REV_CORE_HEX_MOTOR * Math.PI);
+
+    public static final double COUNTS_PER_DEGREE_REV_CORE_HEX_MOTOR = COUNTS_PER_MOTOR_REV_CORE_HEX_MOTOR / 360.0;
 
     //--------------------------------TELE-OP VALUES--------------------
     /**
@@ -157,11 +164,6 @@ public class Constants {
      * Generated Key for Tensorflow use
      */
     public static final String TENSORFLOW_KEY = "Adb83BH/////AAABmTheak2ntU3VnH1pRcX2UDVJc60lqKXP9o54kAOKZoMvggLhrVVWOQ06E0yXEF3xRwJADjy5U2N519egNSjJ+Kj6jr05a6UmqLTEXS8elc2jYhx+T5P0pbc3ByKBdqw0lwBzL15jcqFrNDmbTH5hsuZjRP0RfvE1k/S2VW3wvD8U3GNtd2wb7xdQbmysXoDrNk0s+bgyn4mCX8jNL33RvYuIYfDKkC215c+jbYjn4rDAHNyM02Va777s5mcbYTb3LAX0iVYQApbtX4MjcPyU+D5p5dRQVYTE2hVtbMVvJg66m7ZcZ8aRV1GwTEYYVhq6z/iT3+cDH2pjNXtb0mGwHwyAnCwSMVqFtpbQ4DrC/3uj";
-
-    /**
-     * Conversion factor of inch to mm since Vuforia uses mm, so mm must be used for all physical dimensions
-     */
-    public static final float mmPerInch = 25.4f;
 
     /**
      * The width of the FTC field from one side to the other
