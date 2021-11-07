@@ -70,8 +70,6 @@ public class Goal {
     public Central central;
     public HardwareMap hardwareMap;
 
-    public int[] wheelAdjust = {-1, -1, -1, -1};
-
     public static double speedAdjust = 20.0 / 41.0;
     public static double yToXRatio = 1.25;
 
@@ -455,7 +453,7 @@ public class Goal {
 
             for (DcMotor motor : motors){
                 int x = Arrays.asList(motors).indexOf(motor);
-                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * wheelAdjust[x] * distance * COUNTS_PER_INCH_OF_MOTOR);
+                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * distance * COUNTS_PER_INCH_OF_MOTOR);
             }
             for (DcMotor motor: motors){
                 int x = Arrays.asList(motors).indexOf(motor);
@@ -504,7 +502,7 @@ public class Goal {
         double[] signs = movement.getDirections();
         for (DcMotor motor: drivetrain){
             int x = Arrays.asList(drivetrain).indexOf(motor);
-            motor.setPower(signs[x] * wheelAdjust[x]* speed);
+            motor.setPower(signs[x] * speed);
 
         }
     }
@@ -518,7 +516,7 @@ public class Goal {
         double[] signs = movement.getDirections();
         for (DcMotor motor: drivetrain){
             int x = Arrays.asList(drivetrain).indexOf(motor);
-            motor.setPower(signs[x] * wheelAdjust[x]* speed);
+            motor.setPower(signs[x] * speed);
 
         }
         central.sleep(duration);
@@ -530,7 +528,7 @@ public class Goal {
         double[] signs = movement.getDirections();
         for (DcMotor motor: motors){
             int x = Arrays.asList(motors).indexOf(motor);
-            motor.setPower(signs[x] * wheelAdjust[x]* speed);
+            motor.setPower(signs[x] * speed);
 
         }
     }
@@ -538,7 +536,7 @@ public class Goal {
         double[] signs = movement.getDirections();
         for (DcMotor motor: motors){
             int x = Arrays.asList(motors).indexOf(motor);
-            motor.setPower(signs[x] * wheelAdjust[x]* speed);
+            motor.setPower(signs[x] * speed);
 
         }
         central.sleep(duration);
