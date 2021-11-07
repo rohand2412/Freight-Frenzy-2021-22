@@ -169,13 +169,13 @@ public class Goal {
 
     public void setupAuton() throws InterruptedException {
         setupDrivetrain();
-        setupUltra();
+//        setupUltra();
         setupIMU();
     }
 
     public void setupTeleop() throws InterruptedException {
         setupDrivetrain();
-        setupUltra();
+//        setupUltra();
         setupIMU();
     }
 
