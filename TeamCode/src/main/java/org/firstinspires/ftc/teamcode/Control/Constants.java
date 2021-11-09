@@ -99,6 +99,11 @@ public class Constants {
     public static final double COUNTS_PER_MOTOR_REV_CORE_HEX_MOTOR = 288;
 
     /**
+     * Counts per revolution of a GoBilda 30 RPM Motor
+     */
+    public static final double COUNTS_PER_MOTOR_GOBILDA_30_RPM = 5281.1;
+
+    /**
      * Drive Gear Reduction of a GoBilda 312 RPM Motor
      */
     public static final double DRIVE_GEAR_REDUCTION_GOBILDA_312_RPM = 2.0/3.0;
@@ -146,7 +151,15 @@ public class Constants {
     public static final double COUNTS_PER_INCH_REV_CORE_HEX_MOTOR = (COUNTS_PER_MOTOR_REV_CORE_HEX_MOTOR * DRIVE_GEAR_REDUCTION_REV_CORE_HEX_MOTOR) /
             (WHEEL_DIAMETER_INCHES_REV_CORE_HEX_MOTOR * Math.PI);
 
+    /**
+     * Counts per degree calculated of REV Core HEX Motor
+     */
     public static final double COUNTS_PER_DEGREE_REV_CORE_HEX_MOTOR = COUNTS_PER_MOTOR_REV_CORE_HEX_MOTOR / 360.0;
+
+    /**
+     * Counts per degree calculated of GoBilda 30 RPM Motor
+     */
+    public static final double COUNTS_PER_DEGREE_GOBILDA_30_RPM = COUNTS_PER_MOTOR_GOBILDA_30_RPM / 360.0;
 
     //--------------------------------TELE-OP VALUES--------------------
     /**
