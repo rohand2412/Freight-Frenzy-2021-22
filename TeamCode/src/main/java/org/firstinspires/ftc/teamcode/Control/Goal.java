@@ -39,6 +39,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
+import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_DEGREE_GOBILDA_30_RPM;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_REV_CORE_HEX_MOTOR;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_GOBILDA_435_RPM;
 import static org.firstinspires.ftc.teamcode.Control.Constants.imuS;
@@ -175,12 +176,14 @@ public class Goal {
     public void setupAuton() throws InterruptedException {
         setupDrivetrain();
 //        setupUltra();
+        setupIntake();
         setupIMU();
     }
 
     public void setupTeleop() throws InterruptedException {
         setupDrivetrain();
 //        setupUltra();
+        setupIntake();
         setupIMU();
     }
 
@@ -217,7 +220,7 @@ public class Goal {
     }
 
     public void setupIntake() throws InterruptedException {
-        intake = motor(intakeS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+        intake = motor(intakeS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
         pivot = motor(pivotS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
@@ -507,6 +510,27 @@ public class Goal {
             }
             central.sleep(waitAfter);
         }
+    }
+
+    public void moveIntakePivotDegrees(double speed, double degrees) {
+        int sign = speed < 0 || degrees < 0 ? -1 : 1;
+        pivot.setTargetPosition(pivot.getCurrentPosition() + (int) (sign * Math.abs(degrees) * COUNTS_PER_DEGREE_GOBILDA_30_RPM));
+        pivot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        pivot.setPower(sign * Math.abs(speed));
+        while (pivot.isBusy());
+        pivot.setPower(0);
+    }
+
+    public void runIntakeTimeSpeed(double speed, long time) {
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intake.setPower(speed);
+        central.sleep(time);
+        intake.setPower(0);
+    }
+
+    public void runIntakeSpeed(double speed) {
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intake.setPower(speed);
     }
 
     //------------------DRIVETRAIN TELEOP FUNCTIONS------------------------------------------------------------------------
