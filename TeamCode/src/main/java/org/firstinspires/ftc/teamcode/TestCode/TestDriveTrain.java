@@ -19,17 +19,15 @@ public class TestDriveTrain extends AutonomousControl
         setup(runtime, Goal.setupType.autonomous);
 
         //Whole drivetrain forward
-        rob.driveTrainEncoderMovement(0.7, 12, 10000, 0, Goal.movements.forward);
+//        rob.driveTrainEncoderMovement(0.7, 12, 10000, 0, Goal.movements.forward);
 
         //Just back right motor forward
 //        rob.driveTrainEncoderMovementSpecific435Motors(0.7, 12, 10000, 0, Goal.movements.forward, rob.motorBR);
 
         //Turn pivot motor 30 degrees at 0.1 speed
-//        rob.pivot.setTargetPosition(rob.pivot.getCurrentPosition() + (int) (30.0 * COUNTS_PER_DEGREE_REV_CORE_HEX_MOTOR));
-//        rob.pivot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        rob.pivot.setPower(0.1);
-//        while (rob.pivot.isBusy());
-//        rob.pivot.setPower(0);
-//        sleep(5000);
+        rob.runIntakeTimeSpeed(-1, 2000);
+        rob.moveIntakePivotDegrees(1, 40);
+        rob.runIntakeTimeSpeed(1, 2000);
+        rob.moveIntakePivotDegrees(-1, 40);
     }
 }
