@@ -86,9 +86,6 @@ public abstract class TeleOpControl extends Central {
     //Jittery
     //----------------EXPERIMENTAL RECONSTRUCTION ------------------------
 
-
-
-
     /*
     left_stick       right_stick
     -       -             |
@@ -98,7 +95,6 @@ public abstract class TeleOpControl extends Central {
      -     -          6   |   7
     -   2   -             |
      */
-
 
     public boolean g(int n){ // Returns whether
 
@@ -118,13 +114,4 @@ public abstract class TeleOpControl extends Central {
                 && (n < 4 ? (validStick(xAxis3, yAxis3)) : (n >= 8 || validStick(xAxis4, yAxis4)));
 
     }
-
-
-    public void setMotorPower(double power, DcMotor... motors){
-        for (DcMotor b :
-                motors) {
-            b.setPower(power);
-        }
-    }
-
 }
