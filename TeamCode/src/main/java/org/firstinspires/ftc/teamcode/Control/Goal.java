@@ -214,7 +214,7 @@ public class Goal {
         motorFR = motor(motorFRS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
         motorFL = motor(motorFLS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
         motorBR = motor(motorBRS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
-        motorBL = motor(motorBLS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
+        motorBL = motor(motorBLS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
 
         motorDriveMode(EncoderMode.ON, motorFR, motorFL, motorBR, motorBL);
     }
@@ -225,10 +225,10 @@ public class Goal {
     }
 
     public void setupUltra() throws InterruptedException {
-        backUltrasonic = ultrasonicSensor(backUltraS);
+//        backUltrasonic = ultrasonicSensor(backUltraS);
         rightUltrasonic = ultrasonicSensor(rightUltraS);
         frontUltrasonic = ultrasonicSensor(leftUltraS);
-        leftUltrasonic = ultrasonicSensor(frontUltraS);
+//        leftUltrasonic = ultrasonicSensor(frontUltraS);
     }
 
     public void setupOpenCV() throws InterruptedException {
@@ -459,54 +459,50 @@ public class Goal {
     }
 
     public void driveTrainEncoderMovementSpecificMotorsTypes(double speed, double distance, double timeoutS, long waitAfter, movements movement, double COUNTS_PER_INCH_OF_MOTOR, DcMotor... motors) throws InterruptedException {
-        int[] targets = new int[motors.length];
         double[] signs = movement.getDirections();
 
         // Ensure that the opmode is still active
         if (central.opModeIsActive()) {
             // Determine new target position, and pass to motor controller
 
-            for (DcMotor motor : motors){
-                int x = Arrays.asList(motors).indexOf(motor);
-                targets[x] = motor.getCurrentPosition() + (int) (signs[x] * distance * COUNTS_PER_INCH_OF_MOTOR);
-            }
             for (DcMotor motor: motors){
                 int x = Arrays.asList(motors).indexOf(motor);
-                motor.setTargetPosition(targets[x]);
-            }
-            for (DcMotor motor: motors){
-                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                if (signs[x] != 0) {
+                    motor.setTargetPosition(motor.getCurrentPosition() + (int) (signs[x] * distance * COUNTS_PER_INCH_OF_MOTOR));
+                    motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                }
             }
             runtime.reset();
 
-            for (DcMotor motor:motors){
-                motor.setPower(Math.abs(speed));
+            for (DcMotor motor: motors){
+                int x = Arrays.asList(motors).indexOf(motor);
+                if (signs[x] != 0) motor.setPower(signs[x] * Math.abs(speed));
             }
 
             // keep looping while we are still active, and there is time left, and both motors are running.
             boolean x = true;
-            while (central.opModeIsActive() &&
-                    (runtime.seconds() < timeoutS) &&
-                    (x)) {
-
+            while (central.opModeIsActive() && (runtime.seconds() < timeoutS) && (x)) {
                 // Display it for the driver.
                 // Allow time for other processes to run.
                 central.idle();
                 for (DcMotor motor: motors){
-                    if (!motor.isBusy()){
-                        x =false;
+                    int i = Arrays.asList(motors).indexOf(motor);
+                    if (!motor.isBusy() && signs[i] != 0){
+                        x = false;
                     }
                 }
             }
 
             // Stop all motion;
             for (DcMotor motor: motors){
-                motor.setPower(0);
+                int i = Arrays.asList(motors).indexOf(motor);
+                if (signs[i] != 0) motor.setPower(0);
             }
 
             // Turn off RUN_TO_POSITION
-            for (DcMotor motor: motors){
-                motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            for (DcMotor motor: motors) {
+                int i = Arrays.asList(motors).indexOf(motor);
+                if (signs[i] != 0) motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             }
             central.sleep(waitAfter);
         }
@@ -840,10 +836,10 @@ public class Goal {
     public enum movements
     {
         // FR FL BR BL
-        left(1, 1, -1, -1),
-        right(-1, -1, 1, 1),
         forward(1, -1, 1, -1),
         backward(-1, 1, -1, 1),
+        left(1, 1, -1, -1),
+        right(-1, -1, 1, 1),
         br(0, -1, 1, 0),
         bl(1, 0, 0, -1),
         tl(0, 1, -1, 0),
@@ -853,17 +849,7 @@ public class Goal {
         cwback(-1, -1, 0, 0),
         ccwback(1, 1, 0, 0),
         cwfront(0, 0, -1, -1),
-        ccwfront(0, 0, 1, 1),
-        linearUp(1),
-        linearDown(-1),
-        clawOut(-1),
-        clawIn(1),
-        shootForward(1, -1),
-        shootBackward(-1, 1),
-        feederForward(1, -1),
-        feederBackward(-1, 1);
-
-
+        ccwfront(0, 0, 1, 1);
 
         private final double[] directions;
 
