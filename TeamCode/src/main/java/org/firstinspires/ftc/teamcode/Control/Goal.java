@@ -40,6 +40,8 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_DEGREE_GOBILDA_30_RPM;
+import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_DEGREE_REV_CORE_HEX_MOTOR;
+import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_LINEAR_SLIDE_MOTOR;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_REV_CORE_HEX_MOTOR;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_GOBILDA_435_RPM;
 import static org.firstinspires.ftc.teamcode.Control.Constants.imuS;
@@ -53,6 +55,10 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.backUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.rightUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.leftUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.frontUltraS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.linearSlideS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.rotateS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.clawS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.carouselS;
 
 import static org.firstinspires.ftc.teamcode.Control.Constants.VUFORIA_KEY;
 import static org.firstinspires.ftc.teamcode.Control.Constants.mmPerInch;
@@ -111,6 +117,10 @@ public class Goal {
     public DcMotor motorBL;
     public DcMotor intake;
     public DcMotor pivot;
+    public DcMotor carousel;
+    public DcMotor linearSlide;
+    public Servo rotate;
+    public Servo claw;
 
     /** Set in motorDriveMode() for drivetrain movement functions **/
     public DcMotor[] drivetrain;
@@ -150,6 +160,12 @@ public class Goal {
                 case intake:
                     setupIntake();
                     break;
+                case linear_slide:
+                    setupLinearSlide();
+                    break;
+                case carousel:
+                    setupCarousel();
+                    break;
                 case ultra:
                     setupUltra();
                     break;
@@ -175,15 +191,17 @@ public class Goal {
 
     public void setupAuton() throws InterruptedException {
         setupDrivetrain();
-//        setupUltra();
         setupIntake();
+        setupLinearSlide();
+        setupCarousel();
         setupIMU();
     }
 
     public void setupTeleop() throws InterruptedException {
         setupDrivetrain();
-//        setupUltra();
         setupIntake();
+        setupLinearSlide();
+        setupCarousel();
         setupIMU();
     }
 
@@ -207,9 +225,6 @@ public class Goal {
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
     }
 
-
-
-
     public void setupDrivetrain() throws InterruptedException {
         motorFR = motor(motorFRS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
         motorFL = motor(motorFLS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
@@ -222,6 +237,16 @@ public class Goal {
     public void setupIntake() throws InterruptedException {
         intake = motor(intakeS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
         pivot = motor(pivotS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    public void setupLinearSlide() throws InterruptedException {
+        linearSlide = motor(linearSlideS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+        rotate = servo(rotateS, Servo.Direction.REVERSE, 0, 1, 0);
+        claw = servo(clawS, Servo.Direction.FORWARD, 0, 1, 0.05);
+    }
+
+    public void setupCarousel() throws InterruptedException {
+        carousel = motor(carouselS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void setupUltra() throws InterruptedException {
@@ -509,24 +534,51 @@ public class Goal {
     }
 
     public void moveIntakePivotDegrees(double speed, double degrees) {
+        moveSingleMotorUnits(speed, degrees, COUNTS_PER_DEGREE_GOBILDA_30_RPM, pivot);
+    }
+
+    public void moveLinearSlideDegrees(double speed, double degrees) {
+        moveSingleMotorUnits(speed, degrees, COUNTS_PER_DEGREE_REV_CORE_HEX_MOTOR, linearSlide);
+    }
+
+    public void moveLinearSlideInches(double speed, double inches) {
+        moveSingleMotorUnits(speed, inches, COUNTS_PER_INCH_LINEAR_SLIDE_MOTOR, linearSlide);
+    }
+
+    public void moveSingleMotorUnits(double speed, double degrees, double COUNTS_PER_UNIT, DcMotor motor) {
         int sign = speed < 0 || degrees < 0 ? -1 : 1;
-        pivot.setTargetPosition(pivot.getCurrentPosition() + (int) (sign * Math.abs(degrees) * COUNTS_PER_DEGREE_GOBILDA_30_RPM));
-        pivot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        pivot.setPower(sign * Math.abs(speed));
-        while (pivot.isBusy());
-        pivot.setPower(0);
+        motor.setTargetPosition(motor.getCurrentPosition() + (int) (sign * Math.abs(degrees) * COUNTS_PER_UNIT));
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motor.setPower(sign * Math.abs(speed));
+        while (motor.isBusy());
+        motor.setPower(0);
     }
 
     public void runIntakeTimeSpeed(double speed, long time) {
-        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intake.setPower(speed);
-        central.sleep(time);
-        intake.setPower(0);
+        runSingleMotorTimeSpeed(speed, time, intake, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void runIntakeSpeed(double speed) {
-        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intake.setPower(speed);
+        runSingleMotorSpeed(speed, intake, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    public void runCarouselTimeSpeed(double speed, long time) {
+        runSingleMotorTimeSpeed(speed, time, carousel, DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void runCarouselSpeed(double speed) {
+        runSingleMotorSpeed(speed, carousel, DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void runSingleMotorTimeSpeed(double speed, long time, DcMotor motor, DcMotor.RunMode runMode) {
+        runSingleMotorSpeed(speed, motor, runMode);
+        central.sleep(time);
+        motor.setPower(0);
+    }
+
+    public void runSingleMotorSpeed(double speed, DcMotor motor, DcMotor.RunMode runMode) {
+        motor.setMode(runMode);
+        motor.setPower(speed);
     }
 
     //------------------DRIVETRAIN TELEOP FUNCTIONS------------------------------------------------------------------------
@@ -538,12 +590,14 @@ public class Goal {
 
         }
     }
+
     public void driveTrainMovement(double... speed) throws InterruptedException {
 
         for (int i = 0; i < drivetrain.length; i++) {
             drivetrain[i].setPower(speed[i]);
         }
     }
+
     public void driveTrainTimeMovement(double speed, movements movement, long duration, long waitAfter) throws InterruptedException {
         double[] signs = movement.getDirections();
         for (DcMotor motor: drivetrain){
@@ -564,6 +618,7 @@ public class Goal {
 
         }
     }
+
     public void anyMovementTime(double speed, movements movement, long duration, DcMotor... motors) throws InterruptedException {
         double[] signs = movement.getDirections();
         for (DcMotor motor: motors){
@@ -577,18 +632,9 @@ public class Goal {
 
         }
     }
+
     public void stopDrivetrain() throws InterruptedException {
         for (DcMotor motor: drivetrain){
-            motor.setPower(0);
-        }
-    }
-
-    public void powerMotors(double speed, long time, DcMotor... motors) {
-        for (DcMotor motor : motors) {
-            motor.setPower(speed);
-        }
-        central.sleep(time);
-        for (DcMotor motor : motors) {
             motor.setPower(0);
         }
     }
@@ -816,7 +862,7 @@ public class Goal {
         ON, OFF;
     }
     public enum setupType{
-        autonomous, teleop, drivetrain_system, ultra, intake, imu, openCV;
+        autonomous, teleop, drivetrain_system, ultra, intake, linear_slide, carousel, imu, openCV;
     }
 
 
