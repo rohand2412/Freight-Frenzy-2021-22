@@ -282,4 +282,9 @@ public class Constants {
      * Claw servo name
      */
     public static final String clawS = "grab";
+
+    /**
+     * Carousel motor name
+     */
+    public static final String carouselS = "carousel";
 }
