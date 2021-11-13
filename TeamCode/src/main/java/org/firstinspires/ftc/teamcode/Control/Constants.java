@@ -134,6 +134,16 @@ public class Constants {
     public static final double WHEEL_DIAMETER_INCHES_REV_CORE_HEX_MOTOR = 1.25;
 
     /**
+     * Wheel Diameter of the wheel on the REV Core HEX Motor used on the linear slide
+     */
+    public static final double WHEEL_DIAMETER_MM_LINEAR_SLIDE_MOTOR = 31.75;
+
+    /**
+     * WHEEL_DIAMETER_MM_LINEAR_SLIDE_MOTOR converted to inches
+     */
+    public static final double WHEEL_DIAMETER_INCHES_LINEAR_SLIDE_MOTOR = WHEEL_DIAMETER_MM_LINEAR_SLIDE_MOTOR / mmPerInch;
+
+    /**
      * Counts per inch calculated of a GoBilda 312 RPM Motor
      */
     public static final double COUNTS_PER_INCH_GOBILDA_312_RPM = (COUNTS_PER_MOTOR_GOBILDA_312_RPM * DRIVE_GEAR_REDUCTION_GOBILDA_312_RPM) /
@@ -150,6 +160,11 @@ public class Constants {
      */
     public static final double COUNTS_PER_INCH_REV_CORE_HEX_MOTOR = (COUNTS_PER_MOTOR_REV_CORE_HEX_MOTOR * DRIVE_GEAR_REDUCTION_REV_CORE_HEX_MOTOR) /
             (WHEEL_DIAMETER_INCHES_REV_CORE_HEX_MOTOR * Math.PI);
+
+    /**
+     * Counts per inch calculated for linear slide REV Core HEX Motor
+     */
+    public static final double COUNTS_PER_INCH_LINEAR_SLIDE_MOTOR = COUNTS_PER_MOTOR_REV_CORE_HEX_MOTOR / (WHEEL_DIAMETER_INCHES_LINEAR_SLIDE_MOTOR * Math.PI);
 
     /**
      * Counts per degree calculated of REV Core HEX Motor
