@@ -570,6 +570,10 @@ public class Goal {
         runSingleMotorSpeed(speed, carousel, DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
+    public void moveLinearSlide(double speed) {
+        runSingleMotorSpeed(speed, linearSlide, DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
     public void runSingleMotorTimeSpeed(double speed, long time, DcMotor motor, DcMotor.RunMode runMode) {
         runSingleMotorSpeed(speed, motor, runMode);
         central.sleep(time);
