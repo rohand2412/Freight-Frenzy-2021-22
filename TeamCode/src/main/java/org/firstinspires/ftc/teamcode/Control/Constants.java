@@ -252,4 +252,19 @@ public class Constants {
     public static final String rightUltraS = "Right";
     public static final String leftUltraS = "Left";
     public static final String frontUltraS = "Front";
+
+    /**
+     * Linear Slide motor name
+     */
+    public static final String linearSlideS = "lift";
+
+    /**
+     * Servo located on the linear slide to rotate the claw
+     */
+    public static final String rotateS = "out";
+
+    /**
+     * Claw servo name
+     */
+    public static final String clawS = "grab";
 }
