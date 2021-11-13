@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.TestCode;
+package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,8 +12,8 @@ import org.firstinspires.ftc.teamcode.Control.Goal.movements;
 
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_DEGREE_REV_CORE_HEX_MOTOR;
 
-@Autonomous(name="FinalAuton", group="basic")
-public class FinalAuton extends AutonomousControl
+@Autonomous(name="BlueAuton", group="basic")
+public class BlueAuton extends AutonomousControl
 {
     @Override
     public void runOpMode() throws InterruptedException
