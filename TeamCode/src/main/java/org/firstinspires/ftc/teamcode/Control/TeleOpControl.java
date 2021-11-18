@@ -39,9 +39,14 @@ public abstract class TeleOpControl extends Central {
     public static float rt;
     public static float lt;
 
+    public static float rt2;
+    public static float lt2;
+
     public static boolean rb;
     public static boolean lb;
 
+    public static boolean rb2;
+    public static boolean lb2;
 
     public void standardGamepadData(){
 
@@ -88,8 +93,14 @@ public abstract class TeleOpControl extends Central {
         rt = Range.clip(Math.abs(gamepad1.right_trigger), 0, 1);
         lt = Range.clip(Math.abs(gamepad1.left_trigger), 0, 1);
 
+        rt2 = Range.clip(Math.abs(gamepad2.right_trigger), 0, 1);
+        lt2 = Range.clip(Math.abs(gamepad2.left_trigger), 0, 1);
+
         rb = gamepad1.right_bumper;
         lb = gamepad1.left_bumper;
+
+        rb2 = gamepad2.right_bumper;
+        lb2 = gamepad2.left_bumper;
     }
 
     public boolean validStick(double x, double y){
