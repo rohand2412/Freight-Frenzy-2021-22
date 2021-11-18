@@ -242,7 +242,7 @@ public class Goal {
     public void setupLinearSlide() throws InterruptedException {
         linearSlide = motor(linearSlideS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
         rotate = servo(rotateS, Servo.Direction.REVERSE, 0, 1, 0);
-        claw = servo(clawS, Servo.Direction.FORWARD, 0, 1, 0.05);
+        claw = servo(clawS, Servo.Direction.FORWARD, 0, 1, 0.025);
     }
 
     public void setupCarousel() throws InterruptedException {
