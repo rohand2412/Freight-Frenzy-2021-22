@@ -14,7 +14,11 @@ public abstract class Central extends LinearOpMode {
         this.rob = rob;
     }
 
-    public void setup(ElapsedTime rtime, Goal.setupType... setup) throws InterruptedException {
+    public void setup(ElapsedTime rtime, Goal.setupType... setupModes) throws InterruptedException {
+        setup(rtime, true, setupModes);
+    }
+
+    public void setup(ElapsedTime rtime, boolean waitAndStart, Goal.setupType... setup) throws InterruptedException {
         this.setRob(new Goal(hardwareMap, runtime, this, setup));
         setRuntime(rtime);
         /*if (rob.vuforiaMode){
@@ -23,10 +27,13 @@ public abstract class Central extends LinearOpMode {
         if (rob.tensorflowMode){
             rob.vuforia.tfod.activate();
         }*/
+
+        if (waitAndStart) { waitAndStart(); }
+    }
+
+    public void waitAndStart() throws InterruptedException {
         this.waitForStart();
         this.runtime.reset();
-
-
     }
 
     public void setRuntime(ElapsedTime runtime) {
