@@ -22,30 +22,7 @@ public class TestOpenCV extends AutonomousControl
     @Override
     public void runOpMode() throws InterruptedException
     {
-        setup(runtime, false, Goal.setupType.openCV);
-
-        rob.webcam.setPipeline(new OpenCvPipeline() {
-            @Override
-            public Mat processFrame(Mat input) {
-                return input;
-            }
-        });
-
-        rob.webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-        {
-            @Override
-            public void onOpened()
-            {
-                rob.webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
-            }
-
-            @Override
-            public void onError(int errorCode)
-            {
-            }
-        });
-
-        waitAndStart();
+        setup(runtime, Goal.setupType.openCV, Goal.setupType.webcamStream);
 
         while (opModeIsActive()) {}
     }
