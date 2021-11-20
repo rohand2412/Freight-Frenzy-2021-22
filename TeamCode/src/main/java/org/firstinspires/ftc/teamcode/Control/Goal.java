@@ -27,7 +27,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.opencv.core.Mat;
+import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.ArrayList;
@@ -154,6 +158,9 @@ public class Goal {
                 case openCV:
                     setupOpenCV();
                     break;
+                case webcamStream:
+                    setupWebcamStream();
+                    break;
             }
 
             //Update string with setup type
@@ -237,6 +244,29 @@ public class Goal {
     public void setupOpenCV() throws InterruptedException {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+    }
+
+    public void setupWebcamStream() throws InterruptedException {
+        webcam.setPipeline(new OpenCvPipeline() {
+            @Override
+            public Mat processFrame(Mat input) {
+                return input;
+            }
+        });
+
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        {
+            @Override
+            public void onOpened()
+            {
+                webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+            }
+
+            @Override
+            public void onError(int errorCode)
+            {
+            }
+        });
     }
 
     //-----------------------HARDWARE SETUP FUNCTIONS---------------------------------------
@@ -720,7 +750,7 @@ public class Goal {
         ON, OFF;
     }
     public enum setupType{
-        autonomous, teleop, drivetrain_system, ultra, intake, linear_slide, carousel, imu, openCV;
+        autonomous, teleop, drivetrain_system, ultra, intake, linear_slide, carousel, imu, openCV, webcamStream;
     }
 
 
