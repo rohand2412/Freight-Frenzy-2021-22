@@ -102,16 +102,7 @@ public class CurrentTeleop extends TeleOpControl
                 }
             }
 
-            if (drivetrainInUse && needToRaise) {
-                if (intakeToggle) {
-                    rob.moveIntakePivotDegrees(1, 70);
-                    alreadyLowered = false;
-                }
-                rob.runIntakeSpeed(0);
 
-                crawlMode = false;
-                needToRaise = false;
-            }
 
             if (rt > DEAD_ZONE_SIZE) {
                 if (intakeToggle) rob.runIntakeSpeed(-1);
@@ -141,16 +132,7 @@ public class CurrentTeleop extends TeleOpControl
                 rob.moveLinearSlide(0);
             }
 
-            if (gamepad1.a) {
-                if (intakeToggle) {
-                    rob.moveIntakePivotDegrees(1, 90);
-                    rob.runIntakeSpeed(0);
-                }
-                else {
-                    rob.moveIntakePivotDegrees(-1, -90);
-                }
-                intakeToggle = !intakeToggle;
-            }
+
 
             if (gamepad1.b) {
                 crawlMode = !crawlMode;
@@ -187,16 +169,6 @@ public class CurrentTeleop extends TeleOpControl
                 rob.runCarouselSpeed(0);
             }
 
-            if (gamepad2.dpad_down) {
-                int target = rob.pivot.getTargetPosition();
-                rob.moveIntakePivotDegrees(-0.1, -2);
-                rob.pivot.setTargetPosition(target);
-            }
-            else if (gamepad2.dpad_up) {
-                int target = rob.pivot.getTargetPosition();
-                rob.moveIntakePivotDegrees(0.1, 2);
-                rob.pivot.setTargetPosition(target);
-            }
 
             if (gamepad2.dpad_right) {
                 rob.claw.setPosition(0);
@@ -212,16 +184,7 @@ public class CurrentTeleop extends TeleOpControl
                 linearSlideUp = !linearSlideUp;
             }
 
-            if (gamepad2.a) {
-                if (!intakeToggle && !alreadyLowered) {
-                    rob.moveIntakePivotDegrees(-1, -70);
-                    alreadyLowered = true;
-                }
-                telemetry.update();
-                rob.runIntakeSpeed(0.65);
-                crawlMode = true;
-                needToRaise = true;
-            }
+
 
             if (gamepad2.y) {
                 rob.stopDrivetrain();

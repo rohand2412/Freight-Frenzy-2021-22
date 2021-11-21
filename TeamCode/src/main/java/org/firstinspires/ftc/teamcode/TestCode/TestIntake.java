@@ -16,13 +16,7 @@ public class TestIntake extends AutonomousControl
         //Suck in field objects
         rob.runIntakeTimeSpeed(-1, 4000);
 
-        //Raise Intake
-        rob.moveIntakePivotDegrees(1, 30);
-
         //Push out field objects
         rob.runIntakeTimeSpeed(1, 4000);
-
-        //Lower Intake
-        rob.moveIntakePivotDegrees(-1, -30);
     }
 }

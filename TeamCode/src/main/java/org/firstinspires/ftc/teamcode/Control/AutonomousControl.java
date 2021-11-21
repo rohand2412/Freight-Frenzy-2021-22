@@ -34,7 +34,6 @@ public abstract class AutonomousControl extends Central {
         rob.driveTrainEncoderMovement(speed, 6, timeoutS, waitAfter, Goal.movements.cw);
         rob.driveTrainEncoderMovement(speed, 14, timeoutS, waitAfter, Goal.movements.right);
         rob.driveTrainEncoderMovement(speed, 12, timeoutS, waitAfter, Goal.movements.forward);
-        rob.moveIntakePivotDegrees(-1, -85);
         rob.moveLinearSlideInches(-1, -1);
     }
 
@@ -66,7 +65,6 @@ public abstract class AutonomousControl extends Central {
         rob.driveTrainEncoderMovement(speed, 6, timeoutS, waitAfter, Goal.movements.ccw);
         rob.driveTrainEncoderMovement(speed, 28, timeoutS, waitAfter, Goal.movements.left);
         rob.driveTrainEncoderMovement(speed, 16, timeoutS, waitAfter, Goal.movements.forward);
-        rob.moveIntakePivotDegrees(-1, -85);
         rob.moveLinearSlideInches(-1, -1);
     }
 }

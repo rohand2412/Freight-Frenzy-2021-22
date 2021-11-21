@@ -54,14 +54,11 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.motorBRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.intakeS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.pivotS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.backUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.rightUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.leftUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.frontUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.linearSlideS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.rotateS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.clawS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.carouselS;
 
 import static org.firstinspires.ftc.teamcode.Control.Constants.VUFORIA_KEY;
@@ -99,7 +96,6 @@ public class Goal {
     public DcMotor motorBR;
     public DcMotor motorBL;
     public DcMotor intake;
-    public DcMotor pivot;
     public DcMotor carousel;
     public DcMotor linearSlide;
     public Servo rotate;
@@ -173,7 +169,7 @@ public class Goal {
         central.telemetry.update();
 
     }
-
+    //function setups based on autonomous
     public void setupAuton() throws InterruptedException {
         setupDrivetrain();
         setupIntake();
@@ -181,7 +177,7 @@ public class Goal {
         setupCarousel();
         setupIMU();
     }
-
+    //function setups based on manual control
     public void setupTeleop() throws InterruptedException {
         setupDrivetrain();
         setupIntake();
@@ -210,30 +206,32 @@ public class Goal {
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
     }
 
+    //sets each drivetrain motor to correct direction and makes it brake when no power given
     public void setupDrivetrain() throws InterruptedException {
         motorFR = motor(motorFRS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
         motorFL = motor(motorFLS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
         motorBR = motor(motorBRS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
-        motorBL = motor(motorBLS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+        motorBL = motor(motorBLS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
 
         motorDriveMode(EncoderMode.ON, motorFR, motorFL, motorBR, motorBL);
     }
 
+    //sets up the intake motors (intakeS), sets desired direction and brakes w/ no power
     public void setupIntake() throws InterruptedException {
         intake = motor(intakeS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
-        pivot = motor(pivotS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
+    //sets up components of linear slide, servos limited to 0-1 spin
     public void setupLinearSlide() throws InterruptedException {
         linearSlide = motor(linearSlideS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
-        rotate = servo(rotateS, Servo.Direction.REVERSE, 0, 1, 0);
-        claw = servo(clawS, Servo.Direction.FORWARD, 0, 1, 0.025);
     }
 
+    //sets motor responsible for spinning carousel
     public void setupCarousel() throws InterruptedException {
         carousel = motor(carouselS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
+    //ultrasonic sensors defined&setup
     public void setupUltra() throws InterruptedException {
 //        backUltrasonic = ultrasonicSensor(backUltraS);
         rightUltrasonic = ultrasonicSensor(rightUltraS);
@@ -241,11 +239,13 @@ public class Goal {
 //        leftUltrasonic = ultrasonicSensor(frontUltraS);
     }
 
+    //sets cam up
     public void setupOpenCV() throws InterruptedException {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
     }
 
+    //uses input from webcam and sets up video stream
     public void setupWebcamStream() throws InterruptedException {
         webcam.setPipeline(new OpenCvPipeline() {
             @Override
@@ -270,6 +270,8 @@ public class Goal {
     }
 
     //-----------------------HARDWARE SETUP FUNCTIONS---------------------------------------
+
+    //constructor to call in setup functions above for motors in drivetrain, intake, etc
     public DcMotor motor(String name, DcMotor.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior) throws InterruptedException {
         DcMotor motor = hardwareMap.dcMotor.get(name);
         motor.setDirection(direction);
@@ -278,6 +280,7 @@ public class Goal {
         return motor;
     }
 
+    //servo constructor for linear slide servo set up
     public Servo servo(String name, Servo.Direction direction, double min, double max, double start) throws InterruptedException {
         Servo servo = hardwareMap.servo.get(name);
         servo.setDirection(direction);
@@ -285,6 +288,8 @@ public class Goal {
         servo.setPosition(start);
         return servo;
     }
+
+    //constructor for servo with continuous rotation
     public CRServo servo(String name, DcMotorSimple.Direction direction, double startSpeed) throws InterruptedException {
         CRServo servo = hardwareMap.crservo.get(name);
         servo.setDirection(direction);
@@ -292,6 +297,7 @@ public class Goal {
         servo.setPower(startSpeed);
         return servo;
     }
+
     public ColorSensor colorSensor(String name, boolean ledOn) throws InterruptedException {
         ColorSensor sensor = hardwareMap.colorSensor.get(name);
         sensor.enableLed(ledOn);
@@ -301,6 +307,7 @@ public class Goal {
 
         return sensor;
     }
+    //creates ultrasonic sensor
     public ModernRoboticsI2cRangeSensor ultrasonicSensor(String name) throws InterruptedException {
 
         return hardwareMap.get(ModernRoboticsI2cRangeSensor.class, name);
@@ -318,6 +325,7 @@ public class Goal {
         return hardwareMap.get(ModernRoboticsAnalogOpticalDistanceSensor.class, name);
     }
 
+    //turns on encoder and sets up for conversions
     public void encoder(EncoderMode mode, DcMotor... motor) throws InterruptedException {
         switch (mode) {
             case ON:
@@ -334,7 +342,7 @@ public class Goal {
         }
 
     }
-
+    //
     public void motorDriveMode(EncoderMode mode, DcMotor... motor) throws InterruptedException {
 
         switch (mode) {
@@ -415,10 +423,6 @@ public class Goal {
             }
             central.sleep(waitAfter);
         }
-    }
-
-    public void moveIntakePivotDegrees(double speed, double degrees) {
-        moveSingleMotorUnits(speed, degrees, COUNTS_PER_DEGREE_GOBILDA_30_RPM, pivot);
     }
 
     public void moveLinearSlideDegrees(double speed, double degrees) {
