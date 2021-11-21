@@ -278,4 +278,19 @@ public class Constants {
      * Webcam name
      */
     public static final String webcamS = "Webcam 1";
+
+    /**
+     * Team Element TFLite model name
+     */
+    public static final String TFOD_MODEL_ASSET = "FTEDDv1.tflite";
+
+    /**
+     * Label for first object class
+     */
+    public static final String LABEL_FIRST_ELEMENT = "middle";
+
+    /**
+     * Label for second object class
+     */
+    public static final String LABEL_SECOND_ELEMENT = "right";
 }
