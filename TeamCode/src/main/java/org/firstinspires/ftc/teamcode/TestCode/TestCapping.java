@@ -5,8 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.Control.AutonomousControl;
 import org.firstinspires.ftc.teamcode.Control.Goal;
 
-@Autonomous(name="TestLinearSlide", group="basic")
-public class TestLinearSlide extends AutonomousControl
+@Autonomous(name="TestCapping", group="basic")
+public class TestCapping extends AutonomousControl
 {
     @Override
     public void runOpMode() throws InterruptedException
