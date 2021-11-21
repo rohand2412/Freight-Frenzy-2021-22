@@ -27,6 +27,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.opencv.core.Mat;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -48,6 +49,9 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_DEGREE
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_LINEAR_SLIDE_MOTOR;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_REV_CORE_HEX_MOTOR;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_GOBILDA_435_RPM;
+import static org.firstinspires.ftc.teamcode.Control.Constants.LABEL_FIRST_ELEMENT;
+import static org.firstinspires.ftc.teamcode.Control.Constants.LABEL_SECOND_ELEMENT;
+import static org.firstinspires.ftc.teamcode.Control.Constants.TFOD_MODEL_ASSET;
 import static org.firstinspires.ftc.teamcode.Control.Constants.imuS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBRS;
@@ -69,6 +73,7 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.mmFTCQuadFieldWid
 import static org.firstinspires.ftc.teamcode.Control.Constants.mmTargetHeight;
 import static org.firstinspires.ftc.teamcode.Control.Constants.CAMERA_CHOICE;
 import static org.firstinspires.ftc.teamcode.Control.Constants.PHONE_IS_PORTRAIT;
+import static org.firstinspires.ftc.teamcode.Control.Constants.webcamS;
 
 public class Goal {
 
@@ -89,6 +94,8 @@ public class Goal {
     public ModernRoboticsI2cRangeSensor frontUltrasonic;
 
     public OpenCvWebcam webcam;
+    public VuforiaLocalizer vuforia;
+    public TFObjectDetector tfod;
 
     /** ---------------------------- DRIVETRAIN ----------------------------- **/
     public DcMotor motorFR;
@@ -156,6 +163,12 @@ public class Goal {
                     break;
                 case webcamStream:
                     setupWebcamStream();
+                    break;
+                case vuforia:
+                    setupVuforia();
+                    break;
+                case tfod:
+                    setupTFOD();
                     break;
             }
 
@@ -267,6 +280,47 @@ public class Goal {
             {
             }
         });
+    }
+
+    public void setupVuforia() throws InterruptedException {
+        /*
+         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+         */
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+
+        parameters.cameraName = hardwareMap.get(WebcamName.class, webcamS);
+
+        //  Instantiate the Vuforia engine
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+    }
+
+    public void setupTFOD() throws InterruptedException {
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.98f;
+        tfodParameters.isModelTensorFlow2 = false;
+        tfodParameters.inputSize = 300;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+
+        /**
+         * Activate TensorFlow Object Detection before we wait for the start command.
+         * Do it here so that the Camera Stream window will have the TensorFlow annotations visible.
+         **/
+        if (tfod != null) {
+            tfod.activate();
+
+            // The TensorFlow software will scale the input images from the camera to a lower resolution.
+            // This can result in lower detection accuracy at longer distances (> 55cm or 22").
+            // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
+            // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
+            // should be set to the value of the images used to create the TensorFlow Object Detection model
+            // (typically 16/9).
+            tfod.setZoom(1.0, 1.0);
+        }
     }
 
     //-----------------------HARDWARE SETUP FUNCTIONS---------------------------------------
@@ -754,7 +808,7 @@ public class Goal {
         ON, OFF;
     }
     public enum setupType{
-        autonomous, teleop, drivetrain_system, ultra, intake, linear_slide, carousel, imu, openCV, webcamStream;
+        autonomous, teleop, drivetrain_system, ultra, intake, linear_slide, carousel, imu, openCV, webcamStream, vuforia, tfod;
     }
 
 
