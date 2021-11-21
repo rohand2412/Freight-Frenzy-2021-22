@@ -273,4 +273,9 @@ public class Constants {
      * Carousel motor name
      */
     public static final String carouselS = "carousel";
+
+    /**
+     * Webcam name
+     */
+    public static final String webcamS = "Webcam 1";
 }
