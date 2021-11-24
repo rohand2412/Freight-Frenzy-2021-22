@@ -52,7 +52,13 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_G
 import static org.firstinspires.ftc.teamcode.Control.Constants.LABEL_FIRST_ELEMENT;
 import static org.firstinspires.ftc.teamcode.Control.Constants.LABEL_SECOND_ELEMENT;
 import static org.firstinspires.ftc.teamcode.Control.Constants.TFOD_MODEL_ASSET;
+import static org.firstinspires.ftc.teamcode.Control.Constants.cappingClawS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.cappingLinearSlideS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.cappingPivotS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.imuS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.intakeClawS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.intakeLinearSlideS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.intakePivotS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFLS;
@@ -62,7 +68,6 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.backUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.rightUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.leftUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.frontUltraS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.linearSlideS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.carouselS;
 
 import static org.firstinspires.ftc.teamcode.Control.Constants.VUFORIA_KEY;
@@ -103,10 +108,13 @@ public class Goal {
     public DcMotor motorBR;
     public DcMotor motorBL;
     public DcMotor intake;
+    public DcMotor intakeLinearSlide;
+    public Servo intakePivot;
+    public Servo intakeClaw;
+    public DcMotor cappingLinearSlide;
+    public Servo cappingPivot;
+    public Servo cappingClaw;
     public DcMotor carousel;
-    public DcMotor linearSlide;
-    public Servo rotate;
-    public Servo claw;
 
     /** Set in motorDriveMode() for drivetrain movement functions **/
     public DcMotor[] drivetrain;
@@ -146,8 +154,8 @@ public class Goal {
                 case intake:
                     setupIntake();
                     break;
-                case linear_slide:
-                    setupLinearSlide();
+                case capping:
+                    setupCapping();
                     break;
                 case carousel:
                     setupCarousel();
@@ -186,17 +194,19 @@ public class Goal {
     public void setupAuton() throws InterruptedException {
         setupDrivetrain();
         setupIntake();
-        setupLinearSlide();
+        setupCapping();
         setupCarousel();
-        setupIMU();
+        setupVuforia();
+        setupTFOD();
     }
     //function setups based on manual control
     public void setupTeleop() throws InterruptedException {
         setupDrivetrain();
         setupIntake();
-        setupLinearSlide();
+        setupCapping();
         setupCarousel();
-        setupIMU();
+        setupVuforia();
+        setupTFOD();
     }
 
     public void setupIMU() throws InterruptedException {
@@ -231,12 +241,16 @@ public class Goal {
 
     //sets up the intake motors (intakeS), sets desired direction and brakes w/ no power
     public void setupIntake() throws InterruptedException {
-        intake = motor(intakeS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
+        intake = motor(intakeS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeLinearSlide = motor(intakeLinearSlideS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+        intakePivot = servo(intakePivotS, Servo.Direction.REVERSE, 0, 1, 0);
+        intakeClaw = servo(intakeClawS, Servo.Direction.FORWARD, 0.083, 0.1525, 0);
     }
 
-    //sets up components of linear slide, servos limited to 0-1 spin
-    public void setupLinearSlide() throws InterruptedException {
-        linearSlide = motor(linearSlideS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+    public void setupCapping() throws InterruptedException {
+        cappingLinearSlide = motor(cappingLinearSlideS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+        cappingPivot = servo(cappingPivotS, Servo.Direction.REVERSE, 0, 1, 0.2);
+        cappingClaw = servo(cappingClawS, Servo.Direction.FORWARD, 0, 1, 0.04);
     }
 
     //sets motor responsible for spinning carousel
@@ -300,7 +314,7 @@ public class Goal {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.98f;
+        tfodParameters.minResultConfidence = 0.8f;
         tfodParameters.isModelTensorFlow2 = false;
         tfodParameters.inputSize = 300;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
@@ -479,11 +493,11 @@ public class Goal {
         }
     }
 
-    public void moveLinearSlideDegrees(double speed, double degrees) {
+    public void moveLinearSlideDegrees(double speed, double degrees, DcMotor linearSlide) {
         moveSingleMotorUnits(speed, degrees, COUNTS_PER_DEGREE_REV_CORE_HEX_MOTOR, linearSlide);
     }
 
-    public void moveLinearSlideInches(double speed, double inches) {
+    public void moveLinearSlideInches(double speed, double inches, DcMotor linearSlide) {
         moveSingleMotorUnits(speed, inches, COUNTS_PER_INCH_LINEAR_SLIDE_MOTOR, linearSlide);
     }
 
@@ -512,7 +526,7 @@ public class Goal {
         runSingleMotorSpeed(speed, carousel, DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void moveLinearSlide(double speed) {
+    public void moveLinearSlide(double speed, DcMotor linearSlide) {
         runSingleMotorSpeed(speed, linearSlide, DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
@@ -808,7 +822,7 @@ public class Goal {
         ON, OFF;
     }
     public enum setupType{
-        autonomous, teleop, drivetrain_system, ultra, intake, linear_slide, carousel, imu, openCV, webcamStream, vuforia, tfod;
+        autonomous, teleop, drivetrain_system, ultra, intake, capping, carousel, imu, openCV, webcamStream, vuforia, tfod;
     }
 
 
