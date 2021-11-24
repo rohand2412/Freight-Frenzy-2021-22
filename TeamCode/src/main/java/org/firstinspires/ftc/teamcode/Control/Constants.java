@@ -246,11 +246,6 @@ public class Constants {
     public static final String motorBLS = "motorBL";
 
     /**
-     *
-     */
-    public static final String intakeS = "intake";
-
-    /**
      * IMU name
      */
     public static final String imuS = "imu";
@@ -264,10 +259,39 @@ public class Constants {
     public static final String frontUltraS = "Front";
 
     /**
-     * Linear Slide motor name
+     * Intake motor name
      */
-    public static final String linearSlideS = "lift";
+    public static final String intakeS = "intake";
 
+    /**
+     * Intake Linear Slide motor name
+     */
+    public static final String intakeLinearSlideS = "intakeLift";
+
+    /**
+     * Intake Claw Pivot servo name
+     */
+    public static final String intakePivotS = "intakePivot";
+
+    /**
+     * Intake Claw servo name
+     */
+    public static final String intakeClawS = "intakeClaw";
+
+    /**
+     * Capping Linear Slide motor name
+     */
+    public static final String cappingLinearSlideS = "lift";
+
+    /**
+     * Capping Claw Pivot servo name
+     */
+    public static final String cappingPivotS = "out";
+
+    /**
+     * Capping Claw servo name
+     */
+    public static final String cappingClawS = "claw";
 
     /**
      * Carousel motor name
