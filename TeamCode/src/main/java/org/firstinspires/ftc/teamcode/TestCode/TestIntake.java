@@ -13,10 +13,16 @@ public class TestIntake extends AutonomousControl
     {
         setup(runtime, Goal.setupType.intake);
 
-        //Suck in field objects
-        rob.runIntakeTimeSpeed(-1, 4000);
+        rob.intakeClaw.setPosition(0);
 
-        //Push out field objects
-        rob.runIntakeTimeSpeed(1, 4000);
+//        //Suck in field objects
+        rob.runIntakeTimeSpeed(-1, 4000);
+//
+//        //Push out field objects
+//        rob.runIntakeTimeSpeed(1, 4000);
+
+        rob.intakeClaw.setPosition(1);
+//        rob.cappingPivot.setPosition(0.65);
+        sleep(2000);
     }
 }
