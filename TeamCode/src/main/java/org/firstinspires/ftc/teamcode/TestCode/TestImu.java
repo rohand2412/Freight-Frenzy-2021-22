@@ -15,7 +15,7 @@ public class TestImu extends AutonomousControl
         waitForStart();
 
         while (opModeIsActive()) {
-            telemetry.addLine(rob.getUpdatedYaw() + "");
+            telemetry.addLine(rob.getYaw() + "");
             telemetry.update();
         }
     }
