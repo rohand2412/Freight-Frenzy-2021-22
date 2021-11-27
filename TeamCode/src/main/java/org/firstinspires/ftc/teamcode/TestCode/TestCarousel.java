@@ -13,6 +13,7 @@ public class TestCarousel extends AutonomousControl
     {
         setup(runtime, Goal.setupType.carousel);
 
-        rob.runCarouselTimeSpeed(1, 5000);
+        rob.runCarouselLeftTimeSpeed(1, 5000);
+        rob.runCarouselRightTimeSpeed(1, 5000);
     }
 }

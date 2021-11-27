@@ -4,7 +4,6 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import java.util.List;
 import static org.firstinspires.ftc.teamcode.Control.Constants.LABEL_FIRST_ELEMENT;
 import static org.firstinspires.ftc.teamcode.Control.Constants.LABEL_SECOND_ELEMENT;
-import static org.firstinspires.ftc.teamcode.Control.Constants.cappingLinearSlideS;
 
 public abstract class AutonomousControl extends Central {
     static double speed = 0.5;
@@ -20,7 +19,8 @@ public abstract class AutonomousControl extends Central {
             rob.driveTrainEncoderMovement(speed, 20, timeoutS, waitAfter, Goal.movements.cw);
             rob.driveTrainEncoderMovement(speed, 25, timeoutS, waitAfter, Goal.movements.forward);
             rob.driveTrainEncoderMovement(speed, 7, timeoutS, waitAfter, Goal.movements.right);
-            rob.runCarouselTimeSpeed(0.25, 6000);
+            rob.runCarouselLeftTimeSpeed(0.25, 6000);
+            rob.runCarouselRightTimeSpeed(0.25, 6000);
             rob.driveTrainEncoderMovement(speed, 60, timeoutS, waitAfter, Goal.movements.backward);
             rob.driveTrainEncoderMovement(speed, 20, timeoutS, waitAfter, Goal.movements.ccw);
             rob.cappingPivot.setPosition(0.65);
@@ -55,7 +55,8 @@ public abstract class AutonomousControl extends Central {
         if (doingCarousel) {
             rob.driveTrainEncoderMovement(speed, 40, timeoutS, waitAfter, Goal.movements.right);
             rob.driveTrainEncoderMovement(speed, 0.5, timeoutS, waitAfter, Goal.movements.forward);
-            rob.runCarouselTimeSpeed(-0.25, 6000);
+            rob.runCarouselLeftTimeSpeed(-0.25, 6000);
+            rob.runCarouselRightTimeSpeed(-0.25, 6000);
             rob.driveTrainEncoderMovement(speed, 75, timeoutS, waitAfter, Goal.movements.left);
             rob.cappingPivot.setPosition(0.65);
             rob.moveLinearSlideInches(1, location.getLinearSlideInches(), rob.cappingLinearSlide);
