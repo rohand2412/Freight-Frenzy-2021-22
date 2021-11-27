@@ -14,5 +14,7 @@ public class TestImuTurn extends AutonomousControl
         setup(runtime, Goal.setupType.autonomous);
 
         rob.turn(0.5, 90, Goal.axis.center);
+        sleep(1000);
+        rob.turn(0.5, -180, Goal.axis.center);
     }
 }
