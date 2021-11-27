@@ -110,7 +110,14 @@ public class Goal {
 
     /** IMU params **/
     public Orientation angles;
-    public double yaw;
+    public double yaw = 0;
+    public double yawRaw = 0;
+    public double lastYawRaw = 0;
+    public final double overflowThreshold = 300;
+    public final double fullCircleDeg = 360;
+
+    public final double turnOffsetPositive = 25;
+    public final double turnOffsetNegative = 16;
 
     /** Temp variables **/
     public static boolean isnotstopped;
@@ -175,6 +182,7 @@ public class Goal {
     }
     //function setups based on autonomous
     public void setupAuton() throws InterruptedException {
+        setupIMU();
         setupDrivetrain();
         setupIntake();
         setupCarousel();
@@ -183,6 +191,7 @@ public class Goal {
     }
     //function setups based on manual control
     public void setupTeleop() throws InterruptedException {
+        setupIMU();
         setupDrivetrain();
         setupIntake();
         setupCarousel();
@@ -387,13 +396,30 @@ public class Goal {
     }
 
     //IMU Utilities
-    public double getUpdatedYaw() {
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        return getYaw();
-    }
-
     public double getYaw() {
-        yaw = AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(angles.angleUnit, angles.firstAngle));
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        yawRaw = -AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(angles.angleUnit, angles.firstAngle));
+
+        //Check if delta raw readings is greater than threshold
+        if (yawRaw - lastYawRaw > overflowThreshold)
+        {
+            //Detect and revert overflow
+            yaw -= fullCircleDeg;
+        }
+        //Check if delta raw readings is less than negative threshold
+        else if (yawRaw - lastYawRaw < -overflowThreshold)
+        {
+            //Detect and revert overflow
+            yaw += fullCircleDeg;
+        }
+
+        //Add delta to current software sensor data
+        yaw += yawRaw - lastYawRaw;
+
+        //Save reading as old reading
+        lastYawRaw = yawRaw;
+
+        //return overflow protected yaw
         return yaw;
     }
 
@@ -545,7 +571,7 @@ public class Goal {
 
     // IMU Movements
     public void turn(double speed, double degrees, axis rotationAxis) throws InterruptedException {
-        double startAngle = getUpdatedYaw();
+        double startAngle = getYaw();
 
         switch (rotationAxis) {
             case center:
@@ -559,16 +585,10 @@ public class Goal {
                 break;
         }
 
-        while (central.opModeIsActive() && degrees > 0 ? getUpdatedYaw() - startAngle < degrees : getUpdatedYaw() - startAngle > degrees);
-        stopDrivetrain();
-    }
+        if (Math.abs(degrees) > Math.max(turnOffsetPositive, turnOffsetNegative)) while (central.opModeIsActive() && degrees > 0 ? getYaw() - startAngle < degrees - turnOffsetPositive : getYaw() - startAngle > degrees + turnOffsetNegative);
+        else while (central.opModeIsActive() && degrees > 0 ? getYaw() - startAngle < degrees : getYaw() - startAngle > degrees);
 
-    public double calculateDifferenceBetweenAngles(double firstAngle, double secondAngle) // negative is secondAngle ccw relative to firstAngle
-    {
-        double difference = secondAngle - firstAngle;
-        while (difference < -180) difference += 360;
-        while (difference > 180) difference -= 360;
-        return -difference;
+        stopDrivetrain();
     }
 
     public double getDirection(){
