@@ -126,7 +126,7 @@ public class CurrentTeleop extends TeleOpControl
             }
             else if (gamepad1.a && intakeUp) {
                 rob.intakeClaw.setPosition(0);
-                rob.driveTrainEncoderMovement(0.5, 6, 10000, 0, Goal.movements.backward);
+                rob.driveTrainEncoderMovement(0.5, 6, Goal.movements.backward);
                 rob.intakePivot.setPosition(0);
                 rob.moveLinearSlideInches(1, -8, rob.intakeLinearSlide);
                 crawlMode = false;

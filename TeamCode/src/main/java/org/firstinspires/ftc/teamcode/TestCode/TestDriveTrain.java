@@ -22,13 +22,13 @@ public class TestDriveTrain extends AutonomousControl
 
         //Test each motor individually (FR, FL, BR, BL)
         for (DcMotor motor : rob.drivetrain) {
-            rob.driveTrainEncoderMovementSpecific435Motors(0.7, 12, 10000, 0, Goal.movements.forward, motor);
+            rob.driveTrainEncoderMovementSpecific435Motors(0.7, 12, Goal.movements.forward, motor);
             sleep(1000);
         }
 
         //Test each movement individually
         for (movements movement : movements.values()) {
-            rob.driveTrainEncoderMovement(0.7, 12, 10000, 0, movement);
+            rob.driveTrainEncoderMovement(0.7, 12, movement);
             sleep(1000);
         }
     }
