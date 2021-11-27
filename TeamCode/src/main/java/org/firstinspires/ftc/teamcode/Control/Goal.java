@@ -235,7 +235,7 @@ public class Goal {
 //        backUltrasonic = ultrasonicSensor(backUltraS);
         rightUltrasonic = ultrasonicSensor(rightUltraS);
         frontUltrasonic = ultrasonicSensor(leftUltraS);
-//        leftUltrasonic = ultrasonicSensor(frontUltraS);
+        leftUltrasonic = ultrasonicSensor(frontUltraS);
     }
 
     //sets cam up
