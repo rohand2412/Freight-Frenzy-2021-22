@@ -4,14 +4,17 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.Control.AutonomousControl;
 import org.firstinspires.ftc.teamcode.Control.Goal;
 
-@Autonomous(name="RedAuton_NoCarousel_Far_Shallow", group="basic")
-public class RedAuton_NoCarousel_Far_Shallow extends AutonomousControl
+@Autonomous(name="BlueAuton_Carousel_Close_Deep", group="basic")
+public class BlueAuton_Carousel_Close_Deep extends AutonomousControl
 {
     @Override
     public void runOpMode() throws InterruptedException
     {
-        setup(runtime, Goal.setupType.autonomous);
+        setup(runtime, false, Goal.setupType.autonomous);
 
-        if (opModeIsActive()) red(false, false, true);
+        determineLocation(true);
+        waitAndStart();
+
+        if (opModeIsActive()) blue(true, true, false);
     }
 }
