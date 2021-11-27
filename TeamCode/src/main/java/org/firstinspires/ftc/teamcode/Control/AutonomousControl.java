@@ -17,8 +17,7 @@ public abstract class AutonomousControl extends Central {
             rob.driveTrainEncoderMovement(speed, 20, Goal.movements.cw);
             rob.driveTrainEncoderMovement(speed, 25, Goal.movements.forward);
             rob.driveTrainEncoderMovement(speed, 7, Goal.movements.right);
-            rob.runCarouselLeftTimeSpeed(0.25, 6000);
-            rob.runCarouselRightTimeSpeed(0.25, 6000);
+            rob.runCarouselsTimeSpeed(0.25, 6000);
             rob.driveTrainEncoderMovement(speed, 60, Goal.movements.backward);
             rob.driveTrainEncoderMovement(speed, 20, Goal.movements.ccw);
             rob.cappingPivot.setPosition(0.65);
@@ -53,8 +52,7 @@ public abstract class AutonomousControl extends Central {
         if (doingCarousel) {
             rob.driveTrainEncoderMovement(speed, 40, Goal.movements.right);
             rob.driveTrainEncoderMovement(speed, 0.5, Goal.movements.forward);
-            rob.runCarouselLeftTimeSpeed(-0.25, 6000);
-            rob.runCarouselRightTimeSpeed(-0.25, 6000);
+            rob.runCarouselsTimeSpeed(-0.25, 6000);
             rob.driveTrainEncoderMovement(speed, 75, Goal.movements.left);
             rob.cappingPivot.setPosition(0.65);
             rob.moveLinearSlideInches(1, location.getLinearSlideInches(), rob.cappingLinearSlide);

@@ -13,6 +13,6 @@ public class TestImuTurn extends AutonomousControl
     {
         setup(runtime, Goal.setupType.autonomous);
 
-        rob.turn(90, Goal.turnside.cw, 0.5, Goal.axis.center);
+        rob.turn(0.5, 90, Goal.axis.center);
     }
 }

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.TestCode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Control.AutonomousControl;
 import org.firstinspires.ftc.teamcode.Control.Goal;
@@ -13,7 +14,6 @@ public class TestCarousel extends AutonomousControl
     {
         setup(runtime, Goal.setupType.carousel);
 
-        rob.runCarouselLeftTimeSpeed(1, 5000);
-        rob.runCarouselRightTimeSpeed(1, 5000);
+        rob.runCarouselsTimeSpeed(-0.9, 5000);
     }
 }

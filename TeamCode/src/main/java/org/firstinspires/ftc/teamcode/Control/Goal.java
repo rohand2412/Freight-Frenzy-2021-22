@@ -99,6 +99,9 @@ public class Goal {
     public DcMotor carouselRight;
     public DcMotor carouselLeft;
 
+    double carouselTele = 0.9;
+    double carouselAuton = 0.6;
+
     /** Set in motorDriveMode() for drivetrain movement functions **/
     public DcMotor[] drivetrain;
 
@@ -485,30 +488,30 @@ public class Goal {
         while (motor.isBusy());
         motor.setPower(0);
     }
+
     //runs intake motor at certain speed for set time
     public void runIntakeTimeSpeed(double speed, long time) {
         runSingleMotorTimeSpeed(speed, time, intake, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
+
     //runs intake motor without set time but w set speed
     public void runIntakeSpeed(double speed) {
         runSingleMotorSpeed(speed, intake, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
+
     //turns on left carousel motor at certain speed for set time
-    public void runCarouselLeftTimeSpeed(double speed, long time) {
-        runSingleMotorTimeSpeed(speed, time, carouselLeft, DcMotor.RunMode.RUN_USING_ENCODER);
+    public void runCarouselsTimeSpeed(double speed, long time) {
+        runCarouselsSpeed(speed);
+        central.sleep(time);
+        runCarouselsSpeed(0);
     }
+
     //turns on left carousel motor without set time but w set speed
-    public void runCarouselLeftSpeed(double speed) {
+    public void runCarouselsSpeed(double speed) {
+        runSingleMotorSpeed(speed, carouselRight, DcMotor.RunMode.RUN_USING_ENCODER);
         runSingleMotorSpeed(speed, carouselLeft, DcMotor.RunMode.RUN_USING_ENCODER);
     }
-    //turns on right carousel motor at certain speed for set time
-    public void runCarouselRightTimeSpeed(double speed, long time) {
-        runSingleMotorTimeSpeed(speed, time, carouselRight, DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-    //turns on right carousel motor without set time but w set speed
-    public void runCarouselRightSpeed(double speed) {
-        runSingleMotorSpeed(speed, carouselRight, DcMotor.RunMode.RUN_USING_ENCODER);
-    }
+
     //moves linearside motor at a speed
     public void moveLinearSlide(double speed, DcMotor linearSlide) {
         runSingleMotorSpeed(speed, linearSlide, DcMotor.RunMode.RUN_USING_ENCODER);
