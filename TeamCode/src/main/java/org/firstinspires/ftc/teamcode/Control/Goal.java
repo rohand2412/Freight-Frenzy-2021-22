@@ -213,7 +213,7 @@ public class Goal {
         motorBR = motor(motorBRS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
         motorBL = motor(motorBLS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
 
-        motorDriveMode(EncoderMode.ON, motorFR, motorFL, motorBR, motorBL);
+        setDriveTrain(EncoderMode.ON, motorFR, motorFL, motorBR, motorBL);
     }
 
     //sets up the intake motors (intakeS), sets desired direction and brakes w/ no power
@@ -397,8 +397,7 @@ public class Goal {
     //Drivetrain Utilities
 
     //uses encoders and adds motors to drivetrain
-    public void motorDriveMode(EncoderMode mode, DcMotor... motor) throws InterruptedException {
-
+    public void setDriveTrain(EncoderMode mode, DcMotor... motor) throws InterruptedException {
         switch (mode) {
             case ON:
                 for (DcMotor i : motor) {
@@ -414,68 +413,59 @@ public class Goal {
         }
 
         this.drivetrain = motor;
-
     }
 
-    public void driveTrainEncoderMovement(double speed, double distance, double timeoutS, long waitAfter, movements movement) throws InterruptedException {
-        driveTrainEncoderMovementSpecific435Motors(speed, distance, timeoutS, waitAfter, movement, drivetrain);
+    public void setDriveTrainRunMode(DcMotor.RunMode runMode, DcMotor... motors) throws InterruptedException {
+        for (DcMotor motor: motors) motor.setMode(runMode);
     }
 
-    public void driveTrainEncoderMovementSpecific435Motors(double speed, double distance, double timeoutS, long waitAfter, movements movement, DcMotor... motors) throws InterruptedException {
-        driveTrainEncoderMovementSpecificMotorsTypes(speed, distance, timeoutS, waitAfter, movement, COUNTS_PER_INCH_GOBILDA_435_RPM, motors);
+    public void driveTrainEncoderMovement(double speed, double distance, movements movement) throws InterruptedException {
+        driveTrainEncoderMovementSpecific435Motors(speed, distance, movement, drivetrain);
     }
 
-    public void driveTrainEncoderMovementCoreHexMotors(double speed, double distance, double timeoutS, long waitAfter, movements movement, DcMotor... motors) throws InterruptedException {
-        driveTrainEncoderMovementSpecificMotorsTypes(speed, distance, timeoutS, waitAfter, movement, COUNTS_PER_INCH_REV_CORE_HEX_MOTOR, motors);
+    public void driveTrainEncoderMovementSpecific435Motors(double speed, double distance, movements movement, DcMotor... motors) throws InterruptedException {
+        driveTrainEncoderMovementSpecificMotorsTypes(speed, distance, movement, COUNTS_PER_INCH_GOBILDA_435_RPM, motors);
     }
 
-    public void driveTrainEncoderMovementSpecificMotorsTypes(double speed, double distance, double timeoutS, long waitAfter, movements movement, double COUNTS_PER_INCH_OF_MOTOR, DcMotor... motors) throws InterruptedException {
+    public void driveTrainEncoderMovementSpecificCoreHexMotors(double speed, double distance, movements movement, DcMotor... motors) throws InterruptedException {
+        driveTrainEncoderMovementSpecificMotorsTypes(speed, distance, movement, COUNTS_PER_INCH_REV_CORE_HEX_MOTOR, motors);
+    }
+
+    public void driveTrainEncoderMovementSpecificMotorsTypes(double speed, double distance, movements movement, double COUNTS_PER_INCH_OF_MOTOR, DcMotor... motors) throws InterruptedException {
         double[] signs = movement.getDirections();
 
         // Ensure that the opmode is still active
         if (central.opModeIsActive()) {
+
             // Determine new target position, and pass to motor controller
-
             for (DcMotor motor: motors){
                 int x = Arrays.asList(motors).indexOf(motor);
-                if (signs[x] != 0) {
-                    motor.setTargetPosition(motor.getCurrentPosition() + (int) (signs[x] * distance * COUNTS_PER_INCH_OF_MOTOR));
-                    motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                }
+                if (signs[x] != 0) motor.setTargetPosition(motor.getCurrentPosition() + (int) (signs[x] * distance * COUNTS_PER_INCH_OF_MOTOR));
             }
-            runtime.reset();
+            setDriveTrainRunMode(DcMotor.RunMode.RUN_TO_POSITION, drivetrain);
+            driveTrainMovement(speed, movement);
 
-            for (DcMotor motor: motors){
-                int x = Arrays.asList(motors).indexOf(motor);
-                if (signs[x] != 0) motor.setPower(signs[x] * Math.abs(speed));
-            }
+            // keep looping while we are still active and both motors are running.
+            boolean drivetrainIsBusy = true;
+            while (central.opModeIsActive() && drivetrainIsBusy) {
 
-            // keep looping while we are still active, and there is time left, and both motors are running.
-            boolean x = true;
-            while (central.opModeIsActive() && (runtime.seconds() < timeoutS) && (x)) {
                 // Display it for the driver.
                 // Allow time for other processes to run.
                 central.idle();
+
                 for (DcMotor motor: motors){
                     int i = Arrays.asList(motors).indexOf(motor);
-                    if (!motor.isBusy() && signs[i] != 0){
-                        x = false;
+                    if (!motor.isBusy() && signs[i] != 0) {
+                        drivetrainIsBusy = false;
                     }
                 }
             }
 
             // Stop all motion;
-            for (DcMotor motor: motors){
-                int i = Arrays.asList(motors).indexOf(motor);
-                if (signs[i] != 0) motor.setPower(0);
-            }
+            stopDrivetrain();
 
             // Turn off RUN_TO_POSITION
-            for (DcMotor motor: motors) {
-                int i = Arrays.asList(motors).indexOf(motor);
-                if (signs[i] != 0) motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            }
-            central.sleep(waitAfter);
+            setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER, drivetrain);
         }
     }
     //angles linear slide set degrees w set speed using its mottor
@@ -540,50 +530,7 @@ public class Goal {
         double[] signs = movement.getDirections();
         for (DcMotor motor: drivetrain){
             int x = Arrays.asList(drivetrain).indexOf(motor);
-            motor.setPower(signs[x] * speed);
-
-        }
-    }
-
-    public void driveTrainMovement(double... speed) throws InterruptedException {
-
-        for (int i = 0; i < drivetrain.length; i++) {
-            drivetrain[i].setPower(speed[i]);
-        }
-    }
-
-    public void driveTrainTimeMovement(double speed, movements movement, long duration, long waitAfter) throws InterruptedException {
-        double[] signs = movement.getDirections();
-        for (DcMotor motor: drivetrain){
-            int x = Arrays.asList(drivetrain).indexOf(motor);
-            motor.setPower(signs[x] * speed);
-
-        }
-        central.sleep(duration);
-        stopDrivetrain();
-        central.sleep(waitAfter);
-    }
-
-    public void anyMovement(double speed, movements movement, DcMotor... motors) throws InterruptedException {
-        double[] signs = movement.getDirections();
-        for (DcMotor motor: motors){
-            int x = Arrays.asList(motors).indexOf(motor);
-            motor.setPower(signs[x] * speed);
-
-        }
-    }
-
-    public void anyMovementTime(double speed, movements movement, long duration, DcMotor... motors) throws InterruptedException {
-        double[] signs = movement.getDirections();
-        for (DcMotor motor: motors){
-            int x = Arrays.asList(motors).indexOf(motor);
-            motor.setPower(signs[x] * speed);
-
-        }
-        central.sleep(duration);
-        for (DcMotor motor: motors){
-            motor.setPower(0);
-
+            if (signs[x] != 0) motor.setPower(signs[x] * Math.abs(speed));
         }
     }
 
@@ -656,12 +603,12 @@ public class Goal {
         bl(1, 0, 0, -1),
         tl(0, 1, -1, 0),
         tr(-1, 0, 0, 1),
-        ccw(-1, -1, -1, -1),
-        cw(1, 1, 1, 1),
-        cwback(-1, -1, 0, 0),
-        ccwback(1, 1, 0, 0),
-        cwfront(0, 0, -1, -1),
-        ccwfront(0, 0, 1, 1);
+        cw(-1, -1, -1, -1),
+        ccw(1, 1, 1, 1),
+        cwfront(-1, -1, 0, 0),
+        ccwfront(1, 1, 0, 0),
+        cwback(0, 0, -1, -1),
+        ccwback(0, 0, 1, 1);
 
         private final double[] directions;
 
