@@ -91,13 +91,16 @@ public class CurrentTeleop extends TeleOpControl
             }
 
             if (rt2 > 0.05) {
-                rob.runCarouselSpeed(rt2 > carouselSpeed ? carouselSpeed : rt2);
+                rob.runCarouselLeftSpeed(rt2 > carouselSpeed ? carouselSpeed : rt2);
+                rob.runCarouselRightSpeed(rt2 > carouselSpeed ? carouselSpeed : rt2);
             }
             else if (lt2 > 0.05) {
-                rob.runCarouselSpeed(-(lt2 > carouselSpeed ? carouselSpeed : lt2));
+                rob.runCarouselLeftSpeed(-(lt2 > carouselSpeed ? carouselSpeed : lt2));
+                rob.runCarouselRightSpeed(-(lt2 > carouselSpeed ? carouselSpeed : lt2));
             }
             else {
-                rob.runCarouselSpeed(0);
+                rob.runCarouselLeftSpeed(0);
+                rob.runCarouselRightSpeed(0);
             }
 
             if (rb2) {
@@ -137,7 +140,8 @@ public class CurrentTeleop extends TeleOpControl
                 sleep(250);
 //                rob.moveLinearSlide(0);
                 sleep(250);
-                rob.runCarouselSpeed(0);
+                rob.runCarouselLeftSpeed(0);
+                rob.runCarouselRightSpeed(0);
                 sleep(250);
             }
         }

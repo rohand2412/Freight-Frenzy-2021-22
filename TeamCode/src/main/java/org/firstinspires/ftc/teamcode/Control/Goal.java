@@ -53,7 +53,7 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.LABEL_FIRST_ELEME
 import static org.firstinspires.ftc.teamcode.Control.Constants.LABEL_SECOND_ELEMENT;
 import static org.firstinspires.ftc.teamcode.Control.Constants.TFOD_MODEL_ASSET;
 import static org.firstinspires.ftc.teamcode.Control.Constants.cappingClawS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.cappingLinearSlideS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.carouselRightS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.cappingPivotS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.imuS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.intakeClawS;
@@ -68,7 +68,7 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.backUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.rightUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.leftUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.frontUltraS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.carouselS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.carouselLeftS;
 
 import static org.firstinspires.ftc.teamcode.Control.Constants.VUFORIA_KEY;
 import static org.firstinspires.ftc.teamcode.Control.Constants.mmPerInch;
@@ -114,7 +114,8 @@ public class Goal {
     public DcMotor cappingLinearSlide;
     public Servo cappingPivot;
     public Servo cappingClaw;
-    public DcMotor carousel;
+    public DcMotor carouselRight;
+    public DcMotor carouselLeft;
 
     /** Set in motorDriveMode() for drivetrain movement functions **/
     public DcMotor[] drivetrain;
@@ -154,9 +155,6 @@ public class Goal {
                 case intake:
                     setupIntake();
                     break;
-                case capping:
-                    setupCapping();
-                    break;
                 case carousel:
                     setupCarousel();
                     break;
@@ -194,7 +192,6 @@ public class Goal {
     public void setupAuton() throws InterruptedException {
         setupDrivetrain();
         setupIntake();
-        setupCapping();
         setupCarousel();
         setupVuforia();
         setupTFOD();
@@ -203,7 +200,6 @@ public class Goal {
     public void setupTeleop() throws InterruptedException {
         setupDrivetrain();
         setupIntake();
-        setupCapping();
         setupCarousel();
         setupVuforia();
         setupTFOD();
@@ -247,15 +243,10 @@ public class Goal {
         intakeClaw = servo(intakeClawS, Servo.Direction.FORWARD, 0.083, 0.1525, 0);
     }
 
-    public void setupCapping() throws InterruptedException {
-        cappingLinearSlide = motor(cappingLinearSlideS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
-        cappingPivot = servo(cappingPivotS, Servo.Direction.REVERSE, 0, 1, 0.2);
-        cappingClaw = servo(cappingClawS, Servo.Direction.FORWARD, 0, 1, 0.04);
-    }
-
     //sets motor responsible for spinning carousel
     public void setupCarousel() throws InterruptedException {
-        carousel = motor(carouselS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
+        carouselRight = motor(carouselRightS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
+        carouselLeft = motor(carouselLeftS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     //ultrasonic sensors defined&setup
@@ -365,7 +356,7 @@ public class Goal {
         servo.setPower(startSpeed);
         return servo;
     }
-
+    //color sesnsor constructor
     public ColorSensor colorSensor(String name, boolean ledOn) throws InterruptedException {
         ColorSensor sensor = hardwareMap.colorSensor.get(name);
         sensor.enableLed(ledOn);
@@ -410,7 +401,7 @@ public class Goal {
         }
 
     }
-    //
+    //uses encoders and adds motors to drivetrain
     public void motorDriveMode(EncoderMode mode, DcMotor... motor) throws InterruptedException {
 
         switch (mode) {
@@ -492,15 +483,15 @@ public class Goal {
             central.sleep(waitAfter);
         }
     }
-
+    //angles linear slide set degrees w set speed using its mottor
     public void moveLinearSlideDegrees(double speed, double degrees, DcMotor linearSlide) {
         moveSingleMotorUnits(speed, degrees, COUNTS_PER_DEGREE_REV_CORE_HEX_MOTOR, linearSlide);
     }
-
+    //extends linear slides set inches w set speed using motor
     public void moveLinearSlideInches(double speed, double inches, DcMotor linearSlide) {
         moveSingleMotorUnits(speed, inches, COUNTS_PER_INCH_LINEAR_SLIDE_MOTOR, linearSlide);
     }
-
+    //function to use motor to move to a certain position
     public void moveSingleMotorUnits(double speed, double degrees, double COUNTS_PER_UNIT, DcMotor motor) {
         int sign = speed < 0 || degrees < 0 ? -1 : 1;
         motor.setTargetPosition(motor.getCurrentPosition() + (int) (sign * Math.abs(degrees) * COUNTS_PER_UNIT));
@@ -509,33 +500,41 @@ public class Goal {
         while (motor.isBusy());
         motor.setPower(0);
     }
-
+    //runs intake motor at certain speed for set time
     public void runIntakeTimeSpeed(double speed, long time) {
         runSingleMotorTimeSpeed(speed, time, intake, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
-
+    //runs intake motor without set time but w set speed
     public void runIntakeSpeed(double speed) {
         runSingleMotorSpeed(speed, intake, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
-
-    public void runCarouselTimeSpeed(double speed, long time) {
-        runSingleMotorTimeSpeed(speed, time, carousel, DcMotor.RunMode.RUN_USING_ENCODER);
+    //turns on left carousel motor at certain speed for set time
+    public void runCarouselLeftTimeSpeed(double speed, long time) {
+        runSingleMotorTimeSpeed(speed, time, carouselLeft, DcMotor.RunMode.RUN_USING_ENCODER);
     }
-
-    public void runCarouselSpeed(double speed) {
-        runSingleMotorSpeed(speed, carousel, DcMotor.RunMode.RUN_USING_ENCODER);
+    //turns on left carousel motor without set time but w set speed
+    public void runCarouselLeftSpeed(double speed) {
+        runSingleMotorSpeed(speed, carouselLeft, DcMotor.RunMode.RUN_USING_ENCODER);
     }
-
+    //turns on right carousel motor at certain speed for set time
+    public void runCarouselRightTimeSpeed(double speed, long time) {
+        runSingleMotorTimeSpeed(speed, time, carouselRight, DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+    //turns on right carousel motor without set time but w set speed
+    public void runCarouselRightSpeed(double speed) {
+        runSingleMotorSpeed(speed, carouselRight, DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+    //moves linearside motor at a speed
     public void moveLinearSlide(double speed, DcMotor linearSlide) {
         runSingleMotorSpeed(speed, linearSlide, DcMotor.RunMode.RUN_USING_ENCODER);
     }
-
+    //runs motor specified motor at set speed and time
     public void runSingleMotorTimeSpeed(double speed, long time, DcMotor motor, DcMotor.RunMode runMode) {
         runSingleMotorSpeed(speed, motor, runMode);
         central.sleep(time);
         motor.setPower(0);
     }
-
+    //runs motor at a certain speed without time
     public void runSingleMotorSpeed(double speed, DcMotor motor, DcMotor.RunMode runMode) {
         motor.setMode(runMode);
         motor.setPower(speed);
@@ -822,7 +821,7 @@ public class Goal {
         ON, OFF;
     }
     public enum setupType{
-        autonomous, teleop, drivetrain_system, ultra, intake, capping, carousel, imu, openCV, webcamStream, vuforia, tfod;
+        autonomous, teleop, drivetrain_system, ultra, intake, carousel, imu, openCV, webcamStream, vuforia, tfod;
     }
 
 

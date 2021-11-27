@@ -281,7 +281,12 @@ public class Constants {
     /**
      * Capping Linear Slide motor name
      */
-    public static final String cappingLinearSlideS = "lift";
+    public static final String carouselLeftS = "carouselLeft";
+
+    /**
+     * Carousel motor name
+     */
+    public static final String carouselRightS = "carouselRight";
 
     /**
      * Capping Claw Pivot servo name
@@ -292,11 +297,6 @@ public class Constants {
      * Capping Claw servo name
      */
     public static final String cappingClawS = "claw";
-
-    /**
-     * Carousel motor name
-     */
-    public static final String carouselS = "carousel";
 
     /**
      * Webcam name
