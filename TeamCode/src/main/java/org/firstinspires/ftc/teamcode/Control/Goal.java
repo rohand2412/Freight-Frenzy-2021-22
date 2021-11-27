@@ -245,9 +245,9 @@ public class Goal {
     //ultrasonic sensors defined&setup
     public void setupUltra() throws InterruptedException {
 //        backUltrasonic = ultrasonicSensor(backUltraS);
-        rightUltrasonic = ultrasonicSensor(rightUltraS);
-        frontUltrasonic = ultrasonicSensor(leftUltraS);
-        leftUltrasonic = ultrasonicSensor(frontUltraS);
+//        rightUltrasonic = ultrasonicSensor(rightUltraS);
+//        leftUltrasonic = ultrasonicSensor(leftUltraS);
+//        frontUltrasonic = ultrasonicSensor(frontUltraS);
     }
 
     //sets cam up
