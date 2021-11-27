@@ -67,9 +67,6 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.webcamS;
 
 public class Goal {
 
-    /** Instance variables **/
-    public Orientation angles;
-
     /** Initialized in constructor **/
     public ElapsedTime runtime;
     public Central central;
@@ -106,11 +103,11 @@ public class Goal {
     public DcMotor[] drivetrain;
 
     /** -------------------------------- IMU ------------------------------- **/
-    public BNO055IMUImpl imu;
+    public BNO055IMU imu;
 
     /** IMU params **/
-    public Orientation current;
-    public BNO055IMUImpl.Parameters imuparameters = new BNO055IMUImpl.Parameters();
+    public Orientation angles;
+    public double yaw;
 
     /** Temp variables **/
     public static boolean isnotstopped;
@@ -191,23 +188,22 @@ public class Goal {
     }
 
     public void setupIMU() throws InterruptedException {
-        imuparameters.angleUnit = BNO055IMUImpl.AngleUnit.DEGREES;
-        imuparameters.accelUnit = BNO055IMUImpl.AccelUnit.METERS_PERSEC_PERSEC;
-        imuparameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
-        imuparameters.loggingEnabled = true; //copypasted from BNO055IMU sample code, no clue what this does
-        imuparameters.loggingTag = "imu"; //copypasted from BNO055IMU sample code, no clue what this does
-        imu = hardwareMap.get(BNO055IMUImpl.class, imuS);
-        imu.initialize(imuparameters);
-        initorient = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-        central.telemetry.addData("IMU status", imu.getSystemStatus());
-        central.telemetry.update();
-
+        // Set up the parameters with which we will use our IMU. Note that integration
+        // algorithm here just reports accelerations to the logcat log; it doesn't actually
+        // provide positional information.
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
 
+        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
+        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+        // and named "imu".
+        imu = hardwareMap.get(BNO055IMU.class, imuS);
         imu.initialize(parameters);
-
-        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
     }
 
     //sets each drivetrain motor to correct direction and makes it brake when no power given
@@ -386,6 +382,20 @@ public class Goal {
         }
 
     }
+
+    //IMU Utilities
+    public double getUpdatedYaw() {
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        return getYaw();
+    }
+
+    public double getYaw() {
+        yaw = AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(angles.angleUnit, angles.firstAngle));
+        return yaw;
+    }
+
+    //Drivetrain Utilities
+
     //uses encoders and adds motors to drivetrain
     public void motorDriveMode(EncoderMode mode, DcMotor... motor) throws InterruptedException {
 
@@ -584,208 +594,23 @@ public class Goal {
     }
 
     // IMU Movements
-    public void turn(float target, turnside direction, double speed, axis rotation_Axis) throws InterruptedException{
+    public void turn(double speed, double degrees, axis rotationAxis) throws InterruptedException {
+        double startAngle = getUpdatedYaw();
 
-        central.telemetry.addData("IMU State: ", imu.getSystemStatus());
-        central.telemetry.update();
-
-        double start = getDirection();
-
-        double end = (start + ((direction == turnside.cw) ? target : -target) + 360) % 360;
-
-        isnotstopped = true;
-        try {
-            switch (rotation_Axis) {
-                case center:
-                    driveTrainMovement(speed, (direction == turnside.cw) ? movements.cw : movements.ccw);
-                    break;
-                case back:
-                    driveTrainMovement(speed, (direction == turnside.cw) ? movements.cwback : movements.ccwback);
-                    break;
-                case front:
-                    driveTrainMovement(speed, (direction == turnside.cw) ? movements.cwfront : movements.ccwfront);
-                    break;
-            }
-        } catch (InterruptedException e) {
-            isnotstopped = false;
-        }
-
-        while (((calculateDifferenceBetweenAngles(getDirection(), end) > 1 && turnside.cw == direction) || (calculateDifferenceBetweenAngles(getDirection(), end) < -1 && turnside.ccw == direction)) && central.opModeIsActive() ) {
-            central.telemetry.addLine("First Try ");
-            central.telemetry.addData("IMU Inital: ", start);
-            central.telemetry.addData("IMU Final Projection: ", end);
-            central.telemetry.addData("IMU Orient: ", getDirection());
-            central.telemetry.addData("IMU Difference: ", (calculateDifferenceBetweenAngles(end, getDirection())));
-            central.telemetry.update();
-        }
-        try {
-            stopDrivetrain();
-        } catch (InterruptedException e) {
-        }
-        central.sleep(5000);
-
-        while (calculateDifferenceBetweenAngles(getDirection(), end) < -0.25 && central.opModeIsActive()) {
-            driveTrainMovement(0.1, (direction == turnside.cw) ? movements.ccw : movements.cw);
-            central.telemetry.addLine("Correctional Try ");
-            central.telemetry.addData("IMU Inital: ", start);
-            central.telemetry.addData("IMU Final Projection: ", end);
-            central.telemetry.addData("IMU Orient: ", getDirection());
-            central.telemetry.addData("IMU Diffnce: ", calculateDifferenceBetweenAngles(end, getDirection()));
-            central.telemetry.update();
-
-        }
-        stopDrivetrain();
-        central.sleep(5000);
-
-        central.telemetry.addLine("Completed");
-        central.telemetry.addData("IMU Inital: ", start);
-        central.telemetry.addData("IMU Final Projection: ", end);
-        central.telemetry.addData("IMU Orient: ", getDirection());
-        central.telemetry.addData("IMU Diffnce: ", calculateDifferenceBetweenAngles(end, getDirection()));
-        central.telemetry.update();
-        central.sleep(5000);
-    }
-    public void teleturn(float target, turnside direction, double speed, axis rotation_Axis) throws InterruptedException{
-
-        central.telemetry.addData("IMU State: ", imu.getSystemStatus());
-        central.telemetry.update();
-
-        double start = getDirection();
-
-        double end = (start + ((direction == turnside.cw) ? target : -target) + 360) % 360;
-
-       /* isnotstopped = true;
-        try {
-            switch (rotation_Axis) {
-                case center:
-                    driveTrainMovement(speed, (direction == turnside.cw) ? movements.cw : movements.ccw);
-                    break;
-                case back:
-                    driveTrainMovement(speed, (direction == turnside.cw) ? movements.cwback : movements.ccwback);
-                    break;
-                case front:
-                    driveTrainMovement(speed, (direction == turnside.cw) ? movements.cwfront : movements.ccwfront);
-                    break;
-            }
-        } catch (InterruptedException e) {
-            isnotstopped = false;
-        }
-
-        while ((((end - getDirection()) > 1 && turnside.cw == direction) || (turnside.cw != direction && end - getDirection() < -1)) && central.opModeIsActive() && isnotstopped) {
-            central.telemetry.addData("IMU Inital: ", start);
-            central.telemetry.addData("IMU Final Projection: ", end);
-            central.telemetry.addData("IMU Orient: ", getDirection());
-            central.telemetry.update();
-        }
-        try {
-            stopDrivetrain();
-        } catch (InterruptedException e) {
-        }
-
-
-        */
-
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        if (angles.firstAngle > 0) {
-            while (angles.firstAngle > -1) {
-                angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-                driveTrainMovement(.5, Goal.movements.ccw);
-            }
-        }
-        if (angles.firstAngle < 0) {
-            while (angles.firstAngle < 1) {
-                angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-                driveTrainMovement(.5, Goal.movements.cw);
-            }
-        }
-
-        double r = end-getDirection();
-        boolean x;
-        if(r>1){
-            x=true;
-        }
-        else{
-            x=false;
-        }
-        boolean y = false;
-
-        while (Math.abs(end - getDirection()) > 1 && central.opModeIsActive()){
-            r = end-getDirection();
-            if(r>1){
-                y=true;
-            }
-            else{
-                y=false;
-            }
-            if(x!=y){
+        switch (rotationAxis) {
+            case center:
+                driveTrainMovement(speed, degrees > 0 ? movements.cw : movements.ccw);
                 break;
-            }
-            central.telemetry.addData("IMU Orient: ", getDirection());
-            central.telemetry.addData("IMU Target: ", target);
-            central.telemetry.update();
-            driveTrainMovement(.05, (direction == turnside.cw) ? movements.ccw : movements.cw);
-
+            case back:
+                driveTrainMovement(speed, degrees > 0 ? movements.cwback : movements.ccwback);
+                break;
+            case front:
+                driveTrainMovement(speed, degrees > 0 ? movements.cwfront : movements.ccwfront);
+                break;
         }
+
+        while (central.opModeIsActive() && degrees > 0 ? getUpdatedYaw() - startAngle < degrees : getUpdatedYaw() - startAngle > degrees);
         stopDrivetrain();
-
-    }
-
-
-    public void absturn(float target, turnside direction, double speed, axis rotation_Axis) throws InterruptedException {
-
-        central.telemetry.addData("IMU State: ", imu.getSystemStatus());
-        central.telemetry.update();
-
-        double start = 0;
-
-        double end = (start + ((direction == turnside.cw) ? target : -target) + 360) % 360;
-
-        isnotstopped = true;
-        try {
-            switch (rotation_Axis) {
-                case center:
-                    driveTrainMovement(speed, (direction == turnside.cw) ? movements.cw : movements.ccw);
-                    break;
-                case back:
-                    driveTrainMovement(speed, (direction == turnside.cw) ? movements.cwback : movements.ccwback);
-                    break;
-                case front:
-                    driveTrainMovement(speed, (direction == turnside.cw) ? movements.cwfront : movements.ccwfront);
-                    break;
-            }
-        } catch (InterruptedException e) {
-            isnotstopped = false;
-        }
-
-        while (((calculateDifferenceBetweenAngles(getDirection(), end) > 1 && turnside.cw == direction) || (calculateDifferenceBetweenAngles(getDirection(), end) < -1 && turnside.ccw == direction)) && central.opModeIsActive() ) {
-            central.telemetry.addLine("First Try ");
-            central.telemetry.addData("IMU Inital: ", start);
-            central.telemetry.addData("IMU Final Projection: ", end);
-            central.telemetry.addData("IMU Orient: ", getDirection());
-            central.telemetry.addData("IMU Difference: ", end - getDirection());
-            central.telemetry.update();
-        }
-        try {
-            stopDrivetrain();
-        } catch (InterruptedException e) {
-        }
-
-        while (calculateDifferenceBetweenAngles(end, getDirection()) > 1 && central.opModeIsActive()){
-            driveTrainMovement(0.05, (direction == turnside.cw) ? movements.ccw : movements.cw);
-            central.telemetry.addLine("Correctional Try ");
-            central.telemetry.addData("IMU Inital: ", start);
-            central.telemetry.addData("IMU Final Projection: ", end);
-            central.telemetry.addData("IMU Orient: ", getDirection());
-            central.telemetry.addData("IMU Diffnce: ", end - getDirection());
-            central.telemetry.update();
-        }
-        stopDrivetrain();
-        central.telemetry.addLine("Completed");
-        central.telemetry.addData("IMU Inital: ", start);
-        central.telemetry.addData("IMU Final Projection: ", end);
-        central.telemetry.addData("IMU Orient: ", getDirection());
-        central.telemetry.addData("IMU Diffnce: ", end - getDirection());
-        central.telemetry.update();
     }
 
     public double calculateDifferenceBetweenAngles(double firstAngle, double secondAngle) // negative is secondAngle ccw relative to firstAngle
@@ -800,16 +625,13 @@ public class Goal {
         return (this.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle-initorient+720)%360;
     }
 
-
-
     public enum EncoderMode{
         ON, OFF;
     }
+
     public enum setupType{
         autonomous, teleop, drivetrain_system, ultra, intake, carousel, imu, openCV, webcamStream, vuforia, tfod;
     }
-
-
 
     //-------------------SET FUNCTIONS--------------------------------
     public void setCentral(Central central) {
@@ -855,6 +677,10 @@ public class Goal {
 
     public enum turnside {
         ccw, cw
+    }
+
+    public enum axis {
+        front, center, back
     }
 
     /**
@@ -904,11 +730,6 @@ public class Goal {
         motorBL.setPower(movements.forward.directions[3] * speeds[0]);
 
     }
-
-    public enum axis {
-        front, center, back
-    }
-
 
     public void driveTrainIMUSwingTurnMovement(double speed, movements movement, long waitAfter, double rotationDegrees, double rotationfactor, turnside rotDir) throws InterruptedException{
         double[] signs = movement.getDirections();
