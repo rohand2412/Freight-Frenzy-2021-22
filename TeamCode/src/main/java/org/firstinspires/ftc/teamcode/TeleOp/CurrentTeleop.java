@@ -16,9 +16,15 @@ public class CurrentTeleop extends TeleOpControl
     public void runOpMode() throws InterruptedException {
 
         setup(runtime, Goal.setupType.teleop);
+        rob.intakeClaw.setPosition(0);
+
         boolean intakeUp = false;
+        boolean holdingObject = false;
+        boolean intakeClawOpen = true;
         boolean crawlMode = false;
-        double carouselSpeed = 0.8;
+        double intakeSpeed = 0.5;
+        double intakePivotPosition = 0.7;
+        double speedScalar = 0.75;
 
         waitForStart();
 
@@ -52,49 +58,49 @@ public class CurrentTeleop extends TeleOpControl
             }
             else {
                 if (g(0)) {
-                    rob.driveTrainMovement(fb, Goal.movements.forward);
+                    rob.driveTrainMovement(fb * speedScalar, Goal.movements.forward);
                 } else if (g(2)) {
-                    rob.driveTrainMovement(fb, Goal.movements.backward);
+                    rob.driveTrainMovement(fb * speedScalar, Goal.movements.backward);
                 } else if (g(3)) {
-                    rob.driveTrainMovement(rl, Goal.movements.right);
+                    rob.driveTrainMovement(rl * speedScalar, Goal.movements.right);
                 } else if (g(1)) {
-                    rob.driveTrainMovement(rl, Goal.movements.left);
+                    rob.driveTrainMovement(rl * speedScalar, Goal.movements.left);
                 } else if (g(4)) {
-                    rob.driveTrainMovement(diagonalSpeed, Goal.movements.br);
+                    rob.driveTrainMovement(diagonalSpeed * speedScalar, Goal.movements.br);
                 } else if (g(5)) {
-                    rob.driveTrainMovement(diagonalSpeed, Goal.movements.bl);
+                    rob.driveTrainMovement(diagonalSpeed * speedScalar, Goal.movements.bl);
                 } else if (g(6)) {
-                    rob.driveTrainMovement(diagonalSpeed, Goal.movements.tl);
+                    rob.driveTrainMovement(diagonalSpeed * speedScalar, Goal.movements.tl);
                 } else if (g(7)) {
-                    rob.driveTrainMovement(diagonalSpeed, Goal.movements.tr);
+                    rob.driveTrainMovement(diagonalSpeed * speedScalar, Goal.movements.tr);
                 } else if (g(8)) {
-                    rob.driveTrainMovement(1, Goal.movements.ccw);
+                    rob.driveTrainMovement(1 * speedScalar, Goal.movements.ccw);
                 } else if (g(9)) {
-                    rob.driveTrainMovement(1, Goal.movements.cw);
+                    rob.driveTrainMovement(1 * speedScalar, Goal.movements.cw);
                 } else {
                     rob.stopDrivetrain();
                 }
             }
 
             if (rt > DEAD_ZONE_SIZE) {
-                rob.runIntakeSpeed(-0.75);
+                rob.runIntakeSpeed(-intakeSpeed);
             }
             else if (lt > DEAD_ZONE_SIZE) {
-                rob.runIntakeSpeed(0.75);
+                rob.runIntakeSpeed(intakeSpeed);
             }
             else if (gamepad1.y) {
                 rob.runIntakeSpeed(0);
             }
 
-            if (gamepad1.x) {
+            if (gamepad1.b) {
                 crawlMode = !crawlMode;
             }
 
             if (rt2 > 0.05) {
-                rob.runCarouselsSpeed(rt2 > carouselSpeed ? carouselSpeed : rt2);
+                rob.runCarouselsSpeed(rt2 > rob.carouselTele ? rob.carouselTele : rt2);
             }
             else if (lt2 > 0.05) {
-                rob.runCarouselsSpeed(-(lt2 > carouselSpeed ? carouselSpeed : lt2));
+                rob.runCarouselsSpeed(-(lt2 > rob.carouselTele ? rob.carouselTele : lt2));
             }
             else {
                 rob.runCarouselsSpeed(0);
@@ -102,32 +108,64 @@ public class CurrentTeleop extends TeleOpControl
 
             if (rb2) {
                 int target = rob.intakeLinearSlide.getTargetPosition();
-                rob.moveLinearSlideInches(1, 0.5, rob.intakeLinearSlide);
+                rob.moveLinearSlideInches(1, 1, rob.intakeLinearSlide);
                 rob.intakeLinearSlide.setTargetPosition(target);
             }
             else if (lb2) {
                 int target = rob.intakeLinearSlide.getTargetPosition();
-                rob.moveLinearSlideInches(1, -0.5, rob.intakeLinearSlide);
+                rob.moveLinearSlideInches(1, -1, rob.intakeLinearSlide);
                 rob.intakeLinearSlide.setTargetPosition(target);
             }
 
-            if (gamepad2.x) { carouselSpeed = 0.7; }
-            if (gamepad2.a) { carouselSpeed = 0.6; }
-
-            if (gamepad1.a && !intakeUp) {
+            if (gamepad1.a && !intakeUp && !holdingObject) {
                 rob.intakeClaw.setPosition(1);
                 rob.runIntakeSpeed(0);
-                rob.moveLinearSlideInches(1, 8, rob.intakeLinearSlide);
-                rob.intakePivot.setPosition(0.65);
-                intakeUp = true;
+                rob.moveLinearSlideInches(1, 1, rob.intakeLinearSlide);
+                intakeClawOpen = false;
+                holdingObject = true;
             }
-            else if (gamepad1.a && intakeUp) {
+            else if (gamepad1.a && !intakeUp && holdingObject) {
+                rob.moveLinearSlideInches(1, -1, rob.intakeLinearSlide);
                 rob.intakeClaw.setPosition(0);
-                rob.driveTrainEncoderMovement(0.5, 6, Goal.movements.backward);
+                intakeClawOpen = true;
+                holdingObject = false;
+            }
+            else if (gamepad1.a && intakeUp && holdingObject) {
+                rob.intakeClaw.setPosition(0);
+                rob.driveTrainEncoderMovement(0.5, 12, Goal.movements.backward);
                 rob.intakePivot.setPosition(0);
                 rob.moveLinearSlideInches(1, -8, rob.intakeLinearSlide);
                 crawlMode = false;
                 intakeUp = false;
+                holdingObject = false;
+                intakeClawOpen = true;
+            }
+
+            if (gamepad1.x && !intakeUp && holdingObject) {
+                rob.moveLinearSlideInches(1, 7, rob.intakeLinearSlide);
+                rob.intakePivot.setPosition(intakePivotPosition);
+                crawlMode = true;
+                intakeUp = true;
+            }
+
+            if (gamepad2.dpad_up) {
+                if (intakePivotPosition < 0.9) intakePivotPosition += 0.001;
+                rob.intakePivot.setPosition(intakePivotPosition);
+            }
+            else if (gamepad2.dpad_down) {
+                if (intakePivotPosition > 0) intakePivotPosition -= 0.001;
+                rob.intakePivot.setPosition(intakePivotPosition);
+            }
+
+            if (gamepad2.b) {
+                if (intakeClawOpen) {
+                    rob.intakeClaw.setPosition(1);
+                    intakeClawOpen = false;
+                }
+                else {
+                    rob.intakeClaw.setPosition(0);
+                    intakeClawOpen = true;
+                }
             }
 
             if (gamepad2.y) {
