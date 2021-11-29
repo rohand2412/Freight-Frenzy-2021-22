@@ -9,90 +9,167 @@ public abstract class AutonomousControl extends Central {
     static double speed = 0.5;
     locations location;
 
-    public void blue(boolean doingCarousel) throws InterruptedException {
-        rob.driveTrainEncoderMovement(speed, 6, Goal.movements.backward);
-        determineLocation();
+    public void blue(boolean doingCarousel, boolean closeToCarousel, boolean parkShallowWarehouse) throws InterruptedException {
+        rob.driveTrainEncoderMovement(speed, 10.5, closeToCarousel ? Goal.movements.right : Goal.movements.left);
+        determineLocation(!closeToCarousel);
+        sleep(1000);
 
         if (doingCarousel) {
-            rob.driveTrainEncoderMovement(speed, 20, Goal.movements.cw);
+            if (closeToCarousel) {
+                rob.driveTrainEncoderMovement(speed, 10, Goal.movements.forward);
+                rob.driveTrainEncoderMovement(speed, 27, Goal.movements.right);
+                rob.runCarouselsTimeSpeed(rob.carouselAuton, 4000);
+                rob.driveTrainEncoderMovement(speed, 65, Goal.movements.left);
+                rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+                if (location == locations.left || location == locations.middle) {
+                    rob.intakePivot.setPosition(0.7);
+                    rob.moveLinearSlideInches(1, location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
+                }
+                else {
+                    rob.intakePivot.setPosition(0.6);
+                    rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
+                }
+                rob.driveTrainEncoderMovement(speed, 18, Goal.movements.forward);
+                rob.intakeClaw.setPosition(0);
+            }
+        }
+        else {
+            rob.driveTrainEncoderMovement(speed, 20, Goal.movements.right);
+            rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+            if (location == locations.left || location == locations.middle) {
+                rob.intakePivot.setPosition(0.7);
+                rob.moveLinearSlideInches(1, location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
+                rob.driveTrainEncoderMovement(speed, 2, Goal.movements.forward);
+            }
+            else {
+                rob.intakePivot.setPosition(0.6);
+                rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
+            }
             rob.driveTrainEncoderMovement(speed, 25, Goal.movements.forward);
-            rob.driveTrainEncoderMovement(speed, 7, Goal.movements.right);
-            rob.runCarouselsTimeSpeed(0.25, 6000);
-            rob.driveTrainEncoderMovement(speed, 60, Goal.movements.backward);
-            rob.driveTrainEncoderMovement(speed, 20, Goal.movements.ccw);
-            rob.cappingPivot.setPosition(0.65);
-            rob.moveLinearSlideInches(1, location.getLinearSlideInches(), rob.cappingLinearSlide);
-            rob.driveTrainEncoderMovement(speed, 20, Goal.movements.backward);
-            rob.cappingClaw.setPosition(0.2);
-        }
-        else {
-            rob.driveTrainEncoderMovement(speed, 37, Goal.movements.left);
-            rob.cappingPivot.setPosition(0.65);
-            rob.moveLinearSlideInches(1, location.getLinearSlideInches(), rob.cappingLinearSlide);
-            rob.driveTrainEncoderMovement(speed, 15, Goal.movements.backward);
-            rob.cappingClaw.setPosition(0.2);
+            rob.intakeClaw.setPosition(0);
         }
 
         sleep(500);
-        rob.driveTrainEncoderMovement(speed, 12, Goal.movements.forward);
-        rob.moveLinearSlideInches(1, -location.getLinearSlideInches(), rob.cappingLinearSlide);
-        rob.cappingClaw.setPosition(0.045);
-        rob.cappingPivot.setPosition(0.2);
-        rob.driveTrainEncoderMovement(speed, 20, Goal.movements.cw);
-        rob.driveTrainEncoderMovement(speed, 26, Goal.movements.right);
-        rob.driveTrainEncoderMovement(speed, 65, Goal.movements.backward);
-        rob.driveTrainEncoderMovement(speed, 40, Goal.movements.left);
-        rob.driveTrainEncoderMovement(speed, 25, Goal.movements.backward);
+        rob.driveTrainEncoderMovement(speed, 12, Goal.movements.backward);
+        if (location == locations.left) {
+            rob.intakePivot.setPosition(0);
+            rob.moveLinearSlideInches(1, -location.getLinearSlideInches(), rob.intakeLinearSlide);
+        }
+        else if (location == locations.middle) {
+            rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+            rob.intakePivot.setPosition(0);
+            rob.moveLinearSlideInches(1, -location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
+        }
+        else {
+            rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+            rob.intakePivot.setPosition(0);
+            rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
+        }
+        rob.turn(speed, -90);
+
+        if (parkShallowWarehouse) {
+            rob.driveTrainEncoderMovement(speed, 25, Goal.movements.left);
+            rob.driveTrainEncoderMovement(speed, 75, Goal.movements.forward);
+        }
+        else {
+            rob.driveTrainEncoderMovement(speed, 4, Goal.movements.right);
+            rob.driveTrainEncoderMovement(1, 100, Goal.movements.forward);
+        }
     }
 
-    public void red(boolean doingCarousel) throws InterruptedException {
-        rob.driveTrainEncoderMovement(speed, 7, Goal.movements.backward);
-        determineLocation();
+    public void red(boolean doingCarousel, boolean closeToCarousel, boolean parkShallowWarehouse) throws InterruptedException {
+        rob.driveTrainEncoderMovement(speed, 10.5, closeToCarousel ? Goal.movements.left : Goal.movements.right);
+        determineLocation(closeToCarousel);
+        sleep(1000);
 
         if (doingCarousel) {
-            rob.driveTrainEncoderMovement(speed, 40, Goal.movements.right);
-            rob.driveTrainEncoderMovement(speed, 0.5, Goal.movements.forward);
-            rob.runCarouselsTimeSpeed(-0.25, 6000);
-            rob.driveTrainEncoderMovement(speed, 75, Goal.movements.left);
-            rob.cappingPivot.setPosition(0.65);
-            rob.moveLinearSlideInches(1, location.getLinearSlideInches(), rob.cappingLinearSlide);
-            rob.driveTrainEncoderMovement(speed, 16, Goal.movements.backward);
-            rob.cappingClaw.setPosition(0.2);
+            if (closeToCarousel) {
+                rob.driveTrainEncoderMovement(speed, 10, Goal.movements.forward);
+                rob.driveTrainEncoderMovement(speed, 47.5, Goal.movements.left);
+                rob.runCarouselsTimeSpeed(rob.carouselAuton, 4000);
+                rob.driveTrainEncoderMovement(speed, 66, Goal.movements.right);
+                rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+                if (location == locations.left || location == locations.middle) {
+                    rob.intakePivot.setPosition(0.7);
+                    rob.moveLinearSlideInches(1, location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
+                }
+                else {
+                    rob.intakePivot.setPosition(0.6);
+                    rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
+                }
+                rob.driveTrainEncoderMovement(speed, 17, Goal.movements.forward);
+                rob.intakeClaw.setPosition(0);
+            }
         }
         else {
-            rob.driveTrainEncoderMovement(speed, 37, Goal.movements.right);
-            rob.cappingPivot.setPosition(0.65);
-            rob.moveLinearSlideInches(1, location.getLinearSlideInches(), rob.cappingLinearSlide);
-            rob.driveTrainEncoderMovement(speed, 15, Goal.movements.backward);
-            rob.cappingClaw.setPosition(0.2);
+            rob.driveTrainEncoderMovement(speed, 40, Goal.movements.left);
+            rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+            if (location == locations.left || location == locations.middle) {
+                rob.intakePivot.setPosition(0.7);
+                rob.moveLinearSlideInches(1, location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
+                rob.driveTrainEncoderMovement(speed, 4, Goal.movements.forward);
+            }
+            else {
+                rob.intakePivot.setPosition(0.6);
+                rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
+            }
+            rob.driveTrainEncoderMovement(speed, 25, Goal.movements.forward);
+            rob.intakeClaw.setPosition(0);
         }
 
         sleep(500);
-        rob.driveTrainEncoderMovement(speed, 12, Goal.movements.forward);
-        rob.moveLinearSlideInches(1, -location.getLinearSlideInches(), rob.cappingLinearSlide);
-        rob.cappingClaw.setPosition(0.045);
-        rob.cappingPivot.setPosition(0.2);
-        rob.driveTrainEncoderMovement(speed, 20, Goal.movements.cw);
-        rob.driveTrainEncoderMovement(speed, 19, Goal.movements.right);
-        rob.driveTrainEncoderMovement(speed, 70, Goal.movements.forward);
-        rob.driveTrainEncoderMovement(speed, 40, Goal.movements.left);
-        rob.driveTrainEncoderMovement(speed, 25, Goal.movements.forward);
+        rob.driveTrainEncoderMovement(speed, 12, Goal.movements.backward);
+        if (location == locations.left) {
+            rob.intakePivot.setPosition(0);
+            rob.moveLinearSlideInches(1, -location.getLinearSlideInches(), rob.intakeLinearSlide);
+        }
+        else if (location == locations.middle) {
+            rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+            rob.intakePivot.setPosition(0);
+            rob.moveLinearSlideInches(1, -location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
+        }
+        else {
+            rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+            rob.intakePivot.setPosition(0);
+            rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
+        }
+        rob.turn(speed, 90);
+
+        if (parkShallowWarehouse) {
+            rob.driveTrainEncoderMovement(speed, 25, Goal.movements.right);
+            rob.driveTrainEncoderMovement(speed, 75, Goal.movements.forward);
+        }
+        else {
+            rob.driveTrainEncoderMovement(speed, 4, Goal.movements.left);
+            rob.driveTrainEncoderMovement(1, 100, Goal.movements.forward);
+        }
     }
 
-    public void determineLocation() throws InterruptedException {
+    public void determineLocation(boolean right) throws InterruptedException {
         if (rob.tfod != null) {
             sleep(1000);
             List<Recognition> finalRecognitions = null;
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 10; i++) {
                 List<Recognition> recognitions = rob.tfod.getUpdatedRecognitions();
-                if (recognitions.size() > 0) { finalRecognitions = recognitions; }
-                rob.driveTrainEncoderMovement(speed, 1, Goal.movements.backward);
+                if (recognitions != null) if (recognitions.size() > 0) { finalRecognitions = recognitions; }
             }
 
-            if (finalRecognitions == null) location = locations.left;
-            else if (finalRecognitions.size() == 0) location = locations.left;
-            else if ((finalRecognitions.get(0).getLeft() + finalRecognitions.get(0).getRight())/2 < 320) location = locations.middle;
-            else location = locations.right;
+            if (right) {
+                if (finalRecognitions == null) location = locations.left;
+                else if (finalRecognitions.size() == 0) location = locations.left;
+                else if (finalRecognitions.get(0).getLabel().equals(LABEL_FIRST_ELEMENT))
+                    location = locations.middle;
+                else if (finalRecognitions.get(0).getLabel().equals(LABEL_SECOND_ELEMENT))
+                    location = locations.right;
+            }
+            else {
+                if (finalRecognitions == null) location = locations.right;
+                else if (finalRecognitions.size() == 0) location = locations.right;
+                else if (finalRecognitions.get(0).getLabel().equals(LABEL_FIRST_ELEMENT))
+                    location = locations.left;
+                else if (finalRecognitions.get(0).getLabel().equals(LABEL_SECOND_ELEMENT))
+                    location = locations.middle;
+            }
 
             telemetry.addLine(location.toString());
             telemetry.update();
@@ -100,9 +177,9 @@ public abstract class AutonomousControl extends Central {
     }
 
     public enum locations {
-        left("left", 5.5),
-        middle("middle", -1),
-        right("right", -5.75);
+        left("left", 7.5),
+        middle("middle", 1),
+        right("right", -4.75);
 
         private final String name;
         private final double linearSlideInches;
