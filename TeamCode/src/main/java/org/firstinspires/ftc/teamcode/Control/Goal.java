@@ -93,14 +93,11 @@ public class Goal {
     public DcMotor intakeLinearSlide;
     public Servo intakePivot;
     public Servo intakeClaw;
-    public DcMotor cappingLinearSlide;
-    public Servo cappingPivot;
-    public Servo cappingClaw;
     public DcMotor carouselRight;
     public DcMotor carouselLeft;
 
-    double carouselTele = 0.9;
-    double carouselAuton = 0.6;
+    public final double carouselTele = 0.9;
+    public final double carouselAuton = 0.3;
 
     /** Set in motorDriveMode() for drivetrain movement functions **/
     public DcMotor[] drivetrain;
@@ -233,13 +230,13 @@ public class Goal {
         intake = motor(intakeS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
         intakeLinearSlide = motor(intakeLinearSlideS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
         intakePivot = servo(intakePivotS, Servo.Direction.REVERSE, 0, 1, 0);
-        intakeClaw = servo(intakeClawS, Servo.Direction.FORWARD, 0.083, 0.1525, 0);
+        intakeClaw = servo(intakeClawS, Servo.Direction.FORWARD, 0.073, 0.1525, 1);
     }
 
     //sets motor responsible for spinning carousel
     public void setupCarousel() throws InterruptedException {
         carouselRight = motor(carouselRightS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
-        carouselLeft = motor(carouselLeftS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
+        carouselLeft = motor(carouselLeftS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     //ultrasonic sensors defined&setup
@@ -570,6 +567,8 @@ public class Goal {
     }
 
     // IMU Movements
+    public void turn(double speed, double degrees) throws InterruptedException { turn(speed, degrees, axis.center); }
+
     public void turn(double speed, double degrees, axis rotationAxis) throws InterruptedException {
         double startAngle = getYaw();
 
