@@ -180,7 +180,7 @@ public class Constants {
     /**
      * Joystick Dead Zone Threshold
      */
-    public static final double DEAD_ZONE_SIZE = 0.1;
+    public static final double DEAD_ZONE_SIZE = 0.05;
 
     //--------------------------------VUFORIA----------------------------
     /**
