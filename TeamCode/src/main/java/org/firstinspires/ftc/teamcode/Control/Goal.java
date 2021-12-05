@@ -177,6 +177,7 @@ public class Goal {
         central.telemetry.update();
 
     }
+
     //function setups based on autonomous
     public void setupAuton() throws InterruptedException {
         setupIMU();
@@ -186,6 +187,7 @@ public class Goal {
         setupVuforia();
         setupTFOD();
     }
+
     //function setups based on manual control
     public void setupTeleop() throws InterruptedException {
         setupIMU();
@@ -346,6 +348,7 @@ public class Goal {
         servo.setPower(startSpeed);
         return servo;
     }
+
     //color sesnsor constructor
     public ColorSensor colorSensor(String name, boolean ledOn) throws InterruptedException {
         ColorSensor sensor = hardwareMap.colorSensor.get(name);
@@ -356,6 +359,7 @@ public class Goal {
 
         return sensor;
     }
+
     //creates ultrasonic sensor
     public ModernRoboticsI2cRangeSensor ultrasonicSensor(String name) throws InterruptedException {
 
@@ -445,6 +449,10 @@ public class Goal {
         for (DcMotor motor: motors) motor.setMode(runMode);
     }
 
+
+    //sets up motors using the count ratio and making it usable
+
+
     public void driveTrainEncoderMovement(double speed, double distance, movements movement) throws InterruptedException {
         driveTrainEncoderMovementSpecific435Motors(speed, distance, movement, drivetrain);
     }
@@ -494,14 +502,17 @@ public class Goal {
             setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER, drivetrain);
         }
     }
-    //angles linear slide set degrees w set speed using its mottor
+
+    //angles linear slide set degrees w set speed using its motor
     public void moveLinearSlideDegrees(double speed, double degrees, DcMotor linearSlide) {
         moveSingleMotorUnits(speed, degrees, COUNTS_PER_DEGREE_REV_CORE_HEX_MOTOR, linearSlide);
     }
+
     //extends linear slides set inches w set speed using motor
     public void moveLinearSlideInches(double speed, double inches, DcMotor linearSlide) {
         moveSingleMotorUnits(speed, inches, COUNTS_PER_INCH_LINEAR_SLIDE_MOTOR, linearSlide);
     }
+
     //function to use motor to move to a certain position
     public void moveSingleMotorUnits(double speed, double degrees, double COUNTS_PER_UNIT, DcMotor motor) {
         int sign = speed < 0 || degrees < 0 ? -1 : 1;
@@ -539,12 +550,14 @@ public class Goal {
     public void moveLinearSlide(double speed, DcMotor linearSlide) {
         runSingleMotorSpeed(speed, linearSlide, DcMotor.RunMode.RUN_USING_ENCODER);
     }
+
     //runs motor specified motor at set speed and time
     public void runSingleMotorTimeSpeed(double speed, long time, DcMotor motor, DcMotor.RunMode runMode) {
         runSingleMotorSpeed(speed, motor, runMode);
         central.sleep(time);
         motor.setPower(0);
     }
+
     //runs motor at a certain speed without time
     public void runSingleMotorSpeed(double speed, DcMotor motor, DcMotor.RunMode runMode) {
         motor.setMode(runMode);
@@ -552,6 +565,7 @@ public class Goal {
     }
 
     //------------------DRIVETRAIN TELEOP FUNCTIONS------------------------------------------------------------------------
+   //moves drivetrain, setting each motor to its right power
     public void driveTrainMovement(double speed, movements movement) throws InterruptedException {
         double[] signs = movement.getDirections();
         for (DcMotor motor: drivetrain){
@@ -559,7 +573,7 @@ public class Goal {
             if (signs[x] != 0) motor.setPower(signs[x] * Math.abs(speed));
         }
     }
-
+    //sets each motor power to 0, stops it
     public void stopDrivetrain() throws InterruptedException {
         for (DcMotor motor: drivetrain){
             motor.setPower(0);
@@ -669,6 +683,7 @@ public class Goal {
         return retval;
     }
 
+    //same as above, uses param angleRadians
     public static double[] anyDirectionRadians(double speed, double angleRadians) {
         double theta = angleRadians;
         double beta = Math.atan(yToXRatio);
@@ -679,7 +694,6 @@ public class Goal {
         double[] retval = {v1, v2};
         return retval;
     }
-
     public void driveTrainMovementAngle(double speed, double angle) {
 
         double[] speeds = anyDirection(speed, angle);
