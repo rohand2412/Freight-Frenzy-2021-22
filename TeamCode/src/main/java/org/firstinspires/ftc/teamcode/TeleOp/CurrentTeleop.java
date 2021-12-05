@@ -57,26 +57,8 @@ public class CurrentTeleop extends TeleOpControl
                 }
             }
             else {
-                if (g(0)) {
-                    rob.driveTrainMovement(fb * speedScalar, Goal.movements.forward);
-                } else if (g(2)) {
-                    rob.driveTrainMovement(fb * speedScalar, Goal.movements.backward);
-                } else if (g(3)) {
-                    rob.driveTrainMovement(rl * speedScalar, Goal.movements.right);
-                } else if (g(1)) {
-                    rob.driveTrainMovement(rl * speedScalar, Goal.movements.left);
-                } else if (g(4)) {
-                    rob.driveTrainMovement(diagonalSpeed * speedScalar, Goal.movements.br);
-                } else if (g(5)) {
-                    rob.driveTrainMovement(diagonalSpeed * speedScalar, Goal.movements.bl);
-                } else if (g(6)) {
-                    rob.driveTrainMovement(diagonalSpeed * speedScalar, Goal.movements.tl);
-                } else if (g(7)) {
-                    rob.driveTrainMovement(diagonalSpeed * speedScalar, Goal.movements.tr);
-                } else if (g(8)) {
-                    rob.driveTrainMovement(1 * speedScalar, Goal.movements.ccw);
-                } else if (g(9)) {
-                    rob.driveTrainMovement(1 * speedScalar, Goal.movements.cw);
+                if (validStick(xAxis1, yAxis1)) {
+                    rob.driveTrainMovementAngleRadians(Math.hypot(xAxis1, yAxis1)/Math.sqrt(2), Goal.quadrantAtan(xAxis1, yAxis1));
                 } else {
                     rob.stopDrivetrain();
                 }
