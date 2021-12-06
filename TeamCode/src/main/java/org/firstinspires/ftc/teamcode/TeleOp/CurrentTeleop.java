@@ -24,7 +24,7 @@ public class CurrentTeleop extends TeleOpControl
         boolean crawlMode = false;
         double intakeSpeed = 0.5;
         double intakePivotPosition = 0.7;
-        double speedScalar = 0.75;
+        double crawlModeSpeed = 0.2;
 
         waitForStart();
 
@@ -32,42 +32,38 @@ public class CurrentTeleop extends TeleOpControl
             standardGamepadData();
 
             if (crawlMode) {
-                if (g(0)) {
-                    rob.driveTrainMovement(0.2, Goal.movements.forward);
-                } else if (g(2)) {
-                    rob.driveTrainMovement(0.2, Goal.movements.backward);
-                } else if (g(3)) {
-                    rob.driveTrainMovement(0.2, Goal.movements.right);
-                } else if (g(1)) {
-                    rob.driveTrainMovement(0.2, Goal.movements.left);
-                } else if (g(4)) {
-                    rob.driveTrainMovement(0.2, Goal.movements.br);
-                } else if (g(5)) {
-                    rob.driveTrainMovement(0.2, Goal.movements.bl);
-                } else if (g(6)) {
-                    rob.driveTrainMovement(0.2, Goal.movements.tl);
-                } else if (g(7)) {
-                    rob.driveTrainMovement(0.2, Goal.movements.tr);
-                } else if (g(8)) {
-                    rob.driveTrainMovement(0.2, Goal.movements.ccw);
-                } else if (g(9)) {
-                    rob.driveTrainMovement(0.2, Goal.movements.cw);
-                } else {
+                if (validStick(xAxis1, yAxis1)) {
+                    rob.driveTrainMovementAngleRadians((Math.hypot(xAxis1, yAxis1)/Math.sqrt(2))/crawlModeSpeed, Goal.quadrantAtan(xAxis1, yAxis1));
+                }
+                else if (rt > DEAD_ZONE_SIZE) {
+                    rob.driveTrainMovement(rt/crawlModeSpeed, Goal.movements.cw);
+                }
+                else if (lt > DEAD_ZONE_SIZE) {
+                    rob.driveTrainMovement(lt/crawlModeSpeed, Goal.movements.ccw);
+                }
+                else {
                     rob.stopDrivetrain();
                 }
             }
             else {
                 if (validStick(xAxis1, yAxis1)) {
                     rob.driveTrainMovementAngleRadians(Math.hypot(xAxis1, yAxis1)/Math.sqrt(2), Goal.quadrantAtan(xAxis1, yAxis1));
-                } else {
+                }
+                else if (rt > DEAD_ZONE_SIZE) {
+                    rob.driveTrainMovement(rt, Goal.movements.cw);
+                }
+                else if (lt > DEAD_ZONE_SIZE) {
+                    rob.driveTrainMovement(lt, Goal.movements.ccw);
+                }
+                else {
                     rob.stopDrivetrain();
                 }
             }
 
-            if (rt > DEAD_ZONE_SIZE) {
+            if (rb) {
                 rob.runIntakeSpeed(-intakeSpeed);
             }
-            else if (lt > DEAD_ZONE_SIZE) {
+            else if (lb) {
                 rob.runIntakeSpeed(intakeSpeed);
             }
             else if (gamepad1.y) {
@@ -78,10 +74,10 @@ public class CurrentTeleop extends TeleOpControl
                 crawlMode = !crawlMode;
             }
 
-            if (rt2 > 0.05) {
+            if (rt2 > DEAD_ZONE_SIZE) {
                 rob.runCarouselsSpeed(rt2 > rob.carouselTele ? rob.carouselTele : rt2);
             }
-            else if (lt2 > 0.05) {
+            else if (lt2 > DEAD_ZONE_SIZE) {
                 rob.runCarouselsSpeed(-(lt2 > rob.carouselTele ? rob.carouselTele : lt2));
             }
             else {
