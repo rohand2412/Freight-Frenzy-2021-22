@@ -279,6 +279,7 @@ public class Goal {
         });
     }
 
+    //sets up stream that TFOD will use
     public void setupVuforia() throws InterruptedException {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
@@ -293,6 +294,7 @@ public class Goal {
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
     }
 
+    //uses Vuforia to recognize the object
     public void setupTFOD() throws InterruptedException {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -445,6 +447,7 @@ public class Goal {
         this.drivetrain = motor;
     }
 
+    //sets the run mode of motor(s)
     public void setDriveTrainRunMode(DcMotor.RunMode runMode, DcMotor... motors) throws InterruptedException {
         for (DcMotor motor: motors) motor.setMode(runMode);
     }
@@ -452,19 +455,22 @@ public class Goal {
 
     //sets up motors using the count ratio and making it usable
 
-
+    //drivetrain uses 435 motors, calls encoder using 435 function with the set 435 ratio, moves it to specified distance with speed
     public void driveTrainEncoderMovement(double speed, double distance, movements movement) throws InterruptedException {
         driveTrainEncoderMovementSpecific435Motors(speed, distance, movement, drivetrain);
     }
 
+    //for 435 motors, puts in 435 ratio into driveTrainEncoderMovementSpecificMotorsTypes and moves it a certain distance with speed
     public void driveTrainEncoderMovementSpecific435Motors(double speed, double distance, movements movement, DcMotor... motors) throws InterruptedException {
         driveTrainEncoderMovementSpecificMotorsTypes(speed, distance, movement, COUNTS_PER_INCH_GOBILDA_435_RPM, motors);
     }
 
+    //for core hex motors, puts in core hex ratio into driveTrainEncoderMovementSpecificMotorsTypes and moves it a certain distance with speed
     public void driveTrainEncoderMovementSpecificCoreHexMotors(double speed, double distance, movements movement, DcMotor... motors) throws InterruptedException {
         driveTrainEncoderMovementSpecificMotorsTypes(speed, distance, movement, COUNTS_PER_INCH_REV_CORE_HEX_MOTOR, motors);
     }
 
+    //allows different types of motors to move a specified distance with a speed, using motors' respective counts per inch ratio, and the direction specified through the movements
     public void driveTrainEncoderMovementSpecificMotorsTypes(double speed, double distance, movements movement, double COUNTS_PER_INCH_OF_MOTOR, DcMotor... motors) throws InterruptedException {
         double[] signs = movement.getDirections();
 
@@ -581,6 +587,8 @@ public class Goal {
     }
 
     // IMU Movements
+
+    //turns motors a number of degrees, accounts for possible offset and rotation axis based on which motors are used
     public void turn(double speed, double degrees) throws InterruptedException { turn(speed, degrees, axis.center); }
 
     public void turn(double speed, double degrees, axis rotationAxis) throws InterruptedException {
