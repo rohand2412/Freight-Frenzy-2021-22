@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.checkerframework.checker.index.qual.LTEqLengthOf;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -72,8 +73,7 @@ public class Goal {
     public Central central;
     public HardwareMap hardwareMap;
 
-    public static double speedAdjust = 20.0 / 41.0;
-    public static double yToXRatio = 1.25;
+    public static double yToXRatio = 1.0;
 
     public ModernRoboticsI2cRangeSensor backUltrasonic;
     public ModernRoboticsI2cRangeSensor rightUltrasonic;
@@ -571,9 +571,20 @@ public class Goal {
     }
 
     //------------------DRIVETRAIN TELEOP FUNCTIONS------------------------------------------------------------------------
-   //moves drivetrain, setting each motor to its right power
-    public void driveTrainMovement(double speed, movements movement) throws InterruptedException {
+    //moves drivetrain, setting each motor to its right power
+    public void driveTrainMovement(double speed, double[] signs, movements movement) {
+        for (int i = 0; i < signs.length; i++) {
+            signs[i] *= movement.getDirections()[i];
+        }
+        driveTrainMovement(speed, signs);
+    }
+
+    public void driveTrainMovement(double speed, movements movement) {
         double[] signs = movement.getDirections();
+        driveTrainMovement(speed, signs);
+    }
+
+    public void driveTrainMovement(double speed, double[] signs) {
         for (DcMotor motor: drivetrain){
             int x = Arrays.asList(drivetrain).indexOf(motor);
             if (signs[x] != 0) motor.setPower(signs[x] * Math.abs(speed));
@@ -674,6 +685,10 @@ public class Goal {
         front, center, back
     }
 
+    public static double quadrantAtan(double x, double y) {
+        return Math.atan(y/x) + (x < 0 ? Math.PI : 0) + (x >= 0 && y < 0 ? 2 * Math.PI : 0);
+    }
+
     /**
      * Finds the set of two direction speeds at the mecanum's movement angles that create a vector movement towards the desired angle
      * @param speed speed of movement
@@ -681,45 +696,43 @@ public class Goal {
      * @return array of motor directions
      */
     public static double[] anyDirection(double speed, double angleDegrees) {
-        double theta = Math.toRadians(angleDegrees);
-        double beta = Math.atan(yToXRatio);
+        return anyDirection(speed, angleDegrees, 0);
+    }
 
-        double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));
-        double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));
-
-        double[] retval = {v1, v2};
-        return retval;
+    public static double[] anyDirection(double speed, double angleDegrees, double rotationOffsetDegrees) {
+        return anyDirectionRadians(speed, Math.toRadians(angleDegrees), Math.toRadians(rotationOffsetDegrees));
     }
 
     //same as above, uses param angleRadians
     public static double[] anyDirectionRadians(double speed, double angleRadians) {
-        double theta = angleRadians;
+        return anyDirectionRadians(speed, angleRadians, 0);
+    }
+
+    public static double[] anyDirectionRadians(double speed, double angleRadians, double rotationOffsetRadians) {
         double beta = Math.atan(yToXRatio);
 
-        double v1 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) + speed * Math.cos(theta) / Math.cos(beta));
-        double v2 = speedAdjust * (speed * Math.sin(theta) / Math.sin(beta) - speed * Math.cos(theta) / Math.cos(beta));
+        double v1 = speed * Math.sin(angleRadians - (beta + rotationOffsetRadians));
+        double v2 = speed * Math.cos(angleRadians - (beta + rotationOffsetRadians));
 
-        double[] retval = {v1, v2};
-        return retval;
-    }
-    public void driveTrainMovementAngle(double speed, double angle) {
-
-        double[] speeds = anyDirection(speed, angle);
-        motorFR.setPower(movements.forward.directions[0] * speeds[0]);
-        motorFL.setPower(movements.forward.directions[1] * speeds[1]);
-        motorBR.setPower(movements.forward.directions[2] * speeds[1]);
-        motorBL.setPower(movements.forward.directions[3] * speeds[0]);
-
+        return new double[] {v1, v2};
     }
 
-    public void driveTrainMovementAngleRadians(double speed, double angle) {
+    public void driveTrainMovementAngle(double speed, double angleDegrees) {
+        driveTrainMovementAngle(speed, angleDegrees, 0);
+    }
 
-        double[] speeds = anyDirectionRadians(speed, angle);
-        motorFR.setPower(movements.forward.directions[0] * speeds[0]);
-        motorFL.setPower(movements.forward.directions[1] * speeds[1]);
-        motorBR.setPower(movements.forward.directions[2] * speeds[1]);
-        motorBL.setPower(movements.forward.directions[3] * speeds[0]);
+    public void driveTrainMovementAngle(double speed, double angleDegrees, double rotationOffsetDegrees) {
+        double[] speeds = anyDirection(speed, angleDegrees, rotationOffsetDegrees);
+        driveTrainMovement(speed, new double[] {speeds[0], speeds[1], speeds[1], speeds[0]}, movements.forward);
+    }
 
+    public void driveTrainMovementAngleRadians(double speed, double angleRadians) {
+        driveTrainMovementAngleRadians(speed, angleRadians, 0);
+    }
+
+    public void driveTrainMovementAngleRadians(double speed, double angleRadians, double rotationOffsetRadians) {
+        double[] speeds = anyDirectionRadians(speed, angleRadians, rotationOffsetRadians);
+        driveTrainMovement(speed, new double[] {speeds[0], speeds[1], speeds[1], speeds[0]}, movements.forward);
     }
 
     public void driveTrainIMUSwingTurnMovement(double speed, movements movement, long waitAfter, double rotationDegrees, double rotationfactor, turnside rotDir) throws InterruptedException{
