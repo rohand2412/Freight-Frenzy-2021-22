@@ -37,9 +37,8 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_DEGREE
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_LINEAR_SLIDE_MOTOR;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_REV_CORE_HEX_MOTOR;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_GOBILDA_435_RPM;
-import static org.firstinspires.ftc.teamcode.Control.Constants.LABEL_FIRST_ELEMENT;
-import static org.firstinspires.ftc.teamcode.Control.Constants.LABEL_SECOND_ELEMENT;
-import static org.firstinspires.ftc.teamcode.Control.Constants.TFOD_MODEL_ASSET;
+import static org.firstinspires.ftc.teamcode.Control.Constants.FFBCDM_LABELS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.FFBCDM_MODEL_ASSET;
 import static org.firstinspires.ftc.teamcode.Control.Constants.carouselRightS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.imuS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.intakeClawS;
@@ -299,11 +298,11 @@ public class Goal {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.8f;
-        tfodParameters.isModelTensorFlow2 = false;
-        tfodParameters.inputSize = 300;
+        tfodParameters.minResultConfidence = 0.65f;
+        tfodParameters.isModelTensorFlow2 = true;
+        tfodParameters.inputSize = 320;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+        tfod.loadModelFromAsset(FFBCDM_MODEL_ASSET, FFBCDM_LABELS);
 
         /**
          * Activate TensorFlow Object Detection before we wait for the start command.
@@ -318,7 +317,7 @@ public class Goal {
             // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
             // should be set to the value of the images used to create the TensorFlow Object Detection model
             // (typically 16/9).
-            tfod.setZoom(1.0, 1.0);
+            tfod.setZoom(1.0, 16.0/9.0);
         }
     }
 
