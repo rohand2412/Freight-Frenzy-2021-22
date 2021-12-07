@@ -294,17 +294,30 @@ public class Constants {
     public static final String webcamS = "Webcam 1";
 
     /**
-     * Team Element TFLite model name
+     * FTC Provided Freight Frenzy Model Name
      */
-    public static final String TFOD_MODEL_ASSET = "FTEDDv1.tflite";
+    public static final String FFBCDM_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
 
     /**
-     * Label for first object class
+     * Labels for FFBCDM_MODEL_ASSET
      */
-    public static final String LABEL_FIRST_ELEMENT = "middle";
+    public static final String[] FFBCDM_LABELS = {
+            "Ball",
+            "Cube",
+            "Duck",
+            "Marker"
+    };
 
     /**
-     * Label for second object class
+     * Team Element Model Name
      */
-    public static final String LABEL_SECOND_ELEMENT = "right";
+    public static final String FTEDD_MODEL_ASSET = "FTEDDv1.tflite";
+
+    /**
+     * Labels for FTEDD_MODEL_ASSET
+     */
+    public static final String[] FTEDD_LABELS = {
+            "middle",
+            "right"
+    };
 }
