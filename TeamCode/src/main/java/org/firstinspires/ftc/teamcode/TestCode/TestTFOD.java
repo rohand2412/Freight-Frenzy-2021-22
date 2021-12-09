@@ -12,9 +12,7 @@ public class TestTFOD extends AutonomousControl {
     @Override
     public void runOpMode() throws InterruptedException
     {
-        setup(runtime, false, Goal.setupType.vuforia, Goal.setupType.tfod);
-
-        waitAndStart();
+        setup(runtime, Goal.setupType.vuforia, Goal.setupType.tfod);
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
@@ -32,6 +30,7 @@ public class TestTFOD extends AutonomousControl {
                                     recognition.getLeft(), recognition.getTop());
                             telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
                                     recognition.getRight(), recognition.getBottom());
+                            telemetry.addData(String.format("  confidence (%d)", i), recognition.getConfidence() + "");
                             i++;
                         }
                         telemetry.update();
