@@ -298,7 +298,7 @@ public class Goal {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.65f;
+        tfodParameters.minResultConfidence = 0.5f;
         tfodParameters.isModelTensorFlow2 = true;
         tfodParameters.inputSize = 320;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
@@ -431,13 +431,9 @@ public class Goal {
     public void setDriveTrain(EncoderMode mode, DcMotor... motor) throws InterruptedException {
         switch (mode) {
             case ON:
-                for (DcMotor i : motor) {
-                    i.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                }
+                setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER, motor);
                 central.idle();
-                for (DcMotor i : motor) {
-                    i.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                }
+                setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER, motor);
                 break;
             case OFF:
                 break;
@@ -481,8 +477,8 @@ public class Goal {
                 int x = Arrays.asList(motors).indexOf(motor);
                 if (signs[x] != 0) motor.setTargetPosition(motor.getCurrentPosition() + (int) (signs[x] * distance * COUNTS_PER_INCH_OF_MOTOR));
             }
-            setDriveTrainRunMode(DcMotor.RunMode.RUN_TO_POSITION, drivetrain);
-            driveTrainMovement(speed, movement);
+            setDriveTrainRunMode(DcMotor.RunMode.RUN_TO_POSITION, motors);
+            setMotorsPower(speed, movement, motors);
 
             // keep looping while we are still active and both motors are running.
             boolean drivetrainIsBusy = true;
@@ -501,10 +497,10 @@ public class Goal {
             }
 
             // Stop all motion;
-            stopDrivetrain();
+            setMotorsPower(0, motors);
 
             // Turn off RUN_TO_POSITION
-            setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER, drivetrain);
+            setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER, motors);
         }
     }
 
@@ -579,16 +575,27 @@ public class Goal {
     }
 
     public void driveTrainMovement(double speed, movements movement) {
-        double[] signs = movement.getDirections();
-        driveTrainMovement(speed, signs);
+        setMotorsPower(speed, movement, drivetrain);
     }
 
     public void driveTrainMovement(double speed, double[] signs) {
-        for (DcMotor motor: drivetrain){
+        setMotorsPower(speed, signs, drivetrain);
+    }
+
+    public void setMotorsPower(double speed, movements movement, DcMotor... motors) {
+        double[] signs = movement.getDirections();
+        setMotorsPower(speed, signs, motors);
+    }
+
+    public void setMotorsPower(double speed, double[] signs, DcMotor... motors) {
+        for (DcMotor motor: motors){
             int x = Arrays.asList(drivetrain).indexOf(motor);
             if (signs[x] != 0) motor.setPower(signs[x] * Math.abs(speed));
         }
     }
+
+    public void setMotorsPower(double speed, DcMotor... motors) { for (DcMotor motor : motors) motor.setPower(speed); }
+
     //sets each motor power to 0, stops it
     public void stopDrivetrain() throws InterruptedException {
         for (DcMotor motor: drivetrain){
