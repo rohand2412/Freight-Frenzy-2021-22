@@ -9,8 +9,8 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_DEGREE
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_LINEAR_SLIDE_MOTOR;
 import static org.firstinspires.ftc.teamcode.Control.Constants.DEAD_ZONE_SIZE;
 
-@TeleOp(name="CurrentTeleop", group = "basic")
-public class CurrentTeleop extends TeleOpControl
+@TeleOp(name="FinalTeleOp", group = "basic")
+public class FinalTeleOp extends TeleOpControl
 {
     @Override
     public void runOpMode() throws InterruptedException {
