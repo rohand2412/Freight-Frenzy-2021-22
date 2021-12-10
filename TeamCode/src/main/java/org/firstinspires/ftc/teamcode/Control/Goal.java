@@ -717,10 +717,13 @@ public class Goal {
     public static double[] anyDirectionRadians(double speed, double angleRadians, double rotationOffsetRadians) {
         double beta = Math.atan(yToXRatio);
 
-        double v1 = speed * Math.sin(angleRadians - (beta + rotationOffsetRadians));
-        double v2 = speed * Math.cos(angleRadians - (beta + rotationOffsetRadians));
+        double v1 = Math.sin(angleRadians - (beta + rotationOffsetRadians));
+        double v2 = Math.cos(angleRadians - (beta + rotationOffsetRadians));
 
-        return new double[] {v1, v2};
+        double v1Max = speed * (v1 / Math.max(Math.abs(v1), Math.abs(v2)));
+        double v2Max = speed * (v2 / Math.max(Math.abs(v1), Math.abs(v2)));
+
+        return new double[] {v1Max, v2Max};
     }
 
     public void driveTrainMovementAngle(double speed, double angleDegrees) {
