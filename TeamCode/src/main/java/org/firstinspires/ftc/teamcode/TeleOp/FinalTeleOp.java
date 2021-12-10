@@ -25,6 +25,8 @@ public class FinalTeleOp extends TeleOpControl
         double intakeSpeed = 0.5;
         double intakePivotPosition = 0.7;
         double crawlModeSpeed = 0.2;
+        boolean driveTrainRight = false;
+        boolean driveTrainForward = true;
 
         waitForStart();
 
@@ -33,7 +35,10 @@ public class FinalTeleOp extends TeleOpControl
 
             if (crawlMode) {
                 if (validStick(xAxis1, yAxis1)) {
-                    rob.driveTrainMovementAngleRadians((Math.hypot(xAxis1, yAxis1)/Math.sqrt(2))/crawlModeSpeed, Goal.quadrantAtan(xAxis1, yAxis1));
+                    rob.driveTrainMovementAngleRadians((Math.hypot(xAxis1, yAxis1)/Math.sqrt(2))/crawlModeSpeed, Goal.quadrantAtan(xAxis1, yAxis1), driveTrainForward ? Math.toRadians(0) : Math.toRadians(180));
+                }
+                else if (validStick(xAxis2, yAxis2)) {
+                    rob.driveTrainMovementAngleRadians(Math.hypot(xAxis2, yAxis2)/Math.sqrt(2)/crawlModeSpeed, Goal.quadrantAtan(xAxis2, yAxis2), driveTrainRight ? Math.toRadians(-90) : Math.toRadians(90));
                 }
                 else if (rt > DEAD_ZONE_SIZE) {
                     rob.driveTrainMovement(rt/crawlModeSpeed, Goal.movements.cw);
@@ -47,7 +52,10 @@ public class FinalTeleOp extends TeleOpControl
             }
             else {
                 if (validStick(xAxis1, yAxis1)) {
-                    rob.driveTrainMovementAngleRadians(Math.hypot(xAxis1, yAxis1)/Math.sqrt(2), Goal.quadrantAtan(xAxis1, yAxis1));
+                    rob.driveTrainMovementAngleRadians(Math.hypot(xAxis1, yAxis1)/Math.sqrt(2), Goal.quadrantAtan(xAxis1, yAxis1), driveTrainForward ? Math.toRadians(0) : Math.toRadians(180));
+                }
+                else if (validStick(xAxis2, yAxis2)) {
+                    rob.driveTrainMovementAngleRadians(Math.hypot(xAxis2, yAxis2)/Math.sqrt(2), Goal.quadrantAtan(xAxis2, yAxis2), driveTrainRight ? Math.toRadians(-90) : Math.toRadians(90));
                 }
                 else if (rt > DEAD_ZONE_SIZE) {
                     rob.driveTrainMovement(rt, Goal.movements.cw);
@@ -59,6 +67,9 @@ public class FinalTeleOp extends TeleOpControl
                     rob.stopDrivetrain();
                 }
             }
+
+            if (gamepad1.left_stick_button) driveTrainForward = !driveTrainForward;
+            if (gamepad1.right_stick_button) driveTrainRight = !driveTrainRight;
 
             if (rb) {
                 rob.runIntakeSpeed(-intakeSpeed);
