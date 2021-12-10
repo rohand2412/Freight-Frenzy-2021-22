@@ -16,6 +16,7 @@ public class TestTFOD extends AutonomousControl {
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
+                sleep(100);
                 if (rob.tfod != null) {
                     // getUpdatedRecognitions() will return null if no new information is available since
                     // the last time that call was made.
