@@ -5,8 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Control.Goal;
 import org.firstinspires.ftc.teamcode.Control.TeleOpControl;
 
-import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_DEGREE_GOBILDA_30_RPM;
-import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_LINEAR_SLIDE_MOTOR;
 import static org.firstinspires.ftc.teamcode.Control.Constants.DEAD_ZONE_SIZE;
 
 @TeleOp(name="FinalTeleOp", group = "basic")
@@ -16,7 +14,7 @@ public class FinalTeleOp extends TeleOpControl
     public void runOpMode() throws InterruptedException {
 
         setup(runtime, Goal.setupType.teleop);
-        rob.intakeClaw.setPosition(0);
+//        rob.intakeClaw.setPosition(0);
 
         boolean intakeUp = false;
         boolean holdingObject = false;
@@ -86,44 +84,44 @@ public class FinalTeleOp extends TeleOpControl
             }
 
             if (rt2 > DEAD_ZONE_SIZE) {
-                rob.runCarouselsSpeed(rt2 > rob.carouselTele ? rob.carouselTele : rt2);
+//                rob.runCarouselsSpeed(rt2 > rob.carouselTele ? rob.carouselTele : rt2);
             }
             else if (lt2 > DEAD_ZONE_SIZE) {
-                rob.runCarouselsSpeed(-(lt2 > rob.carouselTele ? rob.carouselTele : lt2));
+//                rob.runCarouselsSpeed(-(lt2 > rob.carouselTele ? rob.carouselTele : lt2));
             }
             else {
-                rob.runCarouselsSpeed(0);
+//                rob.runCarouselsSpeed(0);
             }
 
             if (rb2) {
-                int target = rob.intakeLinearSlide.getTargetPosition();
-                rob.moveLinearSlideInches(1, 1, rob.intakeLinearSlide);
-                rob.intakeLinearSlide.setTargetPosition(target);
+//                int target = rob.intakeLinearSlide.getTargetPosition();
+//                rob.moveLinearSlideInches(1, 1, rob.intakeLinearSlide);
+//                rob.intakeLinearSlide.setTargetPosition(target);
             }
             else if (lb2) {
-                int target = rob.intakeLinearSlide.getTargetPosition();
-                rob.moveLinearSlideInches(1, -1, rob.intakeLinearSlide);
-                rob.intakeLinearSlide.setTargetPosition(target);
+//                int target = rob.intakeLinearSlide.getTargetPosition();
+//                rob.moveLinearSlideInches(1, -1, rob.intakeLinearSlide);
+//                rob.intakeLinearSlide.setTargetPosition(target);
             }
 
             if (gamepad1.a && !intakeUp && !holdingObject) {
-                rob.intakeClaw.setPosition(1);
+//                rob.intakeClaw.setPosition(1);
                 rob.runIntakeSpeed(0);
-                rob.moveLinearSlideInches(1, 1, rob.intakeLinearSlide);
+//                rob.moveLinearSlideInches(1, 1, rob.intakeLinearSlide);
                 intakeClawOpen = false;
                 holdingObject = true;
             }
             else if (gamepad1.a && !intakeUp && holdingObject) {
-                rob.moveLinearSlideInches(1, -1, rob.intakeLinearSlide);
-                rob.intakeClaw.setPosition(0);
+//                rob.moveLinearSlideInches(1, -1, rob.intakeLinearSlide);
+//                rob.intakeClaw.setPosition(0);
                 intakeClawOpen = true;
                 holdingObject = false;
             }
             else if (gamepad1.a && intakeUp && holdingObject) {
-                rob.intakeClaw.setPosition(0);
+//                rob.intakeClaw.setPosition(0);
                 rob.driveTrainEncoderMovement(0.5, 12, Goal.movements.backward);
-                rob.intakePivot.setPosition(0);
-                rob.moveLinearSlideInches(1, -8, rob.intakeLinearSlide);
+//                rob.intakePivot.setPosition(0);
+//                rob.moveLinearSlideInches(1, -8, rob.intakeLinearSlide);
                 crawlMode = false;
                 intakeUp = false;
                 holdingObject = false;
@@ -131,28 +129,28 @@ public class FinalTeleOp extends TeleOpControl
             }
 
             if (gamepad1.x && !intakeUp && holdingObject) {
-                rob.moveLinearSlideInches(1, 7, rob.intakeLinearSlide);
-                rob.intakePivot.setPosition(intakePivotPosition);
+//                rob.moveLinearSlideInches(1, 7, rob.intakeLinearSlide);
+//                rob.intakePivot.setPosition(intakePivotPosition);
                 crawlMode = true;
                 intakeUp = true;
             }
 
             if (gamepad2.dpad_up) {
                 if (intakePivotPosition < 0.9) intakePivotPosition += 0.001;
-                rob.intakePivot.setPosition(intakePivotPosition);
+//                rob.intakePivot.setPosition(intakePivotPosition);
             }
             else if (gamepad2.dpad_down) {
                 if (intakePivotPosition > 0) intakePivotPosition -= 0.001;
-                rob.intakePivot.setPosition(intakePivotPosition);
+//                rob.intakePivot.setPosition(intakePivotPosition);
             }
 
             if (gamepad2.b) {
                 if (intakeClawOpen) {
-                    rob.intakeClaw.setPosition(1);
+//                    rob.intakeClaw.setPosition(1);
                     intakeClawOpen = false;
                 }
                 else {
-                    rob.intakeClaw.setPosition(0);
+//                    rob.intakeClaw.setPosition(0);
                     intakeClawOpen = true;
                 }
             }
@@ -164,7 +162,7 @@ public class FinalTeleOp extends TeleOpControl
                 sleep(250);
 //                rob.moveLinearSlide(0);
                 sleep(250);
-                rob.runCarouselsSpeed(0);
+//                rob.runCarouselsSpeed(0);
                 sleep(250);
             }
         }

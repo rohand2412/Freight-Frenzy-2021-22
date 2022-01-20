@@ -17,47 +17,47 @@ public abstract class AutonomousControl extends Central {
                 if (closeToCarousel) {
                     rob.driveTrainEncoderMovement(speed, 10, Goal.movements.forward);
                     rob.driveTrainEncoderMovement(speed, 27, Goal.movements.right);
-                    rob.runCarouselsTimeSpeed(rob.carouselAuton, 4000);
+//                    rob.runCarouselsTimeSpeed(rob.carouselAuton, 4000);
                     rob.driveTrainEncoderMovement(speed, 65, Goal.movements.left);
-                    rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+//                    rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
                     if (location == locations.left || location == locations.middle) {
-                        rob.intakePivot.setPosition(0.7);
-                        rob.moveLinearSlideInches(1, location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
+//                        rob.intakePivot.setPosition(0.7);
+//                        rob.moveLinearSlideInches(1, location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
                     } else {
-                        rob.intakePivot.setPosition(0.6);
-                        rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
+//                        rob.intakePivot.setPosition(0.6);
+//                        rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
                     }
                     rob.driveTrainEncoderMovement(speed, 18, Goal.movements.forward);
-                    rob.intakeClaw.setPosition(0);
+//                    rob.intakeClaw.setPosition(0);
                 }
             } else {
                 rob.driveTrainEncoderMovement(speed, 20, Goal.movements.right);
-                rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+//                rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
                 if (location == locations.left || location == locations.middle) {
-                    rob.intakePivot.setPosition(0.7);
-                    rob.moveLinearSlideInches(1, location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
+//                    rob.intakePivot.setPosition(0.7);
+//                    rob.moveLinearSlideInches(1, location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
                     rob.driveTrainEncoderMovement(speed, 2, Goal.movements.forward);
                 } else {
-                    rob.intakePivot.setPosition(0.6);
-                    rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
+//                    rob.intakePivot.setPosition(0.6);
+//                    rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
                 }
                 rob.driveTrainEncoderMovement(speed, 25, Goal.movements.forward);
-                rob.intakeClaw.setPosition(0);
+//                rob.intakeClaw.setPosition(0);
             }
 
             sleep(500);
             rob.driveTrainEncoderMovement(speed, 12, Goal.movements.backward);
             if (location == locations.left) {
-                rob.intakePivot.setPosition(0);
-                rob.moveLinearSlideInches(1, -location.getLinearSlideInches(), rob.intakeLinearSlide);
+//                rob.intakePivot.setPosition(0);
+//                rob.moveLinearSlideInches(1, -location.getLinearSlideInches(), rob.intakeLinearSlide);
             } else if (location == locations.middle) {
-                rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
-                rob.intakePivot.setPosition(0);
-                rob.moveLinearSlideInches(1, -location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
+//                rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+//                rob.intakePivot.setPosition(0);
+//                rob.moveLinearSlideInches(1, -location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
             } else {
-                rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
-                rob.intakePivot.setPosition(0);
-                rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
+//                rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+//                rob.intakePivot.setPosition(0);
+//                rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
             }
             rob.turn(speed, -90);
 
@@ -81,47 +81,47 @@ public abstract class AutonomousControl extends Central {
                 if (closeToCarousel) {
                     rob.driveTrainEncoderMovement(speed, 10, Goal.movements.forward);
                     rob.driveTrainEncoderMovement(speed, 47.5, Goal.movements.left);
-                    rob.runCarouselsTimeSpeed(rob.carouselAuton, 4000);
+//                    rob.runCarouselsTimeSpeed(rob.carouselAuton, 4000);
                     rob.driveTrainEncoderMovement(speed, 66, Goal.movements.right);
-                    rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+//                    rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
                     if (location == locations.left || location == locations.middle) {
-                        rob.intakePivot.setPosition(0.7);
-                        rob.moveLinearSlideInches(1, location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
+//                        rob.intakePivot.setPosition(0.7);
+//                        rob.moveLinearSlideInches(1, location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
                     } else {
-                        rob.intakePivot.setPosition(0.6);
-                        rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
+//                        rob.intakePivot.setPosition(0.6);
+//                        rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
                     }
                     rob.driveTrainEncoderMovement(speed, 17, Goal.movements.forward);
-                    rob.intakeClaw.setPosition(0);
+//                    rob.intakeClaw.setPosition(0);
                 }
             } else {
                 rob.driveTrainEncoderMovement(speed, 40, Goal.movements.left);
-                rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+//                rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
                 if (location == locations.left || location == locations.middle) {
-                    rob.intakePivot.setPosition(0.7);
-                    rob.moveLinearSlideInches(1, location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
+//                    rob.intakePivot.setPosition(0.7);
+//                    rob.moveLinearSlideInches(1, location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
                     rob.driveTrainEncoderMovement(speed, 4, Goal.movements.forward);
                 } else {
-                    rob.intakePivot.setPosition(0.6);
-                    rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
+//                    rob.intakePivot.setPosition(0.6);
+//                    rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
                 }
                 rob.driveTrainEncoderMovement(speed, 25, Goal.movements.forward);
-                rob.intakeClaw.setPosition(0);
+//                rob.intakeClaw.setPosition(0);
             }
 
             sleep(500);
             rob.driveTrainEncoderMovement(speed, 12, Goal.movements.backward);
             if (location == locations.left) {
-                rob.intakePivot.setPosition(0);
-                rob.moveLinearSlideInches(1, -location.getLinearSlideInches(), rob.intakeLinearSlide);
+//                rob.intakePivot.setPosition(0);
+//                rob.moveLinearSlideInches(1, -location.getLinearSlideInches(), rob.intakeLinearSlide);
             } else if (location == locations.middle) {
-                rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
-                rob.intakePivot.setPosition(0);
-                rob.moveLinearSlideInches(1, -location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
+//                rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+//                rob.intakePivot.setPosition(0);
+//                rob.moveLinearSlideInches(1, -location.getLinearSlideInches() - 5, rob.intakeLinearSlide);
             } else {
-                rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
-                rob.intakePivot.setPosition(0);
-                rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
+//                rob.moveLinearSlideInches(1, 5, rob.intakeLinearSlide);
+//                rob.intakePivot.setPosition(0);
+//                rob.moveLinearSlideInches(1, -5, rob.intakeLinearSlide);
             }
             rob.turn(speed, 90);
 
