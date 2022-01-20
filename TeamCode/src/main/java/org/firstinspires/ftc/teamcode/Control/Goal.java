@@ -32,7 +32,6 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.Arrays;
 
-import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_DEGREE_GOBILDA_30_RPM;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_DEGREE_REV_CORE_HEX_MOTOR;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_LINEAR_SLIDE_MOTOR;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_REV_CORE_HEX_MOTOR;
@@ -41,11 +40,10 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.FFBCDM_LABELS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.FFBCDM_MODEL_ASSET;
 import static org.firstinspires.ftc.teamcode.Control.Constants.bucketLeftS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.bucketRightS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.carouselRightS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.carouselS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.craneLiftS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.cranePivotS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.imuS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.intakeClawS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.intakeLinearSlideS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.intakePivotS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBLS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorBRS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.motorFLS;
@@ -55,7 +53,6 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.backUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.rightUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.leftUltraS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.frontUltraS;
-import static org.firstinspires.ftc.teamcode.Control.Constants.carouselLeftS;
 
 import static org.firstinspires.ftc.teamcode.Control.Constants.VUFORIA_KEY;
 import static org.firstinspires.ftc.teamcode.Control.Constants.mmPerInch;
@@ -91,11 +88,9 @@ public class Goal {
     public DcMotor motorBR;
     public DcMotor motorBL;
     public DcMotor intake;
-    public DcMotor intakeLinearSlide;
-    public Servo intakePivot;
-    public Servo intakeClaw;
-    public Servo bucketLeft;
-    public Servo bucketRight;
+    public DcMotor craneLift;
+    public DcMotor cranePivot;
+    public Servo[] bucket;
     public DcMotor carouselRight;
     public DcMotor carouselLeft;
 
@@ -236,20 +231,20 @@ public class Goal {
     //sets up the intake motors (intakeS), sets desired direction and brakes w/ no power
     public void setupIntake() throws InterruptedException {
         intake = motor(intakeS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
-        intakeLinearSlide = motor(intakeLinearSlideS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
-        intakePivot = servo(intakePivotS, Servo.Direction.REVERSE, 0, 1, 0);
-        intakeClaw = servo(intakeClawS, Servo.Direction.FORWARD, 0.073, 0.1525, 1);
     }
 
     public void setupCrane() throws InterruptedException {
-        bucketLeft = servo(bucketLeftS, Servo.Direction.FORWARD, 0, 1, 0);
-        bucketRight = servo(bucketRightS, Servo.Direction.REVERSE, 0, 1, 0);
+        craneLift = motor(craneLiftS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
+        cranePivot = motor(cranePivotS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
+
+        bucket = new Servo[2];
+        bucket[0] = servo(bucketLeftS, Servo.Direction.FORWARD, 0, 1, 0);
+        bucket[1] = servo(bucketRightS, Servo.Direction.REVERSE, 0, 1, 0);
     }
 
     //sets motor responsible for spinning carousel
     public void setupCarousel() throws InterruptedException {
-        carouselRight = motor(carouselRightS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
-        carouselLeft = motor(carouselLeftS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+        carouselRight = motor(carouselS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     //ultrasonic sensors defined&setup
@@ -409,6 +404,11 @@ public class Goal {
 
     }
 
+    //Servo Utilities
+    public void bucketSetPosition(double position) {
+        for (Servo b : bucket) b.setPosition(position);
+    }
+
     //IMU Utilities
     public double getYaw() {
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
@@ -546,19 +546,6 @@ public class Goal {
         runSingleMotorSpeed(speed, intake, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    //turns on left carousel motor at certain speed for set time
-    public void runCarouselsTimeSpeed(double speed, long time) {
-        runCarouselsSpeed(speed);
-        central.sleep(time);
-        runCarouselsSpeed(0);
-    }
-
-    //turns on left carousel motor without set time but w set speed
-    public void runCarouselsSpeed(double speed) {
-        runSingleMotorSpeed(speed, carouselRight, DcMotor.RunMode.RUN_USING_ENCODER);
-        runSingleMotorSpeed(speed, carouselLeft, DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-
     //moves linearside motor at a speed
     public void moveLinearSlide(double speed, DcMotor linearSlide) {
         runSingleMotorSpeed(speed, linearSlide, DcMotor.RunMode.RUN_USING_ENCODER);
@@ -600,9 +587,10 @@ public class Goal {
     }
 
     public void setMotorsPower(double speed, double[] signs, DcMotor... motors) {
-        for (DcMotor motor: motors){
-            int x = Arrays.asList(drivetrain).indexOf(motor);
-            if (signs[x] != 0) motor.setPower(signs[x] * Math.abs(speed));
+        for (int i = 0; i < motors.length; i++){
+            if (signs[i] != 0) {
+                motors[i].setPower(signs[i] * Math.abs(speed));
+            }
         }
     }
 
