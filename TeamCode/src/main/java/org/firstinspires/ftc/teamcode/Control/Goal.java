@@ -39,6 +39,8 @@ import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_R
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_GOBILDA_435_RPM;
 import static org.firstinspires.ftc.teamcode.Control.Constants.FFBCDM_LABELS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.FFBCDM_MODEL_ASSET;
+import static org.firstinspires.ftc.teamcode.Control.Constants.bucketLeftS;
+import static org.firstinspires.ftc.teamcode.Control.Constants.bucketRightS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.carouselRightS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.imuS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.intakeClawS;
@@ -92,6 +94,8 @@ public class Goal {
     public DcMotor intakeLinearSlide;
     public Servo intakePivot;
     public Servo intakeClaw;
+    public Servo bucketLeft;
+    public Servo bucketRight;
     public DcMotor carouselRight;
     public DcMotor carouselLeft;
 
@@ -142,6 +146,9 @@ public class Goal {
                     break;
                 case intake:
                     setupIntake();
+                    break;
+                case crane:
+                    setupCrane();
                     break;
                 case carousel:
                     setupCarousel();
@@ -232,6 +239,11 @@ public class Goal {
         intakeLinearSlide = motor(intakeLinearSlideS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
         intakePivot = servo(intakePivotS, Servo.Direction.REVERSE, 0, 1, 0);
         intakeClaw = servo(intakeClawS, Servo.Direction.FORWARD, 0.073, 0.1525, 1);
+    }
+
+    public void setupCrane() throws InterruptedException {
+        bucketLeft = servo(bucketLeftS, Servo.Direction.FORWARD, 0, 1, 0);
+        bucketRight = servo(bucketRightS, Servo.Direction.REVERSE, 0, 1, 0);
     }
 
     //sets motor responsible for spinning carousel
@@ -638,7 +650,7 @@ public class Goal {
     }
 
     public enum setupType{
-        autonomous, teleop, drivetrain_system, ultra, intake, carousel, imu, openCV, webcamStream, vuforia, tfod;
+        autonomous, teleop, drivetrain_system, ultra, intake, crane, carousel, imu, openCV, webcamStream, vuforia, tfod;
     }
 
     //-------------------SET FUNCTIONS--------------------------------
