@@ -264,19 +264,14 @@ public class Constants {
     public static final String intakeS = "intake";
 
     /**
-     * Intake Linear Slide motor name
+     * Crane Lift motor name
      */
-    public static final String intakeLinearSlideS = "intakeLift";
+    public static final String craneLiftS = "craneLift";
 
     /**
-     * Intake Claw Pivot servo name
+     * Crane Pivot motor name
      */
-    public static final String intakePivotS = "intakePivot";
-
-    /**
-     * Intake Claw servo name
-     */
-    public static final String intakeClawS = "intakeClaw";
+    public static final String cranePivotS = "cranePivot";
 
     /**
      * Crane Bucket Left servo name
