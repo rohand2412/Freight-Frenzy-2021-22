@@ -110,7 +110,7 @@ public class Goal {
     public final double overflowThreshold = 300;
     public final double fullCircleDeg = 360;
 
-    public final double turnOffsetPositive = 25;
+    public final double turnOffsetPositive = 20;
     public final double turnOffsetNegative = 16;
 
     /** Temp variables **/
