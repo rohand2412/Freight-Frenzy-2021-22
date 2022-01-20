@@ -84,6 +84,11 @@ public class Constants {
     public static final float mmPerInch = 25.4f;
 
     /**
+     * Counts per revolution of a GoBilda 117 RPM Motor
+     */
+    public static final double COUNTS_PER_MOTOR_GOBILDA_117_RPM = 1425.1;
+
+    /**
      * Counts per revolution of a GoBilda 312 RPM Motor
      */
     public static final double COUNTS_PER_MOTOR_GOBILDA_312_RPM = 537.6;
@@ -172,9 +177,14 @@ public class Constants {
     public static final double COUNTS_PER_DEGREE_REV_CORE_HEX_MOTOR = COUNTS_PER_MOTOR_REV_CORE_HEX_MOTOR / 360.0;
 
     /**
-     * Counts per degree calculated of GoBilda 30 RPM Motor
+     * Counts per degree calculated of GoBilda 117 RPM Motor
      */
-    public static final double COUNTS_PER_DEGREE_GOBILDA_30_RPM = COUNTS_PER_MOTOR_GOBILDA_30_RPM / 360.0;
+    public static final double COUNTS_PER_DEGREE_GOBILDA_117_RPM = COUNTS_PER_MOTOR_GOBILDA_117_RPM / 360.0;
+
+    /**
+     * Counts per degree calculated of GoBilda 312 RPM Motor
+     */
+    public static final double COUNTS_PER_DEGREE_GOBILDA_312_RPM = COUNTS_PER_MOTOR_GOBILDA_312_RPM / 360.0;
 
     //--------------------------------TELE-OP VALUES--------------------
     /**
@@ -259,17 +269,17 @@ public class Constants {
     public static final String frontUltraS = "Front";
 
     /**
-     * Intake motor name
+     * Intake motor name (435)
      */
     public static final String intakeS = "intake";
 
     /**
-     * Crane Lift motor name
+     * Crane Lift motor name (435)
      */
     public static final String craneLiftS = "craneLift";
 
     /**
-     * Crane Pivot motor name
+     * Crane Pivot motor name (312)
      */
     public static final String cranePivotS = "cranePivot";
 
@@ -284,14 +294,9 @@ public class Constants {
     public static final String bucketRightS = "bucketRight";
 
     /**
-     * Left Carousel motor name
+     * Carousel motor name (312)
      */
-    public static final String carouselLeftS = "carouselLeft";
-
-    /**
-     * Right Carousel motor name
-     */
-    public static final String carouselRightS = "carouselRight";
+    public static final String carouselS = "carousel";
 
     /**
      * Webcam name
