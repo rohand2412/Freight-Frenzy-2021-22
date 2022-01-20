@@ -91,8 +91,7 @@ public class Goal {
     public DcMotor craneLift;
     public DcMotor cranePivot;
     public Servo[] bucket;
-    public DcMotor carouselRight;
-    public DcMotor carouselLeft;
+    public DcMotor carousel;
 
     public final double carouselTele = 0.9;
     public final double carouselAuton = 0.3;
@@ -244,7 +243,7 @@ public class Goal {
 
     //sets motor responsible for spinning carousel
     public void setupCarousel() throws InterruptedException {
-        carouselRight = motor(carouselS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
+        carousel = motor(carouselS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     //ultrasonic sensors defined&setup
