@@ -279,6 +279,16 @@ public class Constants {
     public static final String intakeClawS = "intakeClaw";
 
     /**
+     * Crane Bucket Left servo name
+     */
+    public static final String bucketLeftS = "bucketLeft";
+
+    /**
+     * Crane Bucket Right servo name
+     */
+    public static final String bucketRightS = "bucketRight";
+
+    /**
      * Left Carousel motor name
      */
     public static final String carouselLeftS = "carouselLeft";
