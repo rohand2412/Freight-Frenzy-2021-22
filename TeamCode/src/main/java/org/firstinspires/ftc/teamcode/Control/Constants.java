@@ -5,83 +5,20 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
 public class Constants {
-    //--------------------------------ENCODERS-------------------------
-    /**
-     * Enum of encoder counts by motor, add new motor counts in here.
-     * Includes instance function for countsPerInch()
-     */
-    public enum encoderCounts{
-        GOBILDA_312(537.6),
-        GOBILDA_435(383.6),
-        REV_CORE_HEX(288),
-        REV_STANDARD_MOTOR(1120),
-        ;
+    public static final double BUCKET_PRELOAD_POSITION = 0.0;
+    public static final double BUCKET_PRELOAD_DEGREES = 22;
+    public static final double BUCKET_COLLECT_POSITION = 0.35;
 
-        /**
-         * Counts per revolution of specified enum value
-         */
-        double counts_per_rev;
-
-        /**
-         * @param counts_per_rev    Counts per revolution of specified enum element
-         */
-        encoderCounts(double counts_per_rev) {
-            this.counts_per_rev = counts_per_rev;
-        }
-
-        /**
-         * Returns counts per inch for the motor assuming no gearing.
-         * @param object wheelType of {@link circumferenceObject} enum
-         * @return counts per inch
-         */
-        public double countsPerInch(circumferenceObject object){
-            return countsPerInch(1, object.diameter);
-        }
-
-        /**
-         * Returns counts per inch for the motor assuming no gearing.
-         * @param diameterInches diameter (in inches)
-         * @return counts per inch
-         */
-        public double countsPerInch(double diameterInches){
-            return countsPerInch(1, diameterInches);
-        }
-
-        /**
-         * Returns counts per inch for the motor.
-         * @param drive_reduction gearing ratio, > 1 if geared for speed
-         * @return counts per inch
-         */
-        public double countsPerInch(double drive_reduction, double diameterInches){
-            return this.counts_per_rev * drive_reduction / (diameterInches * Math.PI);
-        }
-
-    }
-
-    /**
-     * Enum of diameter in inches by object with circumference (wheels), add new circumference objects here.
-     */
-    public enum circumferenceObject{
-        GO_BILDA_STANDARD_MECANUM(4),
-        GREEN_COMPLIANT_WHEEL(4);
-
-        /**
-         * Diameter in inches
-         */
-        double diameter;
-
-        /**
-         * @param diameterInches    Diameter in inches of specific enum element
-         */
-        circumferenceObject(double diameterInches) {
-            this.diameter = diameterInches;
-        }
-    }
-
+    // --------------------- CONVERSION FACTORS ----------------------
     /**
      * Conversion factor of inch to mm since Vuforia uses mm, so mm must be used for all physical dimensions
      */
     public static final float mmPerInch = 25.4f;
+
+    /**
+     * Counts per revolution of a GoBilda 30 RPM Motor
+     */
+    public static final double COUNTS_PER_MOTOR_GOBILDA_30_RPM = 5281.1;
 
     /**
      * Counts per revolution of a GoBilda 117 RPM Motor
@@ -102,11 +39,6 @@ public class Constants {
      * Counts per revolution of a REV Core HEX Motor
      */
     public static final double COUNTS_PER_MOTOR_REV_CORE_HEX_MOTOR = 288;
-
-    /**
-     * Counts per revolution of a GoBilda 30 RPM Motor
-     */
-    public static final double COUNTS_PER_MOTOR_GOBILDA_30_RPM = 5281.1;
 
     /**
      * Drive Gear Reduction of a GoBilda 312 RPM Motor
@@ -177,6 +109,11 @@ public class Constants {
     public static final double COUNTS_PER_DEGREE_REV_CORE_HEX_MOTOR = COUNTS_PER_MOTOR_REV_CORE_HEX_MOTOR / 360.0;
 
     /**
+     * Counts per degree calculated of GoBilda 30 RPM Motor
+     */
+    public static final double COUNTS_PER_DEGREE_GOBILDA_30_RPM = COUNTS_PER_MOTOR_GOBILDA_30_RPM / 360.0;
+
+    /**
      * Counts per degree calculated of GoBilda 117 RPM Motor
      */
     public static final double COUNTS_PER_DEGREE_GOBILDA_117_RPM = COUNTS_PER_MOTOR_GOBILDA_117_RPM / 360.0;
@@ -185,6 +122,10 @@ public class Constants {
      * Counts per degree calculated of GoBilda 312 RPM Motor
      */
     public static final double COUNTS_PER_DEGREE_GOBILDA_312_RPM = COUNTS_PER_MOTOR_GOBILDA_312_RPM / 360.0;
+
+    public static final double POSITION_PER_DEGREE_BUCKET_SERVO = (0.51 - 0.17) / 90.0;
+
+    public static final double DEGREE_90_POSITION_BUCKET_SERVO = 0.17;
 
     //--------------------------------TELE-OP VALUES--------------------
     /**
@@ -263,10 +204,10 @@ public class Constants {
     /**
      * Ultrasonic names
      */
-    public static final String backUltraS = "Back";
-    public static final String rightUltraS = "Right";
-    public static final String leftUltraS = "Left";
-    public static final String frontUltraS = "Front";
+    public static final String backUltraS = "back";
+    public static final String rightUltraS = "right";
+    public static final String leftUltraS = "left";
+    public static final String frontUltraS = "front";
 
     /**
      * Intake motor name (435)
@@ -274,12 +215,12 @@ public class Constants {
     public static final String intakeS = "intake";
 
     /**
-     * Crane Lift motor name (435)
+     * Crane Lift motor name (30)
      */
     public static final String craneLiftS = "craneLift";
 
     /**
-     * Crane Pivot motor name (312)
+     * Crane Pivot motor name (117)
      */
     public static final String cranePivotS = "cranePivot";
 

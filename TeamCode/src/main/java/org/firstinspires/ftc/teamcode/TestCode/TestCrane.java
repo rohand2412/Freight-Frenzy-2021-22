@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.Control.AutonomousControl;
 import org.firstinspires.ftc.teamcode.Control.Goal;
+import org.firstinspires.ftc.teamcode.Control.Constants;
 
 @Autonomous (name="TestCrane", group="basic")
 public class TestCrane extends AutonomousControl
@@ -11,10 +12,9 @@ public class TestCrane extends AutonomousControl
     @Override
     public void runOpMode() throws InterruptedException
     {
-        setup(runtime, Goal.setupType.crane);
+        setup(runtime, Goal.setupType.crane, Goal.setupType.bucket);
 
-        rob.bucketRight.setPosition(0.5);
-        rob.bucketLeft.setPosition(0.5);
+        rob.liftCraneHoldBucket(0.1, 90);
 
         sleep(2000);
     }

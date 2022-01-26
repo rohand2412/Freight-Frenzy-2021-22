@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Control.Goal;
 import org.firstinspires.ftc.teamcode.Control.TeleOpControl;
 
+import static org.firstinspires.ftc.teamcode.Control.Constants.BUCKET_PRELOAD_DEGREES;
 import static org.firstinspires.ftc.teamcode.Control.Constants.DEAD_ZONE_SIZE;
 
 @TeleOp(name="FinalTeleOp", group = "basic")
@@ -14,17 +15,18 @@ public class FinalTeleOp extends TeleOpControl
     public void runOpMode() throws InterruptedException {
 
         setup(runtime, Goal.setupType.teleop);
-//        rob.intakeClaw.setPosition(0);
 
-        boolean intakeUp = false;
-        boolean holdingObject = false;
-        boolean intakeClawOpen = true;
+        boolean lifted = false;
         boolean crawlMode = false;
         double intakeSpeed = 0.5;
-        double intakePivotPosition = 0.7;
         double crawlModeSpeed = 0.2;
         boolean driveTrainRight = false;
         boolean driveTrainForward = true;
+        double pivotDeg = 0;
+        double bucketDeg = 0;
+        double liftDeg = BUCKET_PRELOAD_DEGREES;
+        double carouselSpeed = 0.6;
+        Goal.ConditionalFunction lift = () -> !(validStick(xAxis1, yAxis1) || validStick(xAxis2, yAxis2));
 
         waitForStart();
 
@@ -38,10 +40,10 @@ public class FinalTeleOp extends TeleOpControl
                 else if (validStick(xAxis2, yAxis2)) {
                     rob.driveTrainMovementAngleRadians(Math.hypot(xAxis2, yAxis2)/Math.sqrt(2)/crawlModeSpeed, Goal.quadrantAtan(xAxis2, yAxis2), driveTrainRight ? Math.toRadians(-90) : Math.toRadians(90));
                 }
-                else if (rt > DEAD_ZONE_SIZE) {
+                else if (gamepad1.right_stick_button) {
                     rob.driveTrainMovement(rt/crawlModeSpeed, Goal.movements.cw);
                 }
-                else if (lt > DEAD_ZONE_SIZE) {
+                else if (gamepad1.left_stick_button) {
                     rob.driveTrainMovement(lt/crawlModeSpeed, Goal.movements.ccw);
                 }
                 else {
@@ -55,10 +57,10 @@ public class FinalTeleOp extends TeleOpControl
                 else if (validStick(xAxis2, yAxis2)) {
                     rob.driveTrainMovementAngleRadians(Math.hypot(xAxis2, yAxis2)/Math.sqrt(2), Goal.quadrantAtan(xAxis2, yAxis2), driveTrainRight ? Math.toRadians(-90) : Math.toRadians(90));
                 }
-                else if (rt > DEAD_ZONE_SIZE) {
+                else if (gamepad1.right_stick_button) {
                     rob.driveTrainMovement(rt, Goal.movements.cw);
                 }
-                else if (lt > DEAD_ZONE_SIZE) {
+                else if (gamepad1.left_stick_button) {
                     rob.driveTrainMovement(lt, Goal.movements.ccw);
                 }
                 else {
@@ -66,13 +68,10 @@ public class FinalTeleOp extends TeleOpControl
                 }
             }
 
-            if (gamepad1.left_stick_button) driveTrainForward = !driveTrainForward;
-            if (gamepad1.right_stick_button) driveTrainRight = !driveTrainRight;
-
-            if (rb) {
+            if (rt > DEAD_ZONE_SIZE) {
                 rob.runIntakeSpeed(-intakeSpeed);
             }
-            else if (lb) {
+            else if (lt > DEAD_ZONE_SIZE) {
                 rob.runIntakeSpeed(intakeSpeed);
             }
             else if (gamepad1.y) {
@@ -81,79 +80,59 @@ public class FinalTeleOp extends TeleOpControl
 
             if (gamepad1.b) {
                 crawlMode = !crawlMode;
+                sleep(200);
             }
 
             if (rt2 > DEAD_ZONE_SIZE) {
-//                rob.runCarouselsSpeed(rt2 > rob.carouselTele ? rob.carouselTele : rt2);
+                rob.carousel.setPower(rt2 > carouselSpeed ? carouselSpeed : rt);
             }
             else if (lt2 > DEAD_ZONE_SIZE) {
-//                rob.runCarouselsSpeed(-(lt2 > rob.carouselTele ? rob.carouselTele : lt2));
+                rob.carousel.setPower(-(lt2 > carouselSpeed ? carouselSpeed : lt));
             }
             else {
-//                rob.runCarouselsSpeed(0);
+                rob.carousel.setPower(0);
             }
 
-            if (rb2) {
-//                int target = rob.intakeLinearSlide.getTargetPosition();
-//                rob.moveLinearSlideInches(1, 1, rob.intakeLinearSlide);
-//                rob.intakeLinearSlide.setTargetPosition(target);
-            }
-            else if (lb2) {
-//                int target = rob.intakeLinearSlide.getTargetPosition();
-//                rob.moveLinearSlideInches(1, -1, rob.intakeLinearSlide);
-//                rob.intakeLinearSlide.setTargetPosition(target);
+            if (validStick(xAxis4, yAxis4)) {
+                rob.pivotCrane(rob.craneSpeed, pivotDeg + xAxis4 * 30);
+                pivotDeg += xAxis4 * 30;
             }
 
-            if (gamepad1.a && !intakeUp && !holdingObject) {
-//                rob.intakeClaw.setPosition(1);
+//            else if (f(0)) {
+//                rob.bucketSetDegree(--bucketDeg);
+//            }
+//            else if (f(2)) {
+//                rob.bucketSetDegree(++bucketDeg);
+//            }
+//            else if (f(4)) {
+//                rob.liftCraneHoldBucket(rob.craneSpeed, liftDeg + 5);
+//                liftDeg += 5;
+//            }
+//            else if (f(6)) {
+//                rob.liftCraneHoldBucket(rob.craneSpeed, liftDeg - 5);
+//                liftDeg -= 5;
+//            }
+
+            if (!lifted && rb2) {
+                rob.runIntakeSpeed(-0.1);
+                rob.bucketMoveDegree(0, 10, lift);
                 rob.runIntakeSpeed(0);
-//                rob.moveLinearSlideInches(1, 1, rob.intakeLinearSlide);
-                intakeClawOpen = false;
-                holdingObject = true;
-            }
-            else if (gamepad1.a && !intakeUp && holdingObject) {
-//                rob.moveLinearSlideInches(1, -1, rob.intakeLinearSlide);
-//                rob.intakeClaw.setPosition(0);
-                intakeClawOpen = true;
-                holdingObject = false;
-            }
-            else if (gamepad1.a && intakeUp && holdingObject) {
-//                rob.intakeClaw.setPosition(0);
-                rob.driveTrainEncoderMovement(0.5, 12, Goal.movements.backward);
-//                rob.intakePivot.setPosition(0);
-//                rob.moveLinearSlideInches(1, -8, rob.intakeLinearSlide);
-                crawlMode = false;
-                intakeUp = false;
-                holdingObject = false;
-                intakeClawOpen = true;
+                rob.liftCraneHoldBucket(rob.craneSpeed, 130, lift);
+                rob.bucketMoveDegree(190, 10, lift);
+                if (lift.check()) lifted = true;
             }
 
-            if (gamepad1.x && !intakeUp && holdingObject) {
-//                rob.moveLinearSlideInches(1, 7, rob.intakeLinearSlide);
-//                rob.intakePivot.setPosition(intakePivotPosition);
-                crawlMode = true;
-                intakeUp = true;
+            if (lifted && lb2) {
+                rob.bucketSetDegree(0);
+                rob.liftCraneHoldBucket(rob.craneSpeed, BUCKET_PRELOAD_DEGREES, lift);
+                rob.runIntakeSpeed(0.1);
+                rob.bucketSetDegree(120);
+                rob.runIntakeSpeed(0);
+                if (lift.check()) lifted = false;
             }
 
-            if (gamepad2.dpad_up) {
-                if (intakePivotPosition < 0.9) intakePivotPosition += 0.001;
-//                rob.intakePivot.setPosition(intakePivotPosition);
-            }
-            else if (gamepad2.dpad_down) {
-                if (intakePivotPosition > 0) intakePivotPosition -= 0.001;
-//                rob.intakePivot.setPosition(intakePivotPosition);
-            }
-
-            if (gamepad2.b) {
-                if (intakeClawOpen) {
-//                    rob.intakeClaw.setPosition(1);
-                    intakeClawOpen = false;
-                }
-                else {
-//                    rob.intakeClaw.setPosition(0);
-                    intakeClawOpen = true;
-                }
-            }
+            if (gamepad2.x && lifted) rob.bucketMoveDegree(257, 10);
+            if (gamepad2.b && lifted) rob.bucketSetDegree(190);
 
             if (gamepad2.y) {
                 rob.stopDrivetrain();

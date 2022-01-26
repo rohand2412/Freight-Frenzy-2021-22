@@ -20,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -32,12 +33,18 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.Arrays;
 
+import static org.firstinspires.ftc.teamcode.Control.Constants.BUCKET_PRELOAD_DEGREES;
+import static org.firstinspires.ftc.teamcode.Control.Constants.BUCKET_PRELOAD_POSITION;
+import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_DEGREE_GOBILDA_117_RPM;
+import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_DEGREE_GOBILDA_30_RPM;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_DEGREE_REV_CORE_HEX_MOTOR;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_LINEAR_SLIDE_MOTOR;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_REV_CORE_HEX_MOTOR;
 import static org.firstinspires.ftc.teamcode.Control.Constants.COUNTS_PER_INCH_GOBILDA_435_RPM;
+import static org.firstinspires.ftc.teamcode.Control.Constants.DEGREE_90_POSITION_BUCKET_SERVO;
 import static org.firstinspires.ftc.teamcode.Control.Constants.FFBCDM_LABELS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.FFBCDM_MODEL_ASSET;
+import static org.firstinspires.ftc.teamcode.Control.Constants.POSITION_PER_DEGREE_BUCKET_SERVO;
 import static org.firstinspires.ftc.teamcode.Control.Constants.bucketLeftS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.bucketRightS;
 import static org.firstinspires.ftc.teamcode.Control.Constants.carouselS;
@@ -110,8 +117,10 @@ public class Goal {
     public final double overflowThreshold = 300;
     public final double fullCircleDeg = 360;
 
-    public final double turnOffsetPositive = 20;
-    public final double turnOffsetNegative = 16;
+    public final double turnOffsetPositive = 18;
+    public final double turnOffsetNegative = 15;
+    public final double craneSpeed = 0.3;
+    public double bucketDegree = BUCKET_PRELOAD_DEGREES;
 
     /** Temp variables **/
     public static boolean isnotstopped;
@@ -143,6 +152,9 @@ public class Goal {
                     break;
                 case crane:
                     setupCrane();
+                    break;
+                case bucket:
+                    setupBucket();
                     break;
                 case carousel:
                     setupCarousel();
@@ -180,22 +192,28 @@ public class Goal {
 
     //function setups based on autonomous
     public void setupAuton() throws InterruptedException {
+        setupVuforia();
+        setupTFOD();
         setupIMU();
         setupDrivetrain();
         setupIntake();
+        setupCrane();
+        setupBucket();
         setupCarousel();
-        setupVuforia();
-        setupTFOD();
+        setupUltra();
     }
 
     //function setups based on manual control
     public void setupTeleop() throws InterruptedException {
+        setupVuforia();
+        setupTFOD();
         setupIMU();
         setupDrivetrain();
         setupIntake();
+        setupCrane();
+        setupBucket();
         setupCarousel();
-        setupVuforia();
-        setupTFOD();
+        setupUltra();
     }
 
     public void setupIMU() throws InterruptedException {
@@ -229,16 +247,18 @@ public class Goal {
 
     //sets up the intake motors (intakeS), sets desired direction and brakes w/ no power
     public void setupIntake() throws InterruptedException {
-        intake = motor(intakeS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
+        intake = motor(intakeS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void setupCrane() throws InterruptedException {
-        craneLift = motor(craneLiftS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
+        craneLift = motor(craneLiftS, DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE);
         cranePivot = motor(cranePivotS, DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE);
+    }
 
+    public void setupBucket() throws InterruptedException {
         bucket = new Servo[2];
-        bucket[0] = servo(bucketLeftS, Servo.Direction.FORWARD, 0, 1, 0);
-        bucket[1] = servo(bucketRightS, Servo.Direction.REVERSE, 0, 1, 0);
+        bucket[0] = servo(bucketLeftS, Servo.Direction.FORWARD, 0, 1, BUCKET_PRELOAD_POSITION);
+        bucket[1] = servo(bucketRightS, Servo.Direction.REVERSE, 0, 1, BUCKET_PRELOAD_POSITION);
     }
 
     //sets motor responsible for spinning carousel
@@ -248,9 +268,9 @@ public class Goal {
 
     //ultrasonic sensors defined&setup
     public void setupUltra() throws InterruptedException {
-//        backUltrasonic = ultrasonicSensor(backUltraS);
-//        rightUltrasonic = ultrasonicSensor(rightUltraS);
-//        leftUltrasonic = ultrasonicSensor(leftUltraS);
+        backUltrasonic = ultrasonicSensor(backUltraS);
+        rightUltrasonic = ultrasonicSensor(rightUltraS);
+        leftUltrasonic = ultrasonicSensor(leftUltraS);
 //        frontUltrasonic = ultrasonicSensor(frontUltraS);
     }
 
@@ -323,7 +343,7 @@ public class Goal {
             // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
             // should be set to the value of the images used to create the TensorFlow Object Detection model
             // (typically 16/9).
-            tfod.setZoom(1.65, 16.0/9.0);
+            tfod.setZoom(1.1, 16.0/9.0);
         }
     }
 
@@ -404,6 +424,35 @@ public class Goal {
     }
 
     //Servo Utilities
+    public void bucketMoveDegree(double degree, long delay) {
+        ConditionalFunction condition = () -> true;
+        bucketMoveDegree(degree, delay, condition);
+    }
+
+    public void bucketMoveDegree(double degree, long delay, ConditionalFunction conditionalFunction)
+    {
+        double currentDegree = bucketDegree;
+        if (degree > currentDegree) {
+            for (double i = currentDegree; i <= degree && conditionalFunction.check(); ++i) {
+                bucketSetDegree(i);
+                central.sleep(delay);
+            }
+        }
+        else {
+            for (double i = currentDegree; i >= degree && conditionalFunction.check(); --i) {
+                bucketSetDegree(i);
+                central.sleep(delay);
+            }
+        }
+    }
+
+    public void bucketSetDegree(double degree)
+    {
+        if (degree < 90) bucketSetPosition(Math.max(0, DEGREE_90_POSITION_BUCKET_SERVO - (90 - degree) * POSITION_PER_DEGREE_BUCKET_SERVO));
+        else bucketSetPosition(Math.max(0, DEGREE_90_POSITION_BUCKET_SERVO + (degree - 90) * POSITION_PER_DEGREE_BUCKET_SERVO));
+        bucketDegree = degree;
+    }
+
     public void bucketSetPosition(double position) {
         for (Servo b : bucket) b.setPosition(position);
     }
@@ -458,8 +507,89 @@ public class Goal {
         for (DcMotor motor: motors) motor.setMode(runMode);
     }
 
+    public void driveTrainUltrasonicMovementTowards(double speed, double distance, movements movement, ModernRoboticsI2cRangeSensor ultra) {
+        driveTrainMovement(speed, movement);
+        while (ultra.getDistance(DistanceUnit.CM) > distance);
+        driveTrainMovement(0, movement);
+    }
+
+    public void driveTrainUltrasonicMovementAway(double speed, double distance, movements movement, ModernRoboticsI2cRangeSensor ultra) {
+        driveTrainMovement(speed, movement);
+        while (ultra.getDistance(DistanceUnit.CM) < distance);
+        driveTrainMovement(0, movement);
+    }
+
+    public interface ConditionalFunction {
+        boolean check();
+    }
+
+    public void driveTrainCraneExtendUltrasonicMovementAway(double speed, double distance, movements movement, ModernRoboticsI2cRangeSensor ultra, double liftDeg, double pivotDeg) throws InterruptedException
+    {
+        driveTrainMovement(speed, movement);
+
+        ConditionalFunction condition = () -> ultra.getDistance(DistanceUnit.CM) < distance;
+        liftCraneHoldBucket(craneSpeed, liftDeg, condition);
+        pivotCrane(craneSpeed, pivotDeg, condition);
+
+        driveTrainMovement(0, movement);
+
+        liftCraneHoldBucket(craneSpeed, liftDeg);
+        pivotCrane(craneSpeed, pivotDeg);
+    }
 
     //sets up motors using the count ratio and making it usable
+
+    public boolean driveTrainIsBusy(movements movement) {
+        double[] signs = movement.getDirections();
+        boolean isBusy = true;
+        for (int i = 0; i < drivetrain.length; i++){
+            if (!drivetrain[i].isBusy() && signs[i] != 0) {
+                isBusy = false;
+            }
+        }
+        return isBusy;
+    }
+
+    public void driveTrainExtendCraneEncoderMovement(double speed, double distance, movements movement, double liftDeg, double pivotDeg) throws InterruptedException
+    {
+        double[] signs = movement.getDirections();
+        int overallSign = (speed < 0 || distance < 0 ? -1 : 1);
+        for (int i = 0; i < drivetrain.length; i++){
+            if (signs[i] != 0) drivetrain[i].setTargetPosition(drivetrain[i].getCurrentPosition() + (int) (signs[i] * overallSign * Math.abs(distance) * COUNTS_PER_INCH_GOBILDA_435_RPM));
+        }
+        setDriveTrainRunMode(DcMotor.RunMode.RUN_TO_POSITION, drivetrain);
+        setMotorsPower(overallSign * Math.abs(speed), movement, drivetrain);
+
+        ConditionalFunction condition = () -> driveTrainIsBusy(movement);
+        liftCraneHoldBucket(craneSpeed, liftDeg, condition);
+        pivotCrane(craneSpeed, pivotDeg, condition);
+
+        setMotorsPower(0, drivetrain);
+        setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER, drivetrain);
+
+        liftCraneHoldBucket(craneSpeed, liftDeg);
+        pivotCrane(craneSpeed, pivotDeg);
+    }
+
+    public void driveTrainRetractCraneEncoderMovement(double speed, double distance, movements movement, double liftDeg, double pivotDeg) throws InterruptedException {
+        double[] signs = movement.getDirections();
+        int overallSign = (speed < 0 || distance < 0 ? -1 : 1);
+        for (int i = 0; i < drivetrain.length; i++){
+            if (signs[i] != 0) drivetrain[i].setTargetPosition(drivetrain[i].getCurrentPosition() + (int) (signs[i] * overallSign * Math.abs(distance) * COUNTS_PER_INCH_GOBILDA_435_RPM));
+        }
+        setDriveTrainRunMode(DcMotor.RunMode.RUN_TO_POSITION, drivetrain);
+        setMotorsPower(overallSign * Math.abs(speed), movement, drivetrain);
+
+        ConditionalFunction condition = () -> driveTrainIsBusy(movement);
+        pivotCrane(craneSpeed, pivotDeg, condition);
+        liftCraneHoldBucket(craneSpeed, liftDeg, condition);
+
+        setMotorsPower(0, drivetrain);
+        setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER, drivetrain);
+
+        pivotCrane(craneSpeed, pivotDeg);
+        liftCraneHoldBucket(craneSpeed, liftDeg);
+    }
 
     //drivetrain uses 435 motors, calls encoder using 435 function with the set 435 ratio, moves it to specified distance with speed
     public void driveTrainEncoderMovement(double speed, double distance, movements movement) throws InterruptedException {
@@ -479,17 +609,17 @@ public class Goal {
     //allows different types of motors to move a specified distance with a speed, using motors' respective counts per inch ratio, and the direction specified through the movements
     public void driveTrainEncoderMovementSpecificMotorsTypes(double speed, double distance, movements movement, double COUNTS_PER_INCH_OF_MOTOR, DcMotor... motors) throws InterruptedException {
         double[] signs = movement.getDirections();
+        int overallSign = (speed < 0 || distance < 0 ? -1 : 1);
 
         // Ensure that the opmode is still active
         if (central.opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-            for (DcMotor motor: motors){
-                int x = Arrays.asList(motors).indexOf(motor);
-                if (signs[x] != 0) motor.setTargetPosition(motor.getCurrentPosition() + (int) (signs[x] * distance * COUNTS_PER_INCH_OF_MOTOR));
+            for (int i = 0; i < motors.length; i++){
+                if (signs[i] != 0) motors[i].setTargetPosition(motors[i].getCurrentPosition() + (int) (signs[i] * overallSign * Math.abs(distance) * COUNTS_PER_INCH_OF_MOTOR));
             }
             setDriveTrainRunMode(DcMotor.RunMode.RUN_TO_POSITION, motors);
-            setMotorsPower(speed, movement, motors);
+            setMotorsPower(overallSign * Math.abs(speed), movement, motors);
 
             // keep looping while we are still active and both motors are running.
             boolean drivetrainIsBusy = true;
@@ -535,14 +665,68 @@ public class Goal {
         motor.setPower(0);
     }
 
+    public void liftCraneHoldBucket(double speed, double degrees) throws InterruptedException {
+        ConditionalFunction condition = () -> true;
+        liftCraneHoldBucket(speed, degrees, condition);
+    }
+
+    public void liftCraneHoldBucket(double speed, double degrees, ConditionalFunction conditionalFunction) throws InterruptedException
+    {
+        if (central.opModeIsActive() && conditionalFunction.check()) {
+            craneLift.setTargetPosition((int) ((degrees - BUCKET_PRELOAD_DEGREES) * COUNTS_PER_DEGREE_GOBILDA_30_RPM));
+            setDriveTrainRunMode(DcMotor.RunMode.RUN_TO_POSITION, craneLift);
+            setMotorsPower(speed, craneLift);
+
+            while (craneLift.isBusy() && conditionalFunction.check()) {
+                central.telemetry.addLine(craneLift.getCurrentPosition() + "");
+                central.telemetry.update();
+                bucketSetDegree(BUCKET_PRELOAD_DEGREES + 1.05 * craneLift.getCurrentPosition()/COUNTS_PER_DEGREE_GOBILDA_30_RPM);
+            }
+
+            setMotorsPower(0, craneLift);
+            setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER, craneLift);
+        }
+    }
+
+    public void liftCrane(double speed, double degrees) throws InterruptedException
+    {
+        driveTrainEncoderMovementSpecificMotorsTypes(speed, degrees - craneLift.getCurrentPosition()/COUNTS_PER_DEGREE_GOBILDA_30_RPM, movements.forward, COUNTS_PER_DEGREE_GOBILDA_30_RPM, craneLift);
+    }
+
+    public void pivotCrane(double speed, double degrees, ConditionalFunction conditionalFunction) throws InterruptedException {
+        if (central.opModeIsActive() && conditionalFunction.check()) {
+            cranePivot.setTargetPosition((int) (degrees * COUNTS_PER_DEGREE_GOBILDA_117_RPM) - cranePivot.getCurrentPosition());
+            setDriveTrainRunMode(DcMotor.RunMode.RUN_TO_POSITION, cranePivot);
+            setMotorsPower(speed, cranePivot);
+
+            while (cranePivot.isBusy() && conditionalFunction.check());
+
+            setMotorsPower(0, cranePivot);
+            setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER, cranePivot);
+        }
+    }
+
+    public void pivotCrane(double speed, double degrees) throws InterruptedException
+    {
+        driveTrainEncoderMovementSpecificMotorsTypes(speed, degrees - cranePivot.getCurrentPosition()/COUNTS_PER_DEGREE_GOBILDA_117_RPM, movements.forward, COUNTS_PER_DEGREE_GOBILDA_117_RPM, cranePivot);
+    }
+
+    public void runCarouselTimeSpeed(double speed, long time) {
+        runSingleMotorTimeSpeed(speed, time, carousel, DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void runCarouselSpeed(double speed) {
+        runSingleMotorSpeed(speed, carousel, DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
     //runs intake motor at certain speed for set time
     public void runIntakeTimeSpeed(double speed, long time) {
-        runSingleMotorTimeSpeed(speed, time, intake, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        runSingleMotorTimeSpeed(speed, time, intake, DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     //runs intake motor without set time but w set speed
     public void runIntakeSpeed(double speed) {
-        runSingleMotorSpeed(speed, intake, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        runSingleMotorSpeed(speed, intake, DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     //moves linearside motor at a speed
@@ -588,7 +772,7 @@ public class Goal {
     public void setMotorsPower(double speed, double[] signs, DcMotor... motors) {
         for (int i = 0; i < motors.length; i++){
             if (signs[i] != 0) {
-                motors[i].setPower(signs[i] * Math.abs(speed));
+                motors[i].setPower(signs[i] * speed);
             }
         }
     }
@@ -603,6 +787,16 @@ public class Goal {
     }
 
     // IMU Movements
+
+    public void absoluteTurn(double speed, double degrees) throws InterruptedException {
+        double startAngle = getYaw();
+        driveTrainMovement(speed, degrees - startAngle > 0 ? movements.cw : movements.ccw);
+
+        if (Math.abs(degrees - startAngle) > Math.max(turnOffsetPositive, turnOffsetNegative)) while (central.opModeIsActive() && (degrees - startAngle) > 0 ? getYaw() < degrees - turnOffsetPositive : getYaw() > degrees + turnOffsetNegative);
+        else while (central.opModeIsActive() && (degrees - startAngle) > 0 ? getYaw() < degrees : getYaw() > degrees);
+
+        stopDrivetrain();
+    }
 
     //turns motors a number of degrees, accounts for possible offset and rotation axis based on which motors are used
     public void turn(double speed, double degrees) throws InterruptedException { turn(speed, degrees, axis.center); }
@@ -637,7 +831,7 @@ public class Goal {
     }
 
     public enum setupType{
-        autonomous, teleop, drivetrain_system, ultra, intake, crane, carousel, imu, openCV, webcamStream, vuforia, tfod;
+        autonomous, teleop, drivetrain_system, ultra, intake, crane, bucket, carousel, imu, openCV, webcamStream, vuforia, tfod;
     }
 
     //-------------------SET FUNCTIONS--------------------------------

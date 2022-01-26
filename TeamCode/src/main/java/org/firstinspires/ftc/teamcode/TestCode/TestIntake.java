@@ -11,7 +11,7 @@ public class TestIntake extends AutonomousControl
     @Override
     public void runOpMode() throws InterruptedException
     {
-        setup(runtime, Goal.setupType.intake);
+        setup(runtime, Goal.setupType.intake, Goal.setupType.crane);
 
 //        rob.intakeClaw.setPosition(0);
 

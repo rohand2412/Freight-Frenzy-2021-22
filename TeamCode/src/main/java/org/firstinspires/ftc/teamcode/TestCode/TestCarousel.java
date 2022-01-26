@@ -14,7 +14,7 @@ public class TestCarousel extends AutonomousControl
     {
         setup(runtime, Goal.setupType.carousel);
 
-        rob.runSingleMotorSpeed(-0.9, rob.carousel, DcMotor.RunMode.RUN_USING_ENCODER);
+        rob.runSingleMotorSpeed(-0.1, rob.carousel, DcMotor.RunMode.RUN_USING_ENCODER);
 
         sleep(5000);
     }

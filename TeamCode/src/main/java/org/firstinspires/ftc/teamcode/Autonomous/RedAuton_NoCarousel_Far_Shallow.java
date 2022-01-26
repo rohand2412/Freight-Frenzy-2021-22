@@ -12,6 +12,6 @@ public class RedAuton_NoCarousel_Far_Shallow extends AutonomousControl
     {
         setup(runtime, Goal.setupType.autonomous);
 
-        if (opModeIsActive()) red(false, false, true);
+        if (opModeIsActive()) red(false, false);
     }
 }

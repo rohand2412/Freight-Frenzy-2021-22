@@ -12,6 +12,6 @@ public class BlueAuton_Carousel_Close_Shallow extends AutonomousControl
     {
         setup(runtime, Goal.setupType.autonomous);
 
-        if (opModeIsActive()) blue(true, true, true);
+        if (opModeIsActive()) blue(false, false);
     }
 }

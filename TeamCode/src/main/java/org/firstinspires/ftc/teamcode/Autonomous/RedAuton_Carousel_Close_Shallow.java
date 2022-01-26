@@ -12,6 +12,6 @@ public class RedAuton_Carousel_Close_Shallow extends AutonomousControl
     {
         setup(runtime, false, Goal.setupType.autonomous);
 
-        red(true, true, true);
+        red(false, false);
     }
 }

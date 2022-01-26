@@ -10,8 +10,8 @@ public class RedAuton_Carousel_Close_Deep extends AutonomousControl
     @Override
     public void runOpMode() throws InterruptedException
     {
-        setup(runtime, Goal.setupType.autonomous);
+        setup(runtime, false, Goal.setupType.autonomous);
 
-        if (opModeIsActive()) red(true, true, false);
+        red(true, false);
     }
 }

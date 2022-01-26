@@ -132,10 +132,19 @@ public abstract class TeleOpControl extends Central {
     public boolean f(int n){ // Returns whether
 
         return new boolean[]{yAxis3 >= Math.abs(xAxis3), -Math.abs(yAxis3) > xAxis3, yAxis3 <= -Math.abs(xAxis3), Math.abs(yAxis3) < xAxis3,
-                yAxis4 >= 0 && xAxis4 >= 0, yAxis4 >= 0 && xAxis4 < 0, yAxis4 < 0 && xAxis4 < 0, yAxis4 < 0 && xAxis4 >= 0,
+                yAxis4 >= Math.abs(xAxis4), -Math.abs(yAxis4) > xAxis4, yAxis4 <= -Math.abs(xAxis4), Math.abs(yAxis4) < xAxis4,
                 gamepad2.left_stick_button, gamepad2.right_stick_button}[n]
 
                 && (n < 4 ? (validStick(xAxis3, yAxis3)) : (n >= 8 || validStick(xAxis4, yAxis4)));
 
     }
+//    public boolean f(int n){ // Returns whether
+//
+//        return new boolean[]{yAxis3 >= Math.abs(xAxis3), -Math.abs(yAxis3) > xAxis3, yAxis3 <= -Math.abs(xAxis3), Math.abs(yAxis3) < xAxis3,
+//                yAxis4 >= 0 && xAxis4 >= 0, yAxis4 >= 0 && xAxis4 < 0, yAxis4 < 0 && xAxis4 < 0, yAxis4 < 0 && xAxis4 >= 0,
+//                gamepad2.left_stick_button, gamepad2.right_stick_button}[n]
+//
+//                && (n < 4 ? (validStick(xAxis3, yAxis3)) : (n >= 8 || validStick(xAxis4, yAxis4)));
+//
+//    }
 }
