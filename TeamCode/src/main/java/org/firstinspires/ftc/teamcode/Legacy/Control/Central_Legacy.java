@@ -3,12 +3,10 @@ package org.firstinspires.ftc.teamcode.Control;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-public abstract class Central extends LinearOpMode {
+public abstract class Central_Legacy extends LinearOpMode {
     public ElapsedTime runtime = new ElapsedTime();
 
     public Goal rob;
-
-    public Goal.movements[] allMovements = {Goal.movements.forward, Goal.movements.backward, Goal.movements.right, Goal.movements.left, Goal.movements.tr, Goal.movements.bl, Goal.movements.tl, Goal.movements.br, Goal.movements.cw, Goal.movements.ccw};
 
     public void setRob(Goal rob) {
         this.rob = rob;

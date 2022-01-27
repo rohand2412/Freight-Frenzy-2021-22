@@ -74,6 +74,6 @@ public class GlobalCoordinatePositionUpdateSample extends LinearOpMode {
         }
 
         //Stop the thread
-        globalPositionUpdate.stop();
+//        globalPositionUpdate.stop();
     }
 }
