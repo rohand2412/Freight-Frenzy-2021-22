@@ -14,7 +14,7 @@ public class _Motor {
     private final double _COUNTS_PER_INCH;
     private final double _COUNTS_PER_DEGREE;
 
-    private DcMotor _motor;
+    private final DcMotor _motor;
     private double _speed;
     private boolean _isBusy;
     private RunLimiter _runLimiter;
@@ -28,6 +28,7 @@ public class _Motor {
         _WHEEL_DIAMETER_INCHES = 0;
         _COUNTS_PER_INCH = 0;
         _COUNTS_PER_DEGREE = _TYPE._COUNTS/360.0;
+        _motor = Robot.hardwareMap.dcMotor.get(_NAME);
         _config(direction, zeroPowerBehavior);
     }
 
@@ -38,6 +39,7 @@ public class _Motor {
         _WHEEL_DIAMETER_INCHES = wheelDiameterInches;
         _COUNTS_PER_INCH = _TYPE._COUNTS/(_WHEEL_DIAMETER_INCHES * Math.PI);
         _COUNTS_PER_DEGREE = 0;
+        _motor = Robot.hardwareMap.dcMotor.get(_NAME);
         _config(direction, zeroPowerBehavior);
     }
 
@@ -178,7 +180,6 @@ public class _Motor {
 
     private void _config(DcMotorSimple.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
         _isBusy = false;
-        _motor = Robot.hardwareMap.dcMotor.get(_NAME);
         _motor.setDirection(direction);
         _motor.setZeroPowerBehavior(zeroPowerBehavior);
         _motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

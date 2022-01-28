@@ -5,7 +5,7 @@ public class _Drivetrain {
     private final int _MOTOR_NUM;
     private final double _Y_TO_X_RATIO;
 
-    private _Motor[] _drivetrain;
+    private final _Motor[] _drivetrain;
     private double[] _movement;
     private double _speed;
     private boolean _isBusy;
