@@ -72,6 +72,10 @@ public class _IMU {
         }
     }
 
+    public String getName() {
+        return _NAME;
+    }
+
     public double getYaw() {
         return _yaw;
     }
