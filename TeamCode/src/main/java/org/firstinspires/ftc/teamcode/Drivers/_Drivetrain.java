@@ -8,6 +8,7 @@ public class _Drivetrain {
     private _Motor[] _drivetrain;
     private double[] _movement;
     private double _speed;
+    private boolean _isBusy;
 
     _Drivetrain(_Motor fr, _Motor fl, _Motor br, _Motor bl, double yToXRatio) {
         _MOTOR_NUM = 4;
@@ -23,19 +24,20 @@ public class _Drivetrain {
     public void update() {
         for (_Motor motor : _drivetrain) motor.update();
 
-        if (isBusy()) {
+        if (_isBusy) {
             boolean motorNotBusy = false;
             for (int i = 0; i < _MOTOR_NUM; ++i) {
                 motorNotBusy = motorNotBusy || (!_drivetrain[i].isBusy() && _movement[i] != 0);
             }
             if (motorNotBusy) {
+                _isBusy = false;
                 for (_Motor motor : _drivetrain) motor.resetForNextRun();
             }
         }
     }
 
     public void runSpeed(double speed, double[] movement) {
-        if (!isBusy()) {
+        if (!_isBusy) {
             _movement = movement;
             for (int i = 0; i < _MOTOR_NUM; ++i)
                 _drivetrain[i].runSpeed(speed * _movement[i]);
@@ -51,7 +53,8 @@ public class _Drivetrain {
     }
 
     public void runDistance(double speed, double distance, double[] movement) {
-        if (!isBusy() && speed != 0) {
+        if (!_isBusy && speed != 0) {
+            _isBusy = true;
             _movement = movement;
             for (int i = 0; i < _MOTOR_NUM; ++i)
                 _drivetrain[i].runDistance(speed * _movement[i], distance);
@@ -67,7 +70,8 @@ public class _Drivetrain {
     }
 
     public void runTime(double speed, double milliseconds, double[] movement) {
-        if (!isBusy() && speed != 0) {
+        if (!_isBusy && speed != 0) {
+            _isBusy = true;
             _movement = movement;
             for (int i = 0; i < _MOTOR_NUM; ++i)
                 _drivetrain[i].runTime(speed * _movement[i], milliseconds);
@@ -83,7 +87,8 @@ public class _Drivetrain {
     }
 
     public void runRotations(double speed, double rotations, double[] movement) {
-        if (!isBusy() && speed != 0) {
+        if (!_isBusy && speed != 0) {
+            _isBusy = true;
             _movement = movement;
             for (int i = 0; i < _MOTOR_NUM; ++i)
                 _drivetrain[i].runRotations(speed * _movement[i], rotations);
@@ -99,7 +104,7 @@ public class _Drivetrain {
     }
 
     public void runSpeedAngle(double speed, double degrees, double offsetDegrees) {
-        if (!isBusy()) {
+        if (!_isBusy) {
             _movement = Movements.forward.getDirections();
             double[] speeds = _anyDirection(speed, degrees, offsetDegrees);
             runSpeed(speed, new double[] {_movement[0] * speeds[0], _movement[1] * speeds[1], _movement[2] * speeds[1], _movement[3] * speeds[0]});
@@ -123,7 +128,7 @@ public class _Drivetrain {
     }
 
     public boolean isBusy() {
-        return _drivetrain[0].isBusy() || _drivetrain[1].isBusy() || _drivetrain[2].isBusy() || _drivetrain[3].isBusy();
+        return _isBusy;
     }
 
     private double[] _anyDirectionRadians(double speed, double radians, double offsetRadians) {
