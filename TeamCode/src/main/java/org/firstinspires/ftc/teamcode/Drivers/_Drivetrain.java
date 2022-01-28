@@ -30,10 +30,14 @@ public class _Drivetrain {
                 motorNotBusy = motorNotBusy || (!_drivetrain[i].isBusy() && _movement[i] != 0);
             }
             if (motorNotBusy) {
-                _isBusy = false;
-                for (_Motor motor : _drivetrain) motor.resetForNextRun();
+                resetForNextRun();
             }
         }
+    }
+
+    public void resetForNextRun() {
+        _isBusy = false;
+        for (_Motor motor : _drivetrain) motor.resetForNextRun();
     }
 
     public void runSpeed(double speed, double[] movement) {
