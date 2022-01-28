@@ -7,9 +7,9 @@ import org.firstinspires.ftc.teamcode.Control.Robot;
 
 public class _Motor {
 
-    private final String _name;
-    private final Type _type;
-    private final Usage _usage;
+    private final String _NAME;
+    private final Type _TYPE;
+    private final Usage _USAGE;
     private final double _WHEEL_DIAMETER_INCHES;
     private final double _COUNTS_PER_INCH;
     private final double _COUNTS_PER_DEGREE;
@@ -22,21 +22,21 @@ public class _Motor {
     private double _elapsedTime;
 
     _Motor(String name, Type type, DcMotorSimple.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
-        _name = name;
-        _type = type;
-        _usage = Usage.Circular;
+        _NAME = name;
+        _TYPE = type;
+        _USAGE = Usage.Circular;
         _WHEEL_DIAMETER_INCHES = 0;
         _COUNTS_PER_INCH = 0;
-        _COUNTS_PER_DEGREE = _type._COUNTS/360.0;
+        _COUNTS_PER_DEGREE = _TYPE._COUNTS/360.0;
         _config(direction, zeroPowerBehavior);
     }
 
     _Motor(String name, Type type, DcMotorSimple.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior, double wheelDiameterInches) {
-        _name = name;
-        _type = type;
-        _usage = Usage.Linear;
+        _NAME = name;
+        _TYPE = type;
+        _USAGE = Usage.Linear;
         _WHEEL_DIAMETER_INCHES = wheelDiameterInches;
-        _COUNTS_PER_INCH = _type._COUNTS/(_WHEEL_DIAMETER_INCHES * Math.PI);
+        _COUNTS_PER_INCH = _TYPE._COUNTS/(_WHEEL_DIAMETER_INCHES * Math.PI);
         _COUNTS_PER_DEGREE = 0;
         _config(direction, zeroPowerBehavior);
     }
@@ -80,7 +80,7 @@ public class _Motor {
     }
 
     public void runDistance(double speed, double distance) {
-        if (!_isBusy && speed != 0 && _usage == Usage.Linear) {
+        if (!_isBusy && speed != 0 && _USAGE == Usage.Linear) {
             _isBusy = true;
             _runLimiter = RunLimiter.Magnitude;
             stop();
@@ -89,7 +89,7 @@ public class _Motor {
             _motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             _setSpeed(sign * Math.abs(speed));
         }
-        else if (_usage == Usage.Circular) {
+        else if (_USAGE == Usage.Circular) {
             stop();
             while (true) {
                 Robot.telemetry.addLine("[ERROR] _Motor.runDistance USED WITH USAGE MODE CIRCULAR");
@@ -118,7 +118,7 @@ public class _Motor {
     }
 
     public void runDegrees(double speed, double degrees) {
-        if (!_isBusy && speed != 0 && _usage == Usage.Circular) {
+        if (!_isBusy && speed != 0 && _USAGE == Usage.Circular) {
             _isBusy = true;
             _runLimiter = RunLimiter.Magnitude;
             stop();
@@ -127,7 +127,7 @@ public class _Motor {
             _motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             _setSpeed(sign * Math.abs(speed));
         }
-        else if (_usage == Usage.Linear) {
+        else if (_USAGE == Usage.Linear) {
             stop();
             while (true) {
                 Robot.telemetry.addLine("[ERROR] _Motor.runDegrees USED WITH USAGE MODE LINEAR");
@@ -153,7 +153,7 @@ public class _Motor {
     }
 
     public String getName() {
-        return _name;
+        return _NAME;
     }
 
     public double getWheelDiameterInches() {
@@ -178,7 +178,7 @@ public class _Motor {
 
     private void _config(DcMotorSimple.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
         _isBusy = false;
-        _motor = Robot.hardwareMap.dcMotor.get(_name);
+        _motor = Robot.hardwareMap.dcMotor.get(_NAME);
         _motor.setDirection(direction);
         _motor.setZeroPowerBehavior(zeroPowerBehavior);
         _motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
