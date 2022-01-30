@@ -84,13 +84,13 @@ public class FinalTeleOp extends TeleOpControl
             }
 
             if (rt2 > DEAD_ZONE_SIZE) {
-                rob.carousel.setPower(rt2 > carouselSpeed ? carouselSpeed : rt);
+//                rob.carousel.setPower(rt2 > carouselSpeed ? carouselSpeed : rt);
             }
             else if (lt2 > DEAD_ZONE_SIZE) {
-                rob.carousel.setPower(-(lt2 > carouselSpeed ? carouselSpeed : lt));
+//                rob.carousel.setPower(-(lt2 > carouselSpeed ? carouselSpeed : lt));
             }
             else {
-                rob.carousel.setPower(0);
+//                rob.carousel.setPower(0);
             }
 
             if (validStick(xAxis4, yAxis4)) {

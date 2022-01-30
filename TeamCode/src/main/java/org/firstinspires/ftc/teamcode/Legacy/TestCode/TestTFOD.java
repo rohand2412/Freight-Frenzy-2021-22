@@ -17,10 +17,10 @@ public class TestTFOD extends AutonomousControl {
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 sleep(100);
-                if (rob.tfod != null) {
+//                if (rob.tfod != null) {
                     // getUpdatedRecognitions() will return null if no new information is available since
                     // the last time that call was made.
-                    List<Recognition> updatedRecognitions = rob.tfod.getUpdatedRecognitions();
+//                    List<Recognition> updatedRecognitions = rob.tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
                         telemetry.addData("# Object Detected", updatedRecognitions.size());
                         // step through the list of recognitions and display boundary info.
@@ -40,8 +40,8 @@ public class TestTFOD extends AutonomousControl {
             }
         }
 
-        if (rob.tfod != null) {
-            rob.tfod.shutdown();
+//        if (rob.tfod != null) {
+//            rob.tfod.shutdown();
         }
     }
 }

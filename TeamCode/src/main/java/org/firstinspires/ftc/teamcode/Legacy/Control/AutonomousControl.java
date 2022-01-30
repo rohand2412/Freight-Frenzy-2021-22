@@ -15,11 +15,11 @@ public abstract class AutonomousControl extends Central {
                 sleep(10000);
                 rob.driveTrainEncoderMovement(speed, 10, Goal.movements.backward);
                 rob.driveTrainEncoderMovement(speed, 12, Goal.movements.left);
-                rob.carousel.setPower(0.5);
+//                rob.carousel.setPower(0.5);
                 sleep(4000);
-                rob.carousel.setPower(0);
+//                rob.carousel.setPower(0);
                 rob.driveTrainEncoderMovement(speed, 12, Goal.movements.right);
-                rob.turn(speed/2, 90);
+//                rob.turn(speed/2, 90);
                 rob.driveTrainEncoderMovement(speed, 15, Goal.movements.left);
                 rob.driveTrainEncoderMovement(speed, 120, Goal.movements.forward);
                 rob.driveTrainEncoderMovement(speed, 40, Goal.movements.right);
@@ -65,9 +65,9 @@ public abstract class AutonomousControl extends Central {
                 rob.driveTrainEncoderMovement(speed, 10, Goal.movements.right);
                 rob.driveTrainEncoderMovement(speed, 10, Goal.movements.forward);
 //                rob.runCarouselTimeSpeed(-0.1, 4000);
-                rob.carousel.setPower(-0.5);
+//                rob.carousel.setPower(-0.5);
                 sleep(4000);
-                rob.carousel.setPower(0);
+//                rob.carousel.setPower(0);
                 rob.driveTrainEncoderMovement(speed, 10, Goal.movements.backward);
                 rob.driveTrainEncoderMovement(speed, 10, Goal.movements.left);
                 rob.driveTrainEncoderMovement(speed, 120, Goal.movements.backward);
@@ -155,8 +155,8 @@ public abstract class AutonomousControl extends Central {
     }
 
     public void determineLocation(boolean right) {
-        if (rob.tfod != null) {
-            List<Recognition> recognitions = rob.tfod.getUpdatedRecognitions();
+//        if (rob.tfod != null) {
+//            List<Recognition> recognitions = rob.tfod.getUpdatedRecognitions();
 
             if (recognitions == null) {
                 location = right ? locations.left : locations.right;
