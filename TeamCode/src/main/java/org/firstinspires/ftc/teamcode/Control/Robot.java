@@ -204,6 +204,50 @@ public final class Robot {
         }
     }
 
+    public _Drivetrain getDrivetrain() {
+        return drivetrain;
+    }
+
+    public _ServoGroup getBucket() {
+        return bucket;
+    }
+
+    public _Motor getIntake() {
+        return intake;
+    }
+
+    public _Motor getCraneLift() {
+        return craneLift;
+    }
+
+    public _Motor getCranePivot() {
+        return cranePivot;
+    }
+
+    public _Motor getCarousel() {
+        return carousel;
+    }
+
+    public _OpenCV getWebcam() {
+        return webcam;
+    }
+
+    public _Vuforia getVuforia() {
+        return vuforia;
+    }
+
+    public _TFOD getTFOD() {
+        return tfod;
+    }
+
+    public _IMU getIMU() {
+        return imu;
+    }
+
+    public boolean isTurning() {
+        return isTurning;
+    }
+
     public enum SetupType {
         Everything,
         Drivetrain,
