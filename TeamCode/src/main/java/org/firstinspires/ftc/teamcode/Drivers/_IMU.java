@@ -22,10 +22,12 @@ public class _IMU {
     private double _yawRaw = 0;
     private double _lastYawRaw = 0;
     private double _lastUpdateTime = 0;
+    private boolean _willUpdate;
 
-    public _IMU(String name, double elapsedTime) {
+    public _IMU(String name, double elapsedTime, boolean willUpdate) {
         _NAME = name;
         _ELAPSED_TIME = elapsedTime;
+        _willUpdate = willUpdate;
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -41,12 +43,16 @@ public class _IMU {
         _imu.initialize(parameters);
     }
 
-    public _IMU(String name) {
-        this(name, 100);
+    public _IMU(String name, boolean willUpdate) {
+        this(name, 100, willUpdate);
+    }
+
+    public void willUpdate(boolean willUpdate) {
+        _willUpdate = willUpdate;
     }
 
     public void update() {
-        if (Robot.runtime.milliseconds() >= _lastUpdateTime + _ELAPSED_TIME) {
+        if (_willUpdate && (Robot.runtime.milliseconds() >= _lastUpdateTime + _ELAPSED_TIME)) {
             _angles = _imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             _yawRaw = -AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(_angles.angleUnit, _angles.firstAngle));
 
