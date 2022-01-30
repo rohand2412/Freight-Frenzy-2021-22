@@ -197,7 +197,7 @@ public class _Motor {
     public enum Type {
         GOBILDA_30_RPM(5281.1),
         GOBILDA_117_RPM(1425.1),
-        GOBILDA_325_RPM(537.6),
+        GOBILDA_312_RPM(537.6),
         GOBILDA_435_RPM(383.6),
         REV_CORE_HEX_MOTOR(288);
 
