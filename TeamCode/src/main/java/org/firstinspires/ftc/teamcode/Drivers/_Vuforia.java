@@ -12,7 +12,7 @@ public class _Vuforia {
 
     private final VuforiaLocalizer _vuforia;
 
-    _Vuforia(String webcamName) {
+    public _Vuforia(String webcamName) {
         _WEBCAM_NAME = webcamName;
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
         parameters.vuforiaLicenseKey = _VUFORIA_KEY;

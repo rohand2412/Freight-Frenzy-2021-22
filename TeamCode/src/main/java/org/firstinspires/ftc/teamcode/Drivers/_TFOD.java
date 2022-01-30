@@ -17,7 +17,7 @@ public class _TFOD {
     private double _lastUpdatedTime;
     private boolean _willUpdate;
 
-    _TFOD(VuforiaLocalizer vuforia, float confidenceThreshold, boolean isTF2, int inputSize, double zoom, double aspectRatio, String model, String[] labels, double intervalMS, boolean willUpdate) {
+    public _TFOD(VuforiaLocalizer vuforia, float confidenceThreshold, boolean isTF2, int inputSize, double zoom, double aspectRatio, String model, String[] labels, double intervalMS, boolean willUpdate) {
         _INTERVAL_MS = intervalMS;
         _willUpdate = willUpdate;
 
@@ -45,7 +45,7 @@ public class _TFOD {
         }
     }
 
-    _TFOD(VuforiaLocalizer vuforia, float confidenceThreshold, boolean isTF2, int inputSize, double zoom, double aspectRatio, String model, String[] labels, boolean willUpdate) {
+    public _TFOD(VuforiaLocalizer vuforia, float confidenceThreshold, boolean isTF2, int inputSize, double zoom, double aspectRatio, String model, String[] labels, boolean willUpdate) {
         this(vuforia, confidenceThreshold, isTF2, inputSize, zoom, aspectRatio, model, labels, 100, willUpdate);
     }
 

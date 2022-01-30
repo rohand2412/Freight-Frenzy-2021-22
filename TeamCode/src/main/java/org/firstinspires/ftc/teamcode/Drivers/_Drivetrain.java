@@ -10,7 +10,7 @@ public class _Drivetrain {
     private double _speed;
     private boolean _isBusy;
 
-    _Drivetrain(_Motor fr, _Motor fl, _Motor br, _Motor bl, double yToXRatio) {
+    public _Drivetrain(_Motor fr, _Motor fl, _Motor br, _Motor bl, double yToXRatio) {
         _MOTOR_NUM = 4;
         _Y_TO_X_RATIO = yToXRatio;
         _drivetrain = new _Motor[] {fr, fl, br, bl};

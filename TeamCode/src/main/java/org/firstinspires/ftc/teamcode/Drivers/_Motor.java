@@ -21,7 +21,7 @@ public class _Motor {
     private double _startTime;
     private double _elapsedTime;
 
-    _Motor(String name, Type type, DcMotorSimple.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
+    public _Motor(String name, Type type, DcMotorSimple.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
         _NAME = name;
         _TYPE = type;
         _USAGE = Usage.Circular;
@@ -32,7 +32,7 @@ public class _Motor {
         _config(direction, zeroPowerBehavior);
     }
 
-    _Motor(String name, Type type, DcMotorSimple.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior, double wheelDiameterInches) {
+    public _Motor(String name, Type type, DcMotorSimple.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior, double wheelDiameterInches) {
         _NAME = name;
         _TYPE = type;
         _USAGE = Usage.Linear;

@@ -15,7 +15,7 @@ public class _OpenCV {
 
     private final OpenCvWebcam _webcam;
 
-    _OpenCV(String name, int width, int height, OpenCvCameraRotation rotation) {
+    public _OpenCV(String name, int width, int height, OpenCvCameraRotation rotation) {
         _NAME = name;
         int cameraMonitorViewId = Robot.hardwareMap.appContext.getResources().getIdentifier(
                 "cameraMonitorViewId", "id", Robot.hardwareMap.appContext.getPackageName());
@@ -41,7 +41,7 @@ public class _OpenCV {
         });
     }
 
-    _OpenCV(String name, int width, int height) {
+    public _OpenCV(String name, int width, int height) {
         this(name, width, height, OpenCvCameraRotation.UPRIGHT);
     }
 

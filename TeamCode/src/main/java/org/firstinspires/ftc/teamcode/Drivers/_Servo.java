@@ -24,7 +24,7 @@ public class _Servo {
     private double _lastUpdateTime;
     private boolean _isBusy;
 
-    _Servo(String name, Servo.Direction direction, double min, double max, double start, double position_1, double angle_1, double position_2, double angle_2) {
+    public _Servo(String name, Servo.Direction direction, double min, double max, double start, double position_1, double angle_1, double position_2, double angle_2) {
         _NAME = name;
         _MAX = max;
         _MIN = min;

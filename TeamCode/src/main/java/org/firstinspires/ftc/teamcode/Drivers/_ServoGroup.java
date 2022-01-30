@@ -6,7 +6,7 @@ public class _ServoGroup {
 
     private final _Servo[] _servos;
 
-    _ServoGroup(_Servo... servos) {
+    public _ServoGroup(_Servo... servos) {
         _SERVO_NUM = servos.length;
         _servos = servos;
     }

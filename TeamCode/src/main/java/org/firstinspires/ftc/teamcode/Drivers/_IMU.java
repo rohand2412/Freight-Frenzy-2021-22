@@ -23,7 +23,7 @@ public class _IMU {
     private double _lastYawRaw = 0;
     private double _lastUpdateTime = 0;
 
-    _IMU(String name, double elapsedTime) {
+    public _IMU(String name, double elapsedTime) {
         _NAME = name;
         _ELAPSED_TIME = elapsedTime;
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -41,7 +41,7 @@ public class _IMU {
         _imu.initialize(parameters);
     }
 
-    _IMU(String name) {
+    public _IMU(String name) {
         this(name, 100);
     }
 
