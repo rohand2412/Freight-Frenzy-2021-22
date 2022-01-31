@@ -104,13 +104,13 @@ public final class Robot {
     private static void setupDrivetrain() {
         double wheelDiameter = 96/MM_PER_INCH;
         _Motor fr = new _Motor("motorFR", _Motor.Type.GOBILDA_435_RPM, DcMotorSimple.Direction.FORWARD,
-                DcMotor.ZeroPowerBehavior.BRAKE, wheelDiameter);
+                DcMotor.ZeroPowerBehavior.BRAKE, wheelDiameter, true);
         _Motor fl = new _Motor("motorFL", _Motor.Type.GOBILDA_435_RPM, DcMotorSimple.Direction.FORWARD,
-                DcMotor.ZeroPowerBehavior.BRAKE, wheelDiameter);
+                DcMotor.ZeroPowerBehavior.BRAKE, wheelDiameter, true);
         _Motor br = new _Motor("motorBR", _Motor.Type.GOBILDA_435_RPM, DcMotorSimple.Direction.FORWARD,
-                DcMotor.ZeroPowerBehavior.BRAKE, wheelDiameter);
+                DcMotor.ZeroPowerBehavior.BRAKE, wheelDiameter, true);
         _Motor bl = new _Motor("motorBL", _Motor.Type.GOBILDA_435_RPM, DcMotorSimple.Direction.FORWARD,
-                DcMotor.ZeroPowerBehavior.BRAKE, wheelDiameter);
+                DcMotor.ZeroPowerBehavior.BRAKE, wheelDiameter, true);
         drivetrain = new _Drivetrain(fr, fl, br, bl, 1.0);
     }
 
@@ -124,19 +124,19 @@ public final class Robot {
 
     private static void setupIntake() {
         intake = new _Motor("intake", _Motor.Type.GOBILDA_435_RPM, DcMotorSimple.Direction.FORWARD,
-                DcMotor.ZeroPowerBehavior.BRAKE);
+                DcMotor.ZeroPowerBehavior.BRAKE, false);
     }
 
     private static void setupCrane() {
         craneLift = new _Motor("craneLift", _Motor.Type.GOBILDA_30_RPM, DcMotorSimple.Direction.REVERSE,
-                DcMotor.ZeroPowerBehavior.BRAKE);
+                DcMotor.ZeroPowerBehavior.BRAKE, false);
         cranePivot = new _Motor("cranePivot", _Motor.Type.GOBILDA_117_RPM, DcMotorSimple.Direction.FORWARD,
-                DcMotor.ZeroPowerBehavior.BRAKE);
+                DcMotor.ZeroPowerBehavior.BRAKE, true);
     }
 
     private static void setupCarousel() {
         carousel = new _Motor("carousel", _Motor.Type.GOBILDA_312_RPM, DcMotorSimple.Direction.FORWARD,
-                DcMotor.ZeroPowerBehavior.BRAKE);
+                DcMotor.ZeroPowerBehavior.BRAKE, false);
     }
 
     private static void setupOpenCV() {
