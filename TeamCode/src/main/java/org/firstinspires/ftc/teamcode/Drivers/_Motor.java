@@ -13,6 +13,8 @@ public class _Motor {
     private final double _WHEEL_DIAMETER_INCHES;
     private final double _COUNTS_PER_INCH;
     private final double _COUNTS_PER_DEGREE;
+    private final boolean _HAS_ENCODER;
+    private final DcMotor.RunMode _DEFAULT_RUNMODE;
 
     private final DcMotor _motor;
     private double _speed;
@@ -21,24 +23,28 @@ public class _Motor {
     private double _startTime;
     private double _elapsedTime;
 
-    public _Motor(String name, Type type, DcMotorSimple.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
+    public _Motor(String name, Type type, DcMotorSimple.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior, boolean hasEncoder) {
         _NAME = name;
         _TYPE = type;
         _USAGE = Usage.Circular;
         _WHEEL_DIAMETER_INCHES = 0;
         _COUNTS_PER_INCH = 0;
         _COUNTS_PER_DEGREE = _TYPE._COUNTS/360.0;
+        _HAS_ENCODER = hasEncoder;
+        _DEFAULT_RUNMODE = _HAS_ENCODER ? DcMotor.RunMode.RUN_USING_ENCODER : DcMotor.RunMode.RUN_WITHOUT_ENCODER;
         _motor = Robot.hardwareMap.dcMotor.get(_NAME);
         _config(direction, zeroPowerBehavior);
     }
 
-    public _Motor(String name, Type type, DcMotorSimple.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior, double wheelDiameterInches) {
+    public _Motor(String name, Type type, DcMotorSimple.Direction direction, DcMotor.ZeroPowerBehavior zeroPowerBehavior, double wheelDiameterInches, boolean hasEncoder) {
         _NAME = name;
         _TYPE = type;
         _USAGE = Usage.Linear;
         _WHEEL_DIAMETER_INCHES = wheelDiameterInches;
         _COUNTS_PER_INCH = _TYPE._COUNTS/(_WHEEL_DIAMETER_INCHES * Math.PI);
         _COUNTS_PER_DEGREE = 0;
+        _HAS_ENCODER = hasEncoder;
+        _DEFAULT_RUNMODE = _HAS_ENCODER ? DcMotor.RunMode.RUN_USING_ENCODER : DcMotor.RunMode.RUN_WITHOUT_ENCODER;
         _motor = Robot.hardwareMap.dcMotor.get(_NAME);
         _config(direction, zeroPowerBehavior);
     }
@@ -67,12 +73,12 @@ public class _Motor {
     public void resetForNextRun() {
         _isBusy = false;
         stop();
-        _motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        _motor.setMode(_DEFAULT_RUNMODE);
     }
 
     public void runSpeed(double speed) {
         if (!_isBusy) {
-            _motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            _motor.setMode(_DEFAULT_RUNMODE);
             _setSpeed(speed);
         }
     }
@@ -82,7 +88,7 @@ public class _Motor {
     }
 
     public void runDistance(double speed, double distance) {
-        if (!_isBusy && speed != 0 && _USAGE == Usage.Linear) {
+        if (!_isBusy && speed != 0 && _USAGE == Usage.Linear && _HAS_ENCODER) {
             _isBusy = true;
             _runLimiter = RunLimiter.Magnitude;
             stop();
@@ -95,6 +101,13 @@ public class _Motor {
             stop();
             while (true) {
                 Robot.telemetry.addLine("[ERROR] _Motor.runDistance USED WITH USAGE MODE CIRCULAR");
+                Robot.telemetry.update();
+            }
+        }
+        else if (!_HAS_ENCODER) {
+            stop();
+            while (true) {
+                Robot.telemetry.addLine("[ERROR] _Motor.runDistance USED WITHOUT ENCODER");
                 Robot.telemetry.update();
             }
         }
@@ -111,6 +124,7 @@ public class _Motor {
             stop();
             _startTime = Robot.runtime.milliseconds();
             _elapsedTime = milliseconds;
+            _motor.setMode(_DEFAULT_RUNMODE);
             _setSpeed(speed);
         }
     }
@@ -120,7 +134,7 @@ public class _Motor {
     }
 
     public void runDegrees(double speed, double degrees) {
-        if (!_isBusy && speed != 0 && _USAGE == Usage.Circular) {
+        if (!_isBusy && speed != 0 && _USAGE == Usage.Circular && _HAS_ENCODER) {
             _isBusy = true;
             _runLimiter = RunLimiter.Magnitude;
             stop();
@@ -133,6 +147,13 @@ public class _Motor {
             stop();
             while (true) {
                 Robot.telemetry.addLine("[ERROR] _Motor.runDegrees USED WITH USAGE MODE LINEAR");
+                Robot.telemetry.update();
+            }
+        }
+        else if (!_HAS_ENCODER) {
+            stop();
+            while (true) {
+                Robot.telemetry.addLine("[ERROR] _Motor.runDegrees USED WITHOUT ENCODER");
                 Robot.telemetry.update();
             }
         }
@@ -182,7 +203,7 @@ public class _Motor {
         _isBusy = false;
         _motor.setDirection(direction);
         _motor.setZeroPowerBehavior(zeroPowerBehavior);
-        _motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        _motor.setMode(_DEFAULT_RUNMODE);
         stop();
     }
 
