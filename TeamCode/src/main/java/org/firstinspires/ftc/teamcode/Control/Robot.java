@@ -63,8 +63,11 @@ public final class Robot {
                 case Intake:
                     setupIntake();
                     break;
-                case Crane:
-                    setupCrane();
+                case CraneLift:
+                    setupCraneLift();
+                    break;
+                case CranePivot:
+                    setupCranePivot();
                     break;
                 case Carousel:
                     setupCarousel();
@@ -126,9 +129,12 @@ public final class Robot {
                 DcMotor.ZeroPowerBehavior.BRAKE, false);
     }
 
-    private static void setupCrane() {
+    private static void setupCraneLift() {
         craneLift = new _Motor("craneLift", _Motor.Type.GOBILDA_30_RPM, DcMotorSimple.Direction.REVERSE,
                 DcMotor.ZeroPowerBehavior.BRAKE, false);
+    }
+
+    private static void setupCranePivot() {
         cranePivot = new _Motor("cranePivot", _Motor.Type.GOBILDA_117_RPM, DcMotorSimple.Direction.FORWARD,
                 DcMotor.ZeroPowerBehavior.BRAKE, true);
     }
@@ -252,7 +258,8 @@ public final class Robot {
         Drivetrain,
         Bucket,
         Intake,
-        Crane,
+        CraneLift,
+        CranePivot,
         Carousel,
         OpenCV,
         Vuforia,
