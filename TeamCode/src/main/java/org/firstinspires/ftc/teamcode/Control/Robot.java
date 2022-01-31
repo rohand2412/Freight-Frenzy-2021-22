@@ -87,7 +87,6 @@ public final class Robot {
         }
 
         telemetry.addLine(setupSequence.toString());
-        telemetry.update();
     }
 
     private static void setupEverything() {
@@ -156,7 +155,7 @@ public final class Robot {
         imu = new _IMU("imu", false);
     }
 
-    public void update() {
+    public static void update() {
         drivetrain.update();
         bucket.update();
         intake.update();
@@ -184,7 +183,7 @@ public final class Robot {
         }
     }
 
-    public void turn(double speed, double degrees, TurnAxis turnAxis) {
+    public static void turn(double speed, double degrees, TurnAxis turnAxis) {
         if (!isTurning && degrees != 0) {
             isTurning = true;
             startAngle = imu.getYaw();
@@ -204,47 +203,47 @@ public final class Robot {
         }
     }
 
-    public _Drivetrain getDrivetrain() {
+    public static _Drivetrain getDrivetrain() {
         return drivetrain;
     }
 
-    public _ServoGroup getBucket() {
+    public static _ServoGroup getBucket() {
         return bucket;
     }
 
-    public _Motor getIntake() {
+    public static _Motor getIntake() {
         return intake;
     }
 
-    public _Motor getCraneLift() {
+    public static _Motor getCraneLift() {
         return craneLift;
     }
 
-    public _Motor getCranePivot() {
+    public static _Motor getCranePivot() {
         return cranePivot;
     }
 
-    public _Motor getCarousel() {
+    public static _Motor getCarousel() {
         return carousel;
     }
 
-    public _OpenCV getWebcam() {
+    public static _OpenCV getWebcam() {
         return webcam;
     }
 
-    public _Vuforia getVuforia() {
+    public static _Vuforia getVuforia() {
         return vuforia;
     }
 
-    public _TFOD getTFOD() {
+    public static _TFOD getTFOD() {
         return tfod;
     }
 
-    public _IMU getIMU() {
+    public static _IMU getIMU() {
         return imu;
     }
 
-    public boolean isTurning() {
+    public static boolean isTurning() {
         return isTurning;
     }
 
