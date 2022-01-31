@@ -175,6 +175,10 @@ public class _Motor {
         _setSpeed(0);
     }
 
+    public int getCounts() {
+        return _motor.getCurrentPosition();
+    }
+
     public String getName() {
         return _NAME;
     }
