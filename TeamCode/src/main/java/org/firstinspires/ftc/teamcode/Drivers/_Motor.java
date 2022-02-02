@@ -129,8 +129,8 @@ public class _Motor {
         }
     }
 
-    public void runTime(double distance) {
-        runTime(_speed, distance);
+    public void runTime(double milliseconds) {
+        runTime(_speed, milliseconds);
     }
 
     public void runDegrees(double speed, double degrees) {
@@ -212,7 +212,7 @@ public class _Motor {
     }
 
     private void _setSpeed(double speed) {
-        _motor.setPower(Math.max(Math.min(_speed, 1), -1));
+        _motor.setPower(Math.max(Math.min(speed, 1), -1));
     }
 
     private void _setSpeed() {
