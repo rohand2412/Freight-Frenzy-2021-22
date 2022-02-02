@@ -78,12 +78,13 @@ public class MotorTest extends _Autonomous {
             case SWITCH_MODE:
                 _FR = new _Motor("motorFR", _Motor.Type.GOBILDA_435_RPM, DcMotorSimple.Direction.FORWARD,
                         DcMotor.ZeroPowerBehavior.BRAKE, true);
+                _FR.setTypicalSpeed(0.5);
                 _state = States.RUN_DEGREES;
                 break;
             case RUN_DEGREES:
                 if (_justEntered) {
                     _justEntered = false;
-                    _FR.runDegrees(-0.25, 1080);
+                    _FR.runDegrees(-0.25, -1080);
                 }
                 else if (!_FR.isBusy()) {
                     _state = States.RUN_ROTATIONS;
