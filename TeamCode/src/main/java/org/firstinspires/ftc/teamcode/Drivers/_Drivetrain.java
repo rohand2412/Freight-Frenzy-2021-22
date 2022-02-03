@@ -60,8 +60,9 @@ public class _Drivetrain {
         if (!_isBusy && speed != 0) {
             _isBusy = true;
             _movement = movement;
+            int sign = (speed < 0 || distance < 0 ? -1 : 1);
             for (int i = 0; i < _MOTOR_NUM; ++i)
-                _drivetrain[i].runDistance(speed * _movement[i], distance);
+                _drivetrain[i].runDistance(sign * Math.abs(speed) * _movement[i], Math.abs(distance));
         }
     }
 
@@ -88,23 +89,6 @@ public class _Drivetrain {
 
     public void runTime(double milliseconds, Movements movement) {
         runTime(_speed, milliseconds, movement);
-    }
-
-    public void runRotations(double speed, double rotations, double[] movement) {
-        if (!_isBusy && speed != 0) {
-            _isBusy = true;
-            _movement = movement;
-            for (int i = 0; i < _MOTOR_NUM; ++i)
-                _drivetrain[i].runRotations(speed * _movement[i], rotations);
-        }
-    }
-
-    public void runRotations(double speed, double rotations, Movements movement) {
-        runRotations(speed, rotations, movement.getDirections());
-    }
-
-    public void runRotations(double rotations, Movements movement) {
-        runRotations(_speed, rotations, movement);
     }
 
     public void runSpeedAngle(double speed, double degrees, double offsetDegrees) {
