@@ -75,6 +75,14 @@ public class _ServoGroup {
         return _SERVO_NUM;
     }
 
+    public double getPosition() {
+        return _servos[0].getPosition();
+    }
+
+    public double getDegree() {
+        return _servos[0].getDegree();
+    }
+
     public boolean isBusy() {
         boolean isBusy = false;
         for (_Servo servo : _servos) {
