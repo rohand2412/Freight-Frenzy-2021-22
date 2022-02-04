@@ -14,6 +14,7 @@ public class _Servo {
     private final double _ANGLE_1;
     private final double _ANGLE_2;
     private final double _POSITION_PER_DEGREE;
+    private final double _0_DEGREE_POSITION;
 
     private final Servo _servo;
     private double _position;
@@ -38,6 +39,7 @@ public class _Servo {
         else {
             _POSITION_PER_DEGREE = 0;
         }
+        _0_DEGREE_POSITION = _POSITION_1 - _ANGLE_1 * _POSITION_PER_DEGREE;
         _servo = Robot.hardwareMap.servo.get(_NAME);
         _servo.setDirection(direction);
         _setPosition(start);
@@ -91,15 +93,23 @@ public class _Servo {
     }
 
     public void setSlowDegree(double degree, double increment, double intervalMS) {
-        setSlowPosition(_degreeToPosition(degree), increment/_POSITION_PER_DEGREE, intervalMS);
+        setSlowPosition(_degreeToPosition(degree), increment * _POSITION_PER_DEGREE, intervalMS);
     }
 
     public void setSlowDegree(double degree, double increment) {
-        setSlowPosition(_degreeToPosition(degree), increment/_POSITION_PER_DEGREE);
+        setSlowPosition(_degreeToPosition(degree), increment * _POSITION_PER_DEGREE);
     }
 
     public String getName() {
         return _NAME;
+    }
+
+    public double getPosition() {
+        return _position;
+    }
+
+    public double getDegree() {
+        return (_position - _0_DEGREE_POSITION) /_POSITION_PER_DEGREE;
     }
 
     public boolean isBusy() {
@@ -116,19 +126,11 @@ public class _Servo {
         _servo.setPosition(_position + _MIN);
     }
 
-    private void _setDegree(double degree)
-    {
+    private void _setDegree(double degree) {
         _setPosition(_degreeToPosition(degree));
     }
 
     private double _degreeToPosition(double degree) {
-        double position;
-        if (degree <= _ANGLE_2) {
-            position = _POSITION_2 - (_ANGLE_2 - degree) * _POSITION_PER_DEGREE;
-        }
-        else {
-            position = _POSITION_2 + (degree - _ANGLE_2) * _POSITION_PER_DEGREE;
-        }
-        return position;
+        return degree * _POSITION_PER_DEGREE + _0_DEGREE_POSITION;
     }
 }
