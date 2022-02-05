@@ -154,7 +154,7 @@ public final class Robot {
 
     private static void setupTFOD() {
         tfod = new _TFOD(vuforia.getVuforia(), 0.45f, true, 320, 1.1, 16.0/9.0,
-                "FreightFrenzy_BCDM.tflite", new String[] {"Ball", "Cube", "Duck", "Marker"}, true);
+                "FreightFrenzy_BCDM.tflite", new String[] {"Ball", "Cube", "Duck", "Marker"});
     }
 
     private static void setupIMU() {
@@ -168,7 +168,6 @@ public final class Robot {
         craneLift.update();
         cranePivot.update();
         carousel.update();
-        tfod.update();
         imu.update();
 
         if (isTurning) {
