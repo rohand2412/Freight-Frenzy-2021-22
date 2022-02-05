@@ -29,8 +29,8 @@ public class _OpenCV {
         _webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                _webcam.startStreaming(width, height, rotation);
                 _webcam.setViewportRenderer(OpenCvCamera.ViewportRenderer.GPU_ACCELERATED);
+                _webcam.startStreaming(width, height, rotation);
             }
 
             @Override
@@ -46,10 +46,14 @@ public class _OpenCV {
     }
 
     public void pauseLiveView() {
+        /* OUT OF ORDER */
+        // Viewport was not being paused
         _webcam.pauseViewport();
     }
 
     public void resumeLiveView() {
+        /* OUT OF ORDER */
+        // Useless since viewport isn't being paused
         _webcam.resumeViewport();
     }
 
