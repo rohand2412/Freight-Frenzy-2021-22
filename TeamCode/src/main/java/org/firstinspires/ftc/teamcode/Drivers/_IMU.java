@@ -23,11 +23,12 @@ public class _IMU {
     private double _lastYawRaw = 0;
     private double _lastUpdateTime = 0;
     private boolean _willUpdate;
+    private boolean _justStartedUpdating;
 
     public _IMU(String name, double elapsedTime, boolean willUpdate) {
         _NAME = name;
         _ELAPSED_TIME = elapsedTime;
-        _willUpdate = willUpdate;
+        willUpdate(willUpdate);
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -49,6 +50,7 @@ public class _IMU {
 
     public void willUpdate(boolean willUpdate) {
         _willUpdate = willUpdate;
+        _justStartedUpdating = _willUpdate;
     }
 
     public void update() {
@@ -56,25 +58,31 @@ public class _IMU {
             _angles = _imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             _yawRaw = -AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(_angles.angleUnit, _angles.firstAngle));
 
-            //Check if delta raw readings is greater than threshold
-            if (_yawRaw - _lastYawRaw > _OVERFLOW_THRESHOLD) {
-                //Detect and revert overflow
-                _yaw -= _FULL_CIRCLE_DEG;
-            }
-            //Check if delta raw readings is less than negative threshold
-            else if (_yawRaw - _lastYawRaw < -_OVERFLOW_THRESHOLD) {
-                //Detect and revert overflow
-                _yaw += _FULL_CIRCLE_DEG;
-            }
+            //Check if update was just turned on
+            if (!_justStartedUpdating) {
+                //Check if delta raw readings is greater than threshold
+                if (_yawRaw - _lastYawRaw > _OVERFLOW_THRESHOLD) {
+                    //Detect and revert overflow
+                    _yaw -= _FULL_CIRCLE_DEG;
+                }
+                //Check if delta raw readings is less than negative threshold
+                else if (_yawRaw - _lastYawRaw < -_OVERFLOW_THRESHOLD) {
+                    //Detect and revert overflow
+                    _yaw += _FULL_CIRCLE_DEG;
+                }
 
-            //Add delta to current software sensor data
-            _yaw += _yawRaw - _lastYawRaw;
+                //Add delta to current software sensor data
+                _yaw += _yawRaw - _lastYawRaw;
+            }
 
             //Save reading as old reading
             _lastYawRaw = _yawRaw;
 
             //set _startTime to just now
             _lastUpdateTime = Robot.runtime.milliseconds();
+
+            //Make sure just started updating is false
+            _justStartedUpdating = false;
         }
     }
 
