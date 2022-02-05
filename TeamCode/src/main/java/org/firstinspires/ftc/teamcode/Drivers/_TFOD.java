@@ -10,17 +10,10 @@ import java.util.List;
 
 public class _TFOD {
 
-    private final double _INTERVAL_MS;
-
     private final TFObjectDetector _tfod;
     private List<Recognition> _recognitions;
-    private double _lastUpdatedTime;
-    private boolean _willUpdate;
 
-    public _TFOD(VuforiaLocalizer vuforia, float confidenceThreshold, boolean isTF2, int inputSize, double zoom, double aspectRatio, String model, String[] labels, double intervalMS, boolean willUpdate) {
-        _INTERVAL_MS = intervalMS;
-        _willUpdate = willUpdate;
-
+    public _TFOD(VuforiaLocalizer vuforia, float confidenceThreshold, boolean isTF2, int inputSize, double zoom, double aspectRatio, String model, String[] labels) {
         int tfodMonitorViewId = Robot.hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", Robot.hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
@@ -42,25 +35,6 @@ public class _TFOD {
             // should be set to the value of the images used to create the TensorFlow Object Detection model
             // (typically 16/9).
             _tfod.setZoom(zoom, aspectRatio);
-        }
-    }
-
-    public _TFOD(VuforiaLocalizer vuforia, float confidenceThreshold, boolean isTF2, int inputSize, double zoom, double aspectRatio, String model, String[] labels, boolean willUpdate) {
-        this(vuforia, confidenceThreshold, isTF2, inputSize, zoom, aspectRatio, model, labels, 100, willUpdate);
-    }
-
-    public void willUpdate(boolean willUpdate) {
-        _willUpdate = willUpdate;
-        if (_willUpdate) {
-            _tfod.getUpdatedRecognitions();
-        }
-    }
-
-    public void update() {
-        if (_willUpdate && (Robot.runtime.milliseconds() >= _lastUpdatedTime + _INTERVAL_MS)) {
-            _recognitions = _tfod.getUpdatedRecognitions();
-
-            _lastUpdatedTime = Robot.runtime.milliseconds();
         }
     }
 
@@ -87,10 +61,21 @@ public class _TFOD {
         return count;
     }
 
+    public List<Recognition> getLatestRecognitions() {
+        List<Recognition> recognitions = _tfod.getUpdatedRecognitions();
+        if (recognitions != null) {
+            if (recognitions.size() > 0 || _recognitions == null) {
+                _recognitions = recognitions;
+            }
+        }
+        return _recognitions;
+    }
+
     public List<Recognition> getRecognitions() {
         return _recognitions;
     }
 
+    @FunctionalInterface
     public interface ValidRecognition {
         boolean check(Recognition recognition);
     }
