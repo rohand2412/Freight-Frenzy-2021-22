@@ -160,7 +160,7 @@ public final class Robot {
     }
 
     private static void setupIMU() {
-        imu = new _IMU("imu", false);
+        imu = new _IMU("imu", false, true);
     }
 
     public static void update() {

@@ -18,7 +18,7 @@ public class IMUTest extends _Autonomous {
     @Override
     public void init() {
         Robot.setup(hardwareMap, telemetry);
-        _imu = new _IMU("imu", false);
+        _imu = new _IMU("imu", false, true);
         _justEntered = true;
         _state = States.UPDATE_TIME;
     }
