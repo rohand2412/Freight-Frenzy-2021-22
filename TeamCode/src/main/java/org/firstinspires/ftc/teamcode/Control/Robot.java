@@ -32,6 +32,7 @@ public final class Robot {
     public static _Vuforia vuforia;
     public static _TFOD tfod;
     public static _IMU imu;
+    public static _IMU craneIMU;
 
     public static final double MM_PER_INCH = 25.4;
     public static final double TURN_OFFSET_POSITIVE = 18;
@@ -86,6 +87,9 @@ public final class Robot {
                 case IMU:
                     setupIMU();
                     break;
+                case CraneIMU:
+                    setupCraneIMU();
+                    break;
             }
 
             setupSequence.append(type.name()).append(" ");
@@ -98,6 +102,7 @@ public final class Robot {
         setupVuforia();
         setupTFOD();
         setupIMU();
+        setupCraneIMU();
         setupDrivetrain();
         setupBucket();
         setupIntake();
@@ -163,6 +168,10 @@ public final class Robot {
         imu = new _IMU("imu", false, true);
     }
 
+    private static void setupCraneIMU() {
+        craneIMU = new _IMU("armImu", true, false);
+    }
+
     public static void update() {
         drivetrain.update();
         bucket.update();
@@ -171,6 +180,7 @@ public final class Robot {
         cranePivot.update();
         carousel.update();
         imu.update();
+        craneIMU.update();
 
         if (isTurning) {
             if (Math.abs(turnDegrees) > Math.max(TURN_OFFSET_POSITIVE, TURN_OFFSET_NEGATIVE)) {
@@ -250,6 +260,10 @@ public final class Robot {
         return imu;
     }
 
+    public static _IMU getCraneIMU() {
+        return craneIMU;
+    }
+
     public static boolean isTurning() {
         return isTurning;
     }
@@ -265,7 +279,8 @@ public final class Robot {
         OpenCV,
         Vuforia,
         TFOD,
-        IMU
+        IMU,
+        CraneIMU
     }
 
     public enum TurnAxis {
