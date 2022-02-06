@@ -15,6 +15,7 @@ public class _IMU {
     private final double _OVERFLOW_THRESHOLD = 300;
     private final double _FULL_CIRCLE_DEG = 360;
     private final double _ELAPSED_TIME;
+    private final boolean _yawOverflowProtection;
 
     private final BNO055IMU _imu;
     private Orientation _angles;
@@ -25,9 +26,10 @@ public class _IMU {
     private boolean _willUpdate;
     private boolean _justStartedUpdating;
 
-    public _IMU(String name, double elapsedTime, boolean willUpdate) {
+    public _IMU(String name, double elapsedTime, boolean willUpdate, boolean yawOverflowProtection) {
         _NAME = name;
         _ELAPSED_TIME = elapsedTime;
+        _yawOverflowProtection = yawOverflowProtection;
         willUpdate(willUpdate);
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
@@ -44,8 +46,8 @@ public class _IMU {
         _imu.initialize(parameters);
     }
 
-    public _IMU(String name, boolean willUpdate) {
-        this(name, 100, willUpdate);
+    public _IMU(String name, boolean willUpdate, boolean yawOverflowProtection) {
+        this(name, 100, willUpdate, yawOverflowProtection);
     }
 
     public void willUpdate(boolean willUpdate) {
@@ -56,33 +58,38 @@ public class _IMU {
     public void update() {
         if (_willUpdate && (Robot.runtime.milliseconds() >= _lastUpdateTime + _ELAPSED_TIME)) {
             _angles = _imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            _yawRaw = -AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(_angles.angleUnit, _angles.firstAngle));
 
-            //Check if update was just turned on
-            if (!_justStartedUpdating) {
-                //Check if delta raw readings is greater than threshold
-                if (_yawRaw - _lastYawRaw > _OVERFLOW_THRESHOLD) {
-                    //Detect and revert overflow
-                    _yaw -= _FULL_CIRCLE_DEG;
-                }
-                //Check if delta raw readings is less than negative threshold
-                else if (_yawRaw - _lastYawRaw < -_OVERFLOW_THRESHOLD) {
-                    //Detect and revert overflow
-                    _yaw += _FULL_CIRCLE_DEG;
+            //Check if overflow protection desired
+            if (_yawOverflowProtection) {
+                //Calculate raw yaw value
+                _yawRaw = -AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(_angles.angleUnit, _angles.firstAngle));
+
+                //Check if update was just turned on
+                if (!_justStartedUpdating) {
+                    //Check if delta raw readings is greater than threshold
+                    if (_yawRaw - _lastYawRaw > _OVERFLOW_THRESHOLD) {
+                        //Detect and revert overflow
+                        _yaw -= _FULL_CIRCLE_DEG;
+                    }
+                    //Check if delta raw readings is less than negative threshold
+                    else if (_yawRaw - _lastYawRaw < -_OVERFLOW_THRESHOLD) {
+                        //Detect and revert overflow
+                        _yaw += _FULL_CIRCLE_DEG;
+                    }
+
+                    //Add delta to current software sensor data
+                    _yaw += _yawRaw - _lastYawRaw;
                 }
 
-                //Add delta to current software sensor data
-                _yaw += _yawRaw - _lastYawRaw;
+                //Save reading as old reading
+                _lastYawRaw = _yawRaw;
+
+                //set _startTime to just now
+                _lastUpdateTime = Robot.runtime.milliseconds();
+
+                //Make sure just started updating is false
+                _justStartedUpdating = false;
             }
-
-            //Save reading as old reading
-            _lastYawRaw = _yawRaw;
-
-            //set _startTime to just now
-            _lastUpdateTime = Robot.runtime.milliseconds();
-
-            //Make sure just started updating is false
-            _justStartedUpdating = false;
         }
     }
 
@@ -91,6 +98,19 @@ public class _IMU {
     }
 
     public double getYaw() {
-        return _yaw;
+        if (_yawOverflowProtection) {
+            return _yaw;
+        }
+        else {
+            return -AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(_angles.angleUnit, _angles.firstAngle));
+        }
+    }
+
+    public double getRoll() {
+        return AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(_angles.angleUnit, _angles.secondAngle));
+    }
+
+    public double getPitch() {
+        return AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(_angles.angleUnit, _angles.thirdAngle));
     }
 }
