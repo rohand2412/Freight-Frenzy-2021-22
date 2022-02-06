@@ -9,21 +9,18 @@ import org.firstinspires.ftc.teamcode.Drivers._IMU;
 @Autonomous(name="CraneIMUTest", group="PeripheralTest")
 public class CraneIMUTest extends _Autonomous {
 
-    private _IMU _imu;
-
     @Override
     public void init() {
-        Robot.setup(hardwareMap, telemetry);
-        _imu = new _IMU("armImu", true, false);
+        Robot.setup(hardwareMap, telemetry, Robot.SetupType.CraneIMU);
     }
 
     @Override
     public void init_loop() {
-        _imu.update();
-        telemetry.addLine(_imu.getName());
-        telemetry.addLine(String.valueOf(_imu.getYaw()));
-        telemetry.addLine(String.valueOf(_imu.getPitch()));
-        telemetry.addLine(String.valueOf(_imu.getRoll()));
+        Robot.getCraneIMU().update();
+        telemetry.addLine(Robot.getCraneIMU().getName());
+        telemetry.addLine(String.valueOf(Robot.getCraneIMU().getYaw()));
+        telemetry.addLine(String.valueOf(Robot.getCraneIMU().getPitch()));
+        telemetry.addLine(String.valueOf(Robot.getCraneIMU().getRoll()));
     }
 
     @Override
