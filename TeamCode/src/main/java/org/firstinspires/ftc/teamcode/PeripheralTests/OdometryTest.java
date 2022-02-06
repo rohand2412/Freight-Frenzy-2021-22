@@ -21,9 +21,10 @@ public class OdometryTest extends _Autonomous {
 
     @Override
     public void loop() {
-        telemetry.addLine("Left: " + Robot.getCarousel().getCounts());
+        telemetry.addLine("Left: " + Robot.getCranePivot().getCounts());
         telemetry.addLine("Middle: " + Robot.getCraneLift().getCounts());
         telemetry.addLine("Right: " + Robot.getIntake().getCounts());
+        telemetry.addLine("I can download");
     }
 
     @Override

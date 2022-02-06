@@ -41,6 +41,8 @@ public final class Robot {
     public static double startAngle;
     public static double turnDegrees;
 
+    public static double carouselSpeed = 0.5;
+
     private Robot() {};
 
     public static void setup(HardwareMap centralHardwareMap, Telemetry centralTelemetry, SetupType... setupTypes) {
@@ -136,12 +138,12 @@ public final class Robot {
 
     private static void setupCranePivot() {
         cranePivot = new _Motor("cranePivot", _Motor.Type.GOBILDA_117_RPM, DcMotorSimple.Direction.FORWARD,
-                DcMotor.ZeroPowerBehavior.BRAKE, true);
+                DcMotor.ZeroPowerBehavior.BRAKE, false);
     }
 
     private static void setupCarousel() {
         carousel = new _Motor("carousel", _Motor.Type.GOBILDA_312_RPM, DcMotorSimple.Direction.FORWARD,
-                DcMotor.ZeroPowerBehavior.BRAKE, false);
+                DcMotor.ZeroPowerBehavior.BRAKE, true);
     }
 
     private static void setupOpenCV() {
