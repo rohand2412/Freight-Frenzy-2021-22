@@ -5,8 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.Control.Robot;
 import org.firstinspires.ftc.teamcode.Control._Autonomous;
 
-@Autonomous(name="CarouselTest", group="PeripheralTest")
-public class CarouselTest extends _Autonomous {
+@Autonomous(name="EndgameCarouselTest", group="PeripheralTest")
+public class EndgameCarouselTest extends _Autonomous {
 
     @Override
     public void init(){
