@@ -142,17 +142,18 @@ public final class Robot {
     }
 
     private static void setupCraneLift() {
-        _craneLift = new _Motor("craneLift", _Motor.Type.GOBILDA_30_RPM, DcMotorSimple.Direction.REVERSE,
+        _craneLift = new _Motor("craneLift", _Motor.Type.GOBILDA_30_RPM, DcMotorSimple.Direction.FORWARD,
                 DcMotor.ZeroPowerBehavior.BRAKE, false);
         _craneLiftPID = new _PID(() -> _craneIMU.getRoll(), (double data) -> _craneLift.runSpeed(data), () -> _craneLiftSetPoint,
-                0.025, 0.07, 0, _PID.ProportionalMode.MEASUREMENT, _PID.Direction.DIRECT, 100, -1, 1);
+                0.008, 0.01, 0, 0.006, 0.006, 0,
+                _PID.ProportionalMode.MEASUREMENT, _PID.Direction.DIRECT, 50, -1, 1);
     }
 
     private static void setupCranePivot() {
         _cranePivot = new _Motor("cranePivot", _Motor.Type.GOBILDA_117_RPM, DcMotorSimple.Direction.FORWARD,
                 DcMotor.ZeroPowerBehavior.BRAKE, false);
         _cranePivotPID = new _PID(() -> _craneIMU.getYaw(), (double data) -> _cranePivot.runSpeed(data), () -> _cranePivotSetPoint,
-                0.01, 0.01, 0, _PID.ProportionalMode.MEASUREMENT, _PID.Direction.DIRECT, 100, -1, 1);
+                0.02, 0.02, 0, _PID.ProportionalMode.MEASUREMENT, _PID.Direction.DIRECT, 50, -1, 1);
     }
 
     private static void setupCarousel() {
@@ -178,7 +179,7 @@ public final class Robot {
     }
 
     private static void setupCraneIMU() {
-        _craneIMU = new _IMU("armImu", true, false);
+        _craneIMU = new _IMU("armImu", 50, true, false);
     }
 
     public static void update() {
