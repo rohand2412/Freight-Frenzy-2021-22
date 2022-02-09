@@ -7,6 +7,12 @@ public class _PID {
     private final GetDouble _sourceInput;
     private final SetDouble _sourceOutput;
     private final GetDouble _sourceSetPoint;
+    private final double _FORWARD_KP;
+    private final double _FORWARD_KI;
+    private final double _FORWARD_KD;
+    private final double _BACKWARD_KP;
+    private final double _BACKWARD_KI;
+    private final double _BACKWARD_KD;
 
     private double _sourceInputVal;
     private double _sourceOutputVal;
@@ -24,9 +30,17 @@ public class _PID {
     private ProportionalMode _proportionalMode = ProportionalMode.ERROR;
 
     public _PID(GetDouble input, SetDouble output, GetDouble setPoint,
-                double kp, double ki, double kd,
+                double f_kp, double f_ki, double f_kd,
+                double b_kp, double b_ki, double b_kd,
                 ProportionalMode proportionalMode, Direction direction,
                 double sampleTimeMS, double min, double max) {
+        _FORWARD_KP = f_kp;
+        _FORWARD_KI = f_ki;
+        _FORWARD_KD = f_kd;
+        _BACKWARD_KP = b_kp;
+        _BACKWARD_KI = b_ki;
+        _BACKWARD_KD = b_kd;
+
         _sourceInput = input;
         _sourceOutput = output;
         _sourceSetPoint = setPoint;
@@ -34,8 +48,15 @@ public class _PID {
         setOutputLimits(min, max);
         _sampleTimeMS = sampleTimeMS;
         setControllerDirection(direction);
-        setTunings(kp, ki, kd, proportionalMode);
+        _proportionalMode = proportionalMode;
         _lastTime = Robot.runtime.milliseconds() - _sampleTimeMS;
+    }
+
+    public _PID(GetDouble input, SetDouble output, GetDouble setPoint,
+                double kp, double ki, double kd,
+                ProportionalMode proportionalMode, Direction direction,
+                double sampleTimeMS, double min, double max) {
+        this(input, output, setPoint, kp, ki, kd, kp, ki, kd, proportionalMode, direction, sampleTimeMS, min, max);
     }
 
     public boolean update() {
@@ -47,6 +68,14 @@ public class _PID {
             _sourceInputVal = _sourceInput.get();
             double error = _sourceSetPoint.get() - input;
             double dInput = input - _lastInput;
+
+            if (error >= 0) {
+                setTunings(_FORWARD_KP, _FORWARD_KI, _FORWARD_KD, _proportionalMode);
+            }
+            else {
+                setTunings(_BACKWARD_KP, _BACKWARD_KI, _BACKWARD_KD, _proportionalMode);
+            }
+
             _outputSum += _ki * error;
 
             if (_proportionalMode == ProportionalMode.MEASUREMENT) _outputSum -= _kp * dInput;
