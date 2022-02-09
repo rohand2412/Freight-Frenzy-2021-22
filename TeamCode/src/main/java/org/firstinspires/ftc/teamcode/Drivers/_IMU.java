@@ -53,6 +53,7 @@ public class _IMU {
     public void willUpdate(boolean willUpdate) {
         _willUpdate = willUpdate;
         _justStartedUpdating = _willUpdate;
+        _lastUpdateTime = Robot.runtime.milliseconds() - _ELAPSED_TIME;
     }
 
     public void update() {
@@ -102,15 +103,15 @@ public class _IMU {
             return _yaw;
         }
         else {
-            return -AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(_angles.angleUnit, _angles.firstAngle));
+            return _angles.firstAngle;
         }
     }
 
     public double getRoll() {
-        return AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(_angles.angleUnit, _angles.secondAngle));
+        return _angles.secondAngle;
     }
 
     public double getPitch() {
-        return AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(_angles.angleUnit, _angles.thirdAngle));
+        return _angles.thirdAngle;
     }
 }
