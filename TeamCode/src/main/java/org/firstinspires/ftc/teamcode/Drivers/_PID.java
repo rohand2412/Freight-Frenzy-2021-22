@@ -28,6 +28,7 @@ public class _PID {
     private State _state;
     private Direction _direction = Direction.DIRECT;
     private ProportionalMode _proportionalMode = ProportionalMode.ERROR;
+    private boolean _initializedLastInput;
 
     public _PID(GetDouble input, SetDouble output, GetDouble setPoint,
                 double f_kp, double f_ki, double f_kd,
@@ -50,6 +51,7 @@ public class _PID {
         setControllerDirection(direction);
         _proportionalMode = proportionalMode;
         _lastTime = Robot.runtime.milliseconds() - _sampleTimeMS;
+        _initializedLastInput = false;
     }
 
     public _PID(GetDouble input, SetDouble output, GetDouble setPoint,
@@ -66,6 +68,12 @@ public class _PID {
         if (timeChange >= _sampleTimeMS) {
             double input = _sourceInput.get();
             _sourceInputVal = _sourceInput.get();
+
+            if (!_initializedLastInput) {
+                _initializedLastInput = true;
+                _lastInput = input;
+            }
+
             double error = _sourceSetPoint.get() - input;
             double dInput = input - _lastInput;
 
