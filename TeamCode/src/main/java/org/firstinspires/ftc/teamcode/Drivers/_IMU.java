@@ -63,7 +63,7 @@ public class _IMU {
             //Check if overflow protection desired
             if (_yawOverflowProtection) {
                 //Calculate raw yaw value
-                _yawRaw = -AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(_angles.angleUnit, _angles.firstAngle));
+                _yawRaw = _angles.firstAngle;
 
                 //Check if update was just turned on
                 if (!_justStartedUpdating) {
