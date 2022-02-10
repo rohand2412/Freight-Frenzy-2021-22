@@ -38,6 +38,14 @@ public class _TFOD {
         }
     }
 
+    public void activate() {
+        _tfod.activate();
+    }
+
+    public void deactivate() {
+        _tfod.deactivate();
+    }
+
     public Recognition getRecognitionValidLabel(ValidRecognition validRecognition, String label) {
         for (int i = 0; i < _recognitions.size(); i++) {
             if (_recognitions.get(i) != null) {
