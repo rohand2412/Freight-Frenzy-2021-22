@@ -150,10 +150,10 @@ public final class Robot {
     }
 
     private static void setupCranePivot() {
-        _cranePivot = new _Motor("cranePivot", _Motor.Type.GOBILDA_117_RPM, DcMotorSimple.Direction.FORWARD,
+        _cranePivot = new _Motor("cranePivot", _Motor.Type.GOBILDA_117_RPM, DcMotorSimple.Direction.REVERSE,
                 DcMotor.ZeroPowerBehavior.BRAKE, false);
         _cranePivotPID = new _PID(() -> _craneIMU.getYaw(), (double data) -> _cranePivot.runSpeed(data), () -> _cranePivotSetPoint,
-                0.02, 0.02, 0, _PID.ProportionalMode.MEASUREMENT, _PID.Direction.DIRECT, 50, -1, 1);
+                0.0085, 0.015, 0, _PID.ProportionalMode.MEASUREMENT, _PID.Direction.DIRECT, 50, -1, 1);
     }
 
     private static void setupCarousel() {
