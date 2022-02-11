@@ -46,6 +46,7 @@ public class CranePivotPIDTest extends _Autonomous {
                 Robot.getCraneLiftPID().update();
                 Robot.getCranePivot().update();
                 Robot.getCranePivotPID().update();
+                Robot.getBucket().update();
 
                 telemetry.addLine("Roll: " + Robot.getCraneIMU().getRoll());
                 telemetry.addLine("Yaw: " + Robot.getCraneIMU().getYaw());
@@ -57,6 +58,8 @@ public class CranePivotPIDTest extends _Autonomous {
 
     @Override
     public void start() {
+        Robot.getBucket().setSlowDegree(105+13.4, 12);
+        Robot.setCraneLiftDegree(15);
         Robot.setCranePivotDegree(90);
     }
 
@@ -67,6 +70,7 @@ public class CranePivotPIDTest extends _Autonomous {
         Robot.getCraneLiftPID().update();
         Robot.getCranePivot().update();
         Robot.getCranePivotPID().update();
+        Robot.getBucket().update();
 
         telemetry.addLine("Roll: " + Robot.getCraneIMU().getRoll());
         telemetry.addLine("Yaw: " + Robot.getCraneIMU().getYaw());
