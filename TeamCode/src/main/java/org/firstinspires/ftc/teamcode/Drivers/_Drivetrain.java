@@ -91,6 +91,19 @@ public class _Drivetrain {
         runTime(_speed, milliseconds, movement);
     }
 
+    /* [DO NOT USE] NOT WORKING */
+    public void runSpeedAngle(double speed, double degrees, double offsetDegrees, Movements movement) {
+        if (!_isBusy) {
+            _movement = movement.getDirections();
+            double[] forwardDirections = Movements.forward.getDirections();
+            double[] speeds = _anyDirection(speed, degrees, offsetDegrees);
+            runSpeed(speed, new double[] {forwardDirections[0] * speeds[0] + _movement[0] * speed,
+                    forwardDirections[1] * speeds[1] + _movement[1] * speed,
+                    forwardDirections[2] * speeds[1] + _movement[2] * speed,
+                    forwardDirections[3] * speeds[0] + _movement[3] * speed});
+        }
+    }
+
     public void runSpeedAngle(double speed, double degrees, double offsetDegrees) {
         if (!_isBusy) {
             _movement = Movements.forward.getDirections();
