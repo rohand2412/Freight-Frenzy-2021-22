@@ -7,7 +7,8 @@ import org.firstinspires.ftc.teamcode.Control._TeleOp;
 import org.firstinspires.ftc.teamcode.Drivers._Drivetrain;
 
 @TeleOp(group = "drive")
-public class FinalTeleOp extends _TeleOp {
+public class TeleOpCollectionTest extends _TeleOp {
+
     @Override
     public void init(){
         telemetry.setAutoClear(true);
