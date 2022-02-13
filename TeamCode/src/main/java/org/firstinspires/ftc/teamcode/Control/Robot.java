@@ -42,12 +42,34 @@ public final class Robot {
     private static final double _TURN_OFFSET_POSITIVE = 18;
     private static final double _TURN_OFFSET_NEGATIVE = 15;
     private static final double _ENDGAME_CAROUSEL_SPEED = 0.5;
+    private static final double _BUCKET_FLAT_ANGLE_OFFSET = 15.4;
+    private static final double _ANGLE_RANGE = 10;
 
+    private static FieldSide _fieldSide;
     private static boolean _isTurning = false;
     private static double _startAngle;
     private static double _turnDegrees;
     private static double _craneLiftSetPoint;
     private static double _cranePivotSetPoint;
+    private static double _CRANE_LIFT_ABOVE_CAROUSEL_DEGREE;
+    private static _CRANE_TRANSITION_STATE _craneTransitionState = _CRANE_TRANSITION_STATE.INACTIVE;
+    private static boolean _isCraneTransitioning = false;
+    private static boolean _justEnteredCraneTransitionState;
+    private static CranePreset _endCraneTransitionPreset;
+    private static double _bucketAngleMaintainOffset;
+    private static boolean _maintainBucketAngle;
+
+    //Crane Presets
+    public static CranePreset CRANE_COLLECTION_HOLD = new CranePreset(-65.5, 0, 80);
+    public static CranePreset CRANE_COLLECTION_DROP = new CranePreset(-65.5, 0, 130);
+    public static CranePreset CRANE_TOP_LEVEL_HOLD;
+    public static CranePreset CRANE_TOP_LEVEL_DROP;
+    public static CranePreset CRANE_MIDDLE_LEVEL_HOLD;
+    public static CranePreset CRANE_MIDDLE_LEVEL_DROP;
+    public static CranePreset CRANE_BOTTOM_LEVEL_HOLD;
+    public static CranePreset CRANE_BOTTOM_LEVEL_DROP;
+    public static CranePreset CRANE_SHARED_LEVEL_HOLD;
+    public static CranePreset CRANE_SHARED_LEVEL_DROP;
 
     private Robot() {};
 
@@ -59,14 +81,17 @@ public final class Robot {
         StringBuilder setupSequence = new StringBuilder();
         for (SetupType type : setupTypes) {
             switch(type) {
-                case Everything:
-                    setupEverything();
+                case Autonomous:
+                    setupAutonomous();
+                    break;
+                case TeleOp:
+                    setupTeleOp();
                     break;
                 case Drivetrain:
                     setupDrivetrain();
                     break;
                 case Bucket:
-                    setupBucket();
+                    setupBucket(0);
                     break;
                 case Intake:
                     setupIntake();
@@ -103,13 +128,55 @@ public final class Robot {
         telemetry.addLine(setupSequence.toString());
     }
 
-    private static void setupEverything() {
+    public static void setFieldSide(FieldSide fieldSide) {
+        _fieldSide = fieldSide;
+
+        if (_fieldSide == FieldSide.BLUE) {
+            CRANE_TOP_LEVEL_HOLD = new CranePreset(46, -90, 180-22);
+            CRANE_TOP_LEVEL_DROP = new CranePreset(46, -90, 180+46+35);
+            CRANE_MIDDLE_LEVEL_HOLD = new CranePreset(-30, -90, 180-55);
+            CRANE_MIDDLE_LEVEL_DROP = new CranePreset(10, -90, 220);
+            CRANE_BOTTOM_LEVEL_HOLD = new CranePreset(-60, -90, 98);
+            CRANE_BOTTOM_LEVEL_DROP = new CranePreset(-30, -90, 180);
+            CRANE_SHARED_LEVEL_HOLD = new CranePreset(0, -100, 90);
+            CRANE_SHARED_LEVEL_DROP = new CranePreset(0, -100, 210);
+        }
+        else if (_fieldSide == FieldSide.RED) {
+            CRANE_TOP_LEVEL_HOLD = new CranePreset(46, 90, 180-22);
+            CRANE_TOP_LEVEL_DROP = new CranePreset(46, 90, 180+46+35);
+            CRANE_MIDDLE_LEVEL_HOLD = new CranePreset(-30, 90, 180-55);
+            CRANE_MIDDLE_LEVEL_DROP = new CranePreset(10, 90, 220);
+            CRANE_BOTTOM_LEVEL_HOLD = new CranePreset(-60, 90, 98);
+            CRANE_BOTTOM_LEVEL_DROP = new CranePreset(-30, 90, 180);
+            CRANE_SHARED_LEVEL_HOLD = new CranePreset(0, 100, 90);
+            CRANE_SHARED_LEVEL_DROP = new CranePreset(0, 100, 210);
+        }
+        _CRANE_LIFT_ABOVE_CAROUSEL_DEGREE = 20;
+    }
+
+    private static void setupAutonomous() {
         setupVuforia();
         setupTFOD();
         setupIMU();
         setupCraneIMU();
+        setupCraneLift();
+        setupCranePivot();
         setupDrivetrain();
-        setupBucket();
+        setupBucket(0);
+        setupIntake();
+        setupCarousel();
+        //OpenCV is just for testing, not actual runs
+    }
+
+    private static void setupTeleOp() {
+        setupVuforia();
+        setupTFOD();
+        setupIMU();
+        setupCraneIMU();
+        setupCraneLift();
+        setupCranePivot();
+        setupDrivetrain();
+        setupBucket(CRANE_COLLECTION_DROP.BUCKET_DEGREE);
         setupIntake();
         setupCarousel();
         //OpenCV is just for testing, not actual runs
@@ -128,10 +195,10 @@ public final class Robot {
         _drivetrain = new _Drivetrain(fr, fl, br, bl, 1.0);
     }
 
-    private static void setupBucket() {
-        _Servo left = new _Servo("bucketLeft", Servo.Direction.FORWARD, 0, 1, 0,
+    private static void setupBucket(double startDegree) {
+        _Servo left = new _Servo("bucketLeft", Servo.Direction.FORWARD, 0, 1, startDegree,
                 0.17, 90, 0.51, 180);
-        _Servo right = new _Servo("bucketRight", Servo.Direction.REVERSE, 0, 1, 0,
+        _Servo right = new _Servo("bucketRight", Servo.Direction.REVERSE, 0, 1, startDegree,
                 0.17, 90, 0.51, 180);
         _bucket = new _ServoGroup(left, right);
     }
@@ -183,16 +250,16 @@ public final class Robot {
     }
 
     public static void update() {
+        _imu.update();
         _drivetrain.update();
         _bucket.update();
         _intake.update();
+        _craneIMU.update();
         _craneLift.update();
         _craneLiftPID.update();
         _cranePivot.update();
         _cranePivotPID.update();
         _carousel.update();
-        _imu.update();
-        _craneIMU.update();
 
         if (_isTurning) {
             if (Math.abs(_turnDegrees) > Math.max(_TURN_OFFSET_POSITIVE, _TURN_OFFSET_NEGATIVE)) {
@@ -209,6 +276,65 @@ public final class Robot {
             if (!_isTurning) {
                 _drivetrain.stop();
             }
+        }
+
+        if (_maintainBucketAngle) {
+            getBucket().setDegree(90 + _BUCKET_FLAT_ANGLE_OFFSET + _craneIMU.getRoll() + _bucketAngleMaintainOffset);
+        }
+
+        switch (_craneTransitionState) {
+            case LIFT_CRANE:
+                if (_justEnteredCraneTransitionState) {
+                    _justEnteredCraneTransitionState = false;
+                    setCraneLiftDegree(Math.max(_endCraneTransitionPreset.CRANE_LIFT_DEGREE, _CRANE_LIFT_ABOVE_CAROUSEL_DEGREE));
+                }
+                else if (_craneIMU.getRoll() >= _CRANE_LIFT_ABOVE_CAROUSEL_DEGREE - _ANGLE_RANGE) {
+                    _craneTransitionState = _CRANE_TRANSITION_STATE.PIVOT_CRANE;
+                    _justEnteredCraneTransitionState = true;
+                }
+                break;
+            case PIVOT_CRANE:
+                if (_justEnteredCraneTransitionState) {
+                    _justEnteredCraneTransitionState = false;
+                    setCranePivotDegree(_endCraneTransitionPreset.CRANE_PIVOT_DEGREE);
+                }
+                else if (_craneIMU.getYaw() >= _endCraneTransitionPreset.CRANE_PIVOT_DEGREE - _ANGLE_RANGE && _craneIMU.getYaw() <= _endCraneTransitionPreset.CRANE_PIVOT_DEGREE + _ANGLE_RANGE) {
+                    if (_endCraneTransitionPreset.CRANE_LIFT_DEGREE >= _CRANE_LIFT_ABOVE_CAROUSEL_DEGREE) {
+                        _craneTransitionState = _CRANE_TRANSITION_STATE.LOWER_BUCKET;
+                    }
+                    else {
+                        _craneTransitionState = _CRANE_TRANSITION_STATE.LOWER_CRANE;
+                    }
+                    _justEnteredCraneTransitionState = true;
+                }
+                break;
+            case LOWER_CRANE:
+                if (_justEnteredCraneTransitionState) {
+                    _justEnteredCraneTransitionState = false;
+                    setCraneLiftDegree(_endCraneTransitionPreset.CRANE_LIFT_DEGREE);
+                }
+                else if (_craneIMU.getRoll() >= _endCraneTransitionPreset.CRANE_LIFT_DEGREE - _ANGLE_RANGE && _craneIMU.getRoll() <= _endCraneTransitionPreset.CRANE_LIFT_DEGREE + _ANGLE_RANGE) {
+                    _craneTransitionState = _CRANE_TRANSITION_STATE.LOWER_BUCKET;
+                    _justEnteredCraneTransitionState = true;
+                }
+                break;
+            case LOWER_BUCKET:
+                if (_justEnteredCraneTransitionState) {
+                    _justEnteredCraneTransitionState = false;
+                    neglectBucketPosition();
+                    getBucket().setSlowDegree(_endCraneTransitionPreset.BUCKET_DEGREE, 1000);
+                }
+                else if (!getBucket().isBusy()) {
+                    _craneTransitionState = _CRANE_TRANSITION_STATE.INACTIVE;
+                    _justEnteredCraneTransitionState = true;
+                }
+                break;
+            case INACTIVE:
+                if (_justEnteredCraneTransitionState) {
+                    _justEnteredCraneTransitionState = false;
+                    _isCraneTransitioning = false;
+                }
+                break;
         }
     }
 
@@ -230,6 +356,35 @@ public final class Robot {
                     break;
             }
         }
+    }
+
+    public static void moveCraneToPreset(CranePreset cranePreset, boolean maintainBucketPosition) {
+        _craneTransitionState = _CRANE_TRANSITION_STATE.LIFT_CRANE;
+        _justEnteredCraneTransitionState = true;
+        _isCraneTransitioning = true;
+        _endCraneTransitionPreset = cranePreset;
+        if (maintainBucketPosition) {
+            maintainBucketPosition();
+        }
+    }
+
+    public static boolean isCraneTransitioning() {
+        return _isCraneTransitioning;
+    }
+
+    public static void maintainBucketPosition() {
+        _maintainBucketAngle = true;
+        _bucketAngleMaintainOffset = _bucket.getDegree() - 90 - _craneIMU.getRoll();
+    }
+
+    public static void neglectBucketPosition() {
+        _maintainBucketAngle = false;
+    }
+
+    public static void setCranePreset(CranePreset cranePreset) {
+        setCraneLiftDegree(cranePreset.CRANE_LIFT_DEGREE);
+        setCranePivotDegree(cranePreset.CRANE_PIVOT_DEGREE);
+        getBucket().setSlowDegree(cranePreset.BUCKET_DEGREE, 2000);
     }
 
     public static void setCraneLiftDegree(double degree) {
@@ -297,7 +452,8 @@ public final class Robot {
     }
 
     public enum SetupType {
-        Everything,
+        Autonomous,
+        TeleOp,
         Drivetrain,
         Bucket,
         Intake,
@@ -311,9 +467,34 @@ public final class Robot {
         CraneIMU
     }
 
+    public enum FieldSide {
+        BLUE,
+        RED
+    }
+
+    private enum _CRANE_TRANSITION_STATE {
+        LIFT_CRANE,
+        PIVOT_CRANE,
+        LOWER_CRANE,
+        LOWER_BUCKET,
+        INACTIVE
+    }
+
     public enum TurnAxis {
         Front,
         Center,
         Back
+    }
+
+    public static class CranePreset {
+        public final double CRANE_LIFT_DEGREE;
+        public final double CRANE_PIVOT_DEGREE;
+        public final double BUCKET_DEGREE;
+
+        public CranePreset(double craneLiftDegree, double cranePivotDegree, double bucketDegree) {
+            CRANE_LIFT_DEGREE = craneLiftDegree;
+            CRANE_PIVOT_DEGREE = cranePivotDegree;
+            BUCKET_DEGREE = bucketDegree;
+        }
     }
 }

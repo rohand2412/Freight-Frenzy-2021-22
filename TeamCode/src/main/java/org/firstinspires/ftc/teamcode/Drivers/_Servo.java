@@ -15,17 +15,17 @@ public class _Servo {
     private final double _ANGLE_2;
     private final double _POSITION_PER_DEGREE;
     private final double _0_DEGREE_POSITION;
+    private final double _INTERVAL_MS;
 
     private final Servo _servo;
     private double _position;
     private double _targetPosition;
     private double _incrementPosition;
     private int _direction;
-    private double _intervalMS;
     private double _lastUpdateTime;
     private boolean _isBusy;
 
-    public _Servo(String name, Servo.Direction direction, double min, double max, double start, double position_1, double angle_1, double position_2, double angle_2) {
+    public _Servo(String name, Servo.Direction direction, double min, double max, double startDegree, double position_1, double angle_1, double position_2, double angle_2) {
         _NAME = name;
         _MAX = max;
         _MIN = min;
@@ -40,9 +40,10 @@ public class _Servo {
             _POSITION_PER_DEGREE = 0;
         }
         _0_DEGREE_POSITION = _POSITION_1 - _ANGLE_1 * _POSITION_PER_DEGREE;
+        _INTERVAL_MS = 10;
         _servo = Robot.hardwareMap.servo.get(_NAME);
         _servo.setDirection(direction);
-        _setPosition(start);
+        _setDegree(startDegree);
     }
 
     public void update() {
@@ -50,7 +51,7 @@ public class _Servo {
             if (_direction > 0 ? _position >= _targetPosition : _position <= _targetPosition) {
                 _resetForNextRun();
             }
-            else if (Robot.runtime.milliseconds() >= _lastUpdateTime + _intervalMS) {
+            else if (Robot.runtime.milliseconds() >= _lastUpdateTime + _INTERVAL_MS) {
                 _setPosition(_position + _incrementPosition);
                 _lastUpdateTime = Robot.runtime.milliseconds();
 
@@ -77,27 +78,18 @@ public class _Servo {
         }
     }
 
-    public void setSlowPosition(double position, double increment, double intervalMS) {
-        if (!_isBusy) {
+    public void setSlowPosition(double position, double durationMS) {
+        if (!_isBusy && _position != position) {
             _isBusy = true;
-            _targetPosition = position;
+            _targetPosition = _clampPosition(position);
             _direction = _targetPosition > _position ? 1 : -1;
-            _incrementPosition = _direction * Math.abs(increment);
-            _intervalMS = intervalMS;
-            _lastUpdateTime = Robot.runtime.milliseconds() - _intervalMS;
+            _incrementPosition = _direction * (Math.abs(_targetPosition - _position) / (durationMS / _INTERVAL_MS));
+            _lastUpdateTime = Robot.runtime.milliseconds() - _INTERVAL_MS;
         }
     }
 
-    public void setSlowPosition(double position, double increment) {
-        setSlowPosition(position, increment, 10);
-    }
-
-    public void setSlowDegree(double degree, double increment, double intervalMS) {
-        setSlowPosition(_degreeToPosition(degree), increment * _POSITION_PER_DEGREE, intervalMS);
-    }
-
-    public void setSlowDegree(double degree, double increment) {
-        setSlowPosition(_degreeToPosition(degree), increment * _POSITION_PER_DEGREE);
+    public void setSlowDegree(double degree, double durationMS) {
+        setSlowPosition(_degreeToPosition(degree), durationMS);
     }
 
     public String getName() {
@@ -122,12 +114,16 @@ public class _Servo {
     }
 
     private void _setPosition(double position) {
-        _position = Math.max(Math.min(position, _MAX - _MIN), 0);
+        _position = _clampPosition(position);
         _servo.setPosition(_position + _MIN);
     }
 
+    private double _clampPosition(double position) {
+        return Math.max(Math.min(position, _MAX - _MIN), 0);
+    }
+
     private void _setDegree(double degree) {
-        _setPosition(_degreeToPosition(degree));
+        _setPosition(_clampPosition(_degreeToPosition(degree)));
     }
 
     private double _degreeToPosition(double degree) {

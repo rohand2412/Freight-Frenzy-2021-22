@@ -72,7 +72,7 @@ public class ServoGroupTest extends _Autonomous {
             case SET_SLOW_DEG:
                 if (_justEntered) {
                     _justEntered = false;
-                    _bucket.setSlowDegree(270, 1.35);
+                    _bucket.setSlowDegree(270, 2000);
                 }
                 else if (!_bucket.isBusy()) {
                     _state = States.SET_SLOW_POS;
@@ -82,7 +82,7 @@ public class ServoGroupTest extends _Autonomous {
             case SET_SLOW_POS:
                 if (_justEntered) {
                     _justEntered = false;
-                    _bucket.setSlowPosition(0.17, 0.005);
+                    _bucket.setSlowPosition(0.17, 2000);
                 }
                 else if (!_bucket.isBusy()) {
                     _state = States.SET_SLOW_POS_INTERRUPTED;
@@ -92,7 +92,7 @@ public class ServoGroupTest extends _Autonomous {
             case SET_SLOW_POS_INTERRUPTED:
                 if (_justEntered) {
                     _justEntered = false;
-                    _bucket.setSlowPosition(0.85, 0.005, 5);
+                    _bucket.setSlowPosition(0.85, 4000);
                 }
                 else if (_bucket.getDegree() >= 225) {
                     _state = States.STOP;

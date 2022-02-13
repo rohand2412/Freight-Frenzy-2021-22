@@ -68,7 +68,7 @@ public class ServoTest extends _Autonomous {
             case SET_SLOW_POS:
                 if (_justEntered) {
                     _justEntered = false;
-                    _right.setSlowPosition(0.85, 0.005);
+                    _right.setSlowPosition(0.85, 2000);
                 }
                 else if (!_right.isBusy()) {
                     _state = States.SET_SLOW_DEG;
@@ -78,7 +78,7 @@ public class ServoTest extends _Autonomous {
             case SET_SLOW_DEG:
                 if (_justEntered) {
                     _justEntered = false;
-                    _right.setSlowDegree(90, 1.35);
+                    _right.setSlowDegree(90, 2000);
                 }
                 else if (!_right.isBusy()) {
                     _state = States.SET_SLOW_DEG_INTERRUPTED;
@@ -88,7 +88,7 @@ public class ServoTest extends _Autonomous {
             case SET_SLOW_DEG_INTERRUPTED:
                 if (_justEntered) {
                     _justEntered = false;
-                    _right.setSlowDegree(270, 1.35, 5);
+                    _right.setSlowDegree(270, 4000);
                 }
                 else if (_right.getDegree() >= 225) {
                     _state = States.STOP;

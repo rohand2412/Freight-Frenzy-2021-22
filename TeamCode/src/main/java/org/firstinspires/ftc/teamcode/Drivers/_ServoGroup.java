@@ -39,34 +39,18 @@ public class _ServoGroup {
         }
     }
 
-    public void setSlowPosition(double position, double increment, double intervalMS) {
+    public void setSlowPosition(double position, double durationMS) {
         if (!isBusy()) {
             for (_Servo servo : _servos) {
-                servo.setSlowPosition(position, increment, intervalMS);
+                servo.setSlowPosition(position, durationMS);
             }
         }
     }
 
-    public void setSlowPosition(double position, double increment) {
+    public void setSlowDegree(double degree, double durationMS) {
         if (!isBusy()) {
             for (_Servo servo : _servos) {
-                servo.setSlowPosition(position, increment);
-            }
-        }
-    }
-
-    public void setSlowDegree(double degree, double increment, double intervalMS) {
-        if (!isBusy()) {
-            for (_Servo servo : _servos) {
-                servo.setSlowDegree(degree, increment, intervalMS);
-            }
-        }
-    }
-
-    public void setSlowDegree(double degree, double increment) {
-        if (!isBusy()) {
-            for (_Servo servo : _servos) {
-                servo.setSlowDegree(degree, increment);
+                servo.setSlowDegree(degree, durationMS);
             }
         }
     }
