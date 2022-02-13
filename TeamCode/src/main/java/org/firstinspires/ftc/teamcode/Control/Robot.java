@@ -70,7 +70,7 @@ public final class Robot {
     public static CranePreset CRANE_BOTTOM_LEVEL_DROP;
     public static CranePreset CRANE_SHARED_LEVEL_HOLD;
     public static CranePreset CRANE_SHARED_LEVEL_DROP;
-    public static CranePreset CRANE_CAPPING_COLLECT = new CranePreset(-65, 180, 45);
+    public static CranePreset CRANE_CAPPING_COLLECT = new CranePreset(-60, 180, 45);
     public static CranePreset CRANE_CAPPING_LIFT = new CranePreset(60, 180, 100);
     public static CranePreset CRANE_CAPPING_DROP = new CranePreset(17, 180, 100);
 
