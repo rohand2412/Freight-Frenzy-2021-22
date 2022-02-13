@@ -164,7 +164,7 @@ public class FinalTeleOp extends _TeleOp {
         //reset imu
         //help
         if(gamepad2.right_stick_button){
-           // Robot.getIMU().reset();
+           Robot.getIMU().resetYaw();
         }
         if(gamepad2.x){
             if(Robot.getCraneIMU().getYaw() >= -5 && Robot.getCraneIMU().getYaw()<=5){
