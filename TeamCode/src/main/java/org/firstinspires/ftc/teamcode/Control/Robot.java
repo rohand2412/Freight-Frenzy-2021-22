@@ -38,12 +38,12 @@ public final class Robot {
     private static _IMU _craneIMU;
 
     public static final double MM_PER_INCH = 25.4;
+    public static final double ANGLE_RANGE = 5;
 
     private static final double _TURN_OFFSET_POSITIVE = 18;
     private static final double _TURN_OFFSET_NEGATIVE = 15;
     private static final double _ENDGAME_CAROUSEL_SPEED = 0.5;
     private static final double _BUCKET_FLAT_ANGLE_OFFSET = 15.4;
-    private static final double _ANGLE_RANGE = 10;
 
     private static FieldSide _fieldSide;
     private static boolean _isTurning = false;
@@ -286,7 +286,7 @@ public final class Robot {
                     _justEnteredCraneTransitionState = false;
                     setCraneLiftDegree(Math.max(_endCraneTransitionPreset.CRANE_LIFT_DEGREE, _CRANE_LIFT_ABOVE_CAROUSEL_DEGREE));
                 }
-                else if (_craneIMU.getRoll() >= _CRANE_LIFT_ABOVE_CAROUSEL_DEGREE - _ANGLE_RANGE) {
+                else if (_craneIMU.getRoll() >= _CRANE_LIFT_ABOVE_CAROUSEL_DEGREE - ANGLE_RANGE) {
                     _craneTransitionState = _CRANE_TRANSITION_STATE.PIVOT_CRANE;
                     _justEnteredCraneTransitionState = true;
                 }
@@ -296,7 +296,7 @@ public final class Robot {
                     _justEnteredCraneTransitionState = false;
                     setCranePivotDegree(_endCraneTransitionPreset.CRANE_PIVOT_DEGREE);
                 }
-                else if (_craneIMU.getYaw() >= _endCraneTransitionPreset.CRANE_PIVOT_DEGREE - _ANGLE_RANGE && _craneIMU.getYaw() <= _endCraneTransitionPreset.CRANE_PIVOT_DEGREE + _ANGLE_RANGE) {
+                else if (_craneIMU.getYaw() >= _endCraneTransitionPreset.CRANE_PIVOT_DEGREE - ANGLE_RANGE && _craneIMU.getYaw() <= _endCraneTransitionPreset.CRANE_PIVOT_DEGREE + ANGLE_RANGE) {
                     if (_endCraneTransitionPreset.CRANE_LIFT_DEGREE >= _CRANE_LIFT_ABOVE_CAROUSEL_DEGREE) {
                         _craneTransitionState = _CRANE_TRANSITION_STATE.LOWER_BUCKET;
                     }
@@ -311,7 +311,7 @@ public final class Robot {
                     _justEnteredCraneTransitionState = false;
                     setCraneLiftDegree(_endCraneTransitionPreset.CRANE_LIFT_DEGREE);
                 }
-                else if (_craneIMU.getRoll() >= _endCraneTransitionPreset.CRANE_LIFT_DEGREE - _ANGLE_RANGE && _craneIMU.getRoll() <= _endCraneTransitionPreset.CRANE_LIFT_DEGREE + _ANGLE_RANGE) {
+                else if (_craneIMU.getRoll() >= _endCraneTransitionPreset.CRANE_LIFT_DEGREE - ANGLE_RANGE && _craneIMU.getRoll() <= _endCraneTransitionPreset.CRANE_LIFT_DEGREE + ANGLE_RANGE) {
                     _craneTransitionState = _CRANE_TRANSITION_STATE.LOWER_BUCKET;
                     _justEnteredCraneTransitionState = true;
                 }
