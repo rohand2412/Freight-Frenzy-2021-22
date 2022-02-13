@@ -58,6 +58,7 @@ public final class Robot {
     private static CranePreset _endCraneTransitionPreset;
     private static double _bucketAngleMaintainOffset;
     private static boolean _maintainBucketAngle = false;
+    private static boolean _initialized = false;
 
     //Crane Presets
     public static CranePreset CRANE_COLLECTION_HOLD = new CranePreset(-70, 0, 80);
@@ -77,15 +78,21 @@ public final class Robot {
     private Robot() {};
 
     public static void setup(HardwareMap centralHardwareMap, Telemetry centralTelemetry, SetupType... setupTypes) {
-        runtime = new ElapsedTime();
-        hardwareMap = centralHardwareMap;
-        telemetry = centralTelemetry;
+        if (!_initialized) {
+            _initialized = true;
+            runtime = new ElapsedTime();
+            hardwareMap = centralHardwareMap;
+            telemetry = centralTelemetry;
+        }
 
         StringBuilder setupSequence = new StringBuilder();
         for (SetupType type : setupTypes) {
             switch(type) {
-                case Autonomous:
-                    setupAutonomous();
+                case AutonomousPart1:
+                    setupAutonomousPart1();
+                    break;
+                case AutonomousPart2:
+                    setupAutonomousPart2();
                     break;
                 case TeleOp:
                     setupTeleOp();
@@ -157,15 +164,18 @@ public final class Robot {
         _CRANE_LIFT_ABOVE_CAROUSEL_DEGREE = 20;
     }
 
-    private static void setupAutonomous() {
+    private static void setupAutonomousPart1() {
+        setupCraneIMU();
         setupVuforia();
         setupTFOD();
-        setupIMU();
-        setupCraneIMU();
         setupCraneLift();
+        setupBucket(0);
+    }
+
+    private static void setupAutonomousPart2() {
+        setupIMU();
         setupCranePivot();
         setupDrivetrain();
-        setupBucket(0);
         setupIntake();
         setupCarousel();
         //OpenCV is just for testing, not actual runs
@@ -477,7 +487,8 @@ public final class Robot {
     }
 
     public enum SetupType {
-        Autonomous,
+        AutonomousPart1,
+        AutonomousPart2,
         TeleOp,
         Drivetrain,
         Bucket,

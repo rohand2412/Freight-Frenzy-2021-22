@@ -1,11 +1,17 @@
 package org.firstinspires.ftc.teamcode.Autons;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.Control.Robot;
 import org.firstinspires.ftc.teamcode.Control._Autonomous;
 import org.firstinspires.ftc.teamcode.Drivers._TFOD;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.advanced.PoseStorage;
 
 import java.util.List;
 
@@ -16,14 +22,20 @@ public class RedAutonCarousel extends _Autonomous {
     private List<Recognition> _recognitions;
     private TeamElementLocations _location;
     private boolean _tfodRight = true;
+    private SampleMecanumDrive _drive;
+    private Trajectory _toCarousel;
+    private Trajectory _toAllianceHub;
+    private Trajectory _approachHub;
+    private State _state;
+    private boolean _justEntered;
+    private Robot.CranePreset _dropPreset;
 
     @Override
     public void init() {
-        Robot.setup(hardwareMap, telemetry, Robot.SetupType.Autonomous);
+        Robot.setup(hardwareMap, telemetry, Robot.SetupType.AutonomousPart1);
         Robot.setFieldSide(Robot.FieldSide.BLUE); //Auton flip
         Robot.getBucket().setDegree(45);
         Robot.setCraneLiftDegree(Robot.CRANE_COLLECTION_HOLD.CRANE_LIFT_DEGREE);
-        Robot.setCranePivotDegree(Robot.CRANE_COLLECTION_HOLD.CRANE_PIVOT_DEGREE);
 
         _validRecognition = recognition ->
                 ((recognition.getWidth() * recognition.getHeight()) < (320.0 * 640.0 / 8.0))
@@ -32,7 +44,10 @@ public class RedAutonCarousel extends _Autonomous {
 
     @Override
     public void init_loop() {
-        Robot.update();
+        Robot.getBucket().update();
+        Robot.getCraneIMU().update();
+        Robot.getCraneLift().update();
+        Robot.getCraneLiftPID().update();
 
         _recognitions = Robot.getTFOD().getLatestRecognitions();
         if (_recognitions == null) {
@@ -56,23 +71,139 @@ public class RedAutonCarousel extends _Autonomous {
             }
         }
 
+        telemetry.addLine("Bucket: " + Robot.getBucket().getDegree());
+        telemetry.addLine("Lift: " + Robot.getCraneIMU().getRoll());
         telemetry.addLine(_location != null ? _location.name() : "null");
         telemetry.addLine(_recognitions != null ? _recognitions.toString() : "null");
     }
 
     @Override
     public void start() {
+        Robot.setup(hardwareMap, telemetry, Robot.SetupType.AutonomousPart2);
+        Robot.getTFOD().deactivate();
+        Robot.getIMU().willUpdate(true);
+        telemetry.addLine("Bucket: " + Robot.getBucket().getDegree());
+        telemetry.addLine("Lift: " + Robot.getCraneIMU().getRoll());
+        telemetry.addLine("Pivot: " + Robot.getCraneIMU().getYaw());
+        telemetry.addLine("IMU: " + Robot.getIMU().getYaw());
+        telemetry.addLine("PivotPID: " + Robot.getCranePivotPID().getLatestInputVal());
 
+        _drive = new SampleMecanumDrive(hardwareMap);
+
+        _toCarousel = _drive.trajectoryBuilder(new Pose2d())
+                .splineTo(new Vector2d(0, 16), Math.toRadians(90),
+                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .build();
+
+        _toAllianceHub = _drive.trajectoryBuilder(_toCarousel.end(), true)
+                .splineToConstantHeading(new Vector2d(0, -23), Math.toRadians(90),
+                SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .build();
+
+        _approachHub = _drive.trajectoryBuilder(_toAllianceHub.end())
+                .strafeRight(22,
+                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .build();
+
+        _state = State.MOVE_TO_CAROUSEL;
+        _justEntered = true;
     }
 
     @Override
     public void loop() {
+        Robot.update();
+        _drive.update();
+        PoseStorage.currentPose = _drive.getPoseEstimate();
 
+        switch (_state) {
+            case MOVE_TO_CAROUSEL:
+                if (_justEntered) {
+                    _justEntered = false;
+                    _drive.followTrajectoryAsync(_toCarousel);
+                }
+                else if (!_drive.isBusy()) {
+                    _state = State.ROTATE_CAROUSEL;
+                    _justEntered = true;
+                }
+                break;
+            case ROTATE_CAROUSEL:
+                if (_justEntered) {
+                    _justEntered = false;
+                    Robot.getCarousel().runTime(-0.01, 4000);
+                }
+                else if (!Robot.getCarousel().isBusy()) {
+                    _state = State.MOVE_TO_ALLIANCE_HUB_PLUS_CRANE;
+                    _justEntered = true;
+                }
+                break;
+            case MOVE_TO_ALLIANCE_HUB_PLUS_CRANE:
+                if (_justEntered) {
+                    _justEntered = false;
+                    _drive.followTrajectoryAsync(_toAllianceHub);
+
+                    switch (_location) {
+                        case RIGHT:
+                            Robot.moveCraneToPreset(Robot.CRANE_TOP_LEVEL_HOLD, true);
+                            _dropPreset = Robot.CRANE_TOP_LEVEL_DROP;
+                            break;
+                        case MIDDLE:
+                            Robot.moveCraneToPreset(Robot.CRANE_MIDDLE_LEVEL_HOLD, true);
+                            _dropPreset = Robot.CRANE_MIDDLE_LEVEL_DROP;
+                            break;
+                        case LEFT:
+                            Robot.moveCraneToPreset(Robot.CRANE_BOTTOM_LEVEL_HOLD, true);
+                            _dropPreset = Robot.CRANE_BOTTOM_LEVEL_DROP;
+                            break;
+                    }
+                }
+                else if (!_drive.isBusy() && !Robot.isCraneTransitioning()) {
+                    _state = State.APPROACH_HUB;
+                    _justEntered = true;
+                }
+                break;
+            case APPROACH_HUB:
+                if (_justEntered) {
+                    _justEntered = false;
+                    _drive.followTrajectoryAsync(_approachHub);
+                }
+                else if (!_drive.isBusy()) {
+                    _state = State.DROP_PRELOADED_CUBE;
+                    _justEntered = true;
+                }
+                break;
+            case DROP_PRELOADED_CUBE:
+                if (_justEntered) {
+                    _justEntered = false;
+                    Robot.setCraneLiftDegree(_dropPreset.CRANE_LIFT_DEGREE);
+                    Robot.getBucket().setSlowDegree(_dropPreset.BUCKET_DEGREE, 1000);
+                }
+                else if (Robot.getCraneIMU().getRoll() >= _dropPreset.CRANE_LIFT_DEGREE - Robot.ANGLE_RANGE
+                    && Robot.getCraneIMU().getRoll() <= _dropPreset.CRANE_LIFT_DEGREE + Robot.ANGLE_RANGE
+                    && !Robot.getBucket().isBusy()) {
+                    _state = State.IDLE;
+                    _justEntered = true;
+                }
+                break;
+            case IDLE:
+                break;
+        }
     }
 
     private enum TeamElementLocations {
         LEFT,
         MIDDLE,
         RIGHT
+    }
+
+    private enum State {
+        MOVE_TO_CAROUSEL,
+        ROTATE_CAROUSEL,
+        MOVE_TO_ALLIANCE_HUB_PLUS_CRANE,
+        APPROACH_HUB,
+        DROP_PRELOADED_CUBE,
+        IDLE
     }
 }
