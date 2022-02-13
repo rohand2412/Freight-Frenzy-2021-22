@@ -7,33 +7,63 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.advanced.PoseStorage;
 
-/*
- * This is an example of a more complex path to really test the tuning.
- */
-@Autonomous(group = "drive")
+@Autonomous(group = "PeripheralTest")
 public class RoadrunnerTest extends LinearOpMode {
+
+    private State _state = State.SPLINE_FORWARD;
+
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+
+//        Trajectory traj1 = drive.trajectoryBuilder(new Pose2d())
+//                .strafeRight(10)
+//                .build();
+
+//        Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
+//                .forward(5)
+//                .build();
+
+        Trajectory traj1 = drive.trajectoryBuilder(new Pose2d(), true)
+                .splineToConstantHeading(new Vector2d(0, 24), 0)
+                .build();
+        Trajectory traj2 = drive.trajectoryBuilder(traj1.end(), true)
+                .splineToConstantHeading(new Vector2d(-48, 24), 0)
+                .build();
 
         waitForStart();
 
-        if (isStopRequested()) return;
+        if(isStopRequested()) return;
 
-        Trajectory traj = drive.trajectoryBuilder(new Pose2d())
-                .splineTo(new Vector2d(-59, 18), 0)
-                .build();
+        drive.followTrajectoryAsync(traj1);
+        while (opModeIsActive() && !isStopRequested()) {
+            switch (_state) {
+                case SPLINE_FORWARD:
+                    if (!drive.isBusy()) {
+                        _state = State.SPLINE_BACKWARD;
+                        drive.followTrajectory(traj2);
+                    }
+                    break;
+                case SPLINE_BACKWARD:
+                    if (!drive.isBusy()) {
+                        _state = State.IDLE;
+                    }
+                    break;
+                case IDLE:
+                    break;
+            }
 
-        drive.followTrajectory(traj);
+            drive.update();
 
-        sleep(2000);
+            PoseStorage.currentPose = drive.getPoseEstimate();
+        }
+    }
 
-        drive.followTrajectory(
-                drive.trajectoryBuilder(traj.end(), true)
-                        .splineTo(new Vector2d(-118, 0), 0)
-                        .build()
-        );
-
+    private enum State {
+        SPLINE_FORWARD,
+        SPLINE_BACKWARD,
+        IDLE
     }
 }
