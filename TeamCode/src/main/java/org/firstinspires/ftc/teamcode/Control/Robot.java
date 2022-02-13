@@ -277,7 +277,7 @@ public final class Robot {
         }
 
         if (_maintainBucketAngle) {
-            getBucket().setDegree(90 + _BUCKET_FLAT_ANGLE_OFFSET + _craneIMU.getRoll() + _bucketAngleMaintainOffset);
+            getBucket().setDegree(90 + _craneIMU.getRoll() + _bucketAngleMaintainOffset);
         }
 
         switch (_craneTransitionState) {
