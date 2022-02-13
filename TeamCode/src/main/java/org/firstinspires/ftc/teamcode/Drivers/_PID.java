@@ -154,19 +154,19 @@ public class _PID {
         }
     }
 
-//    public void setState(State state) {
-//        if (state == State.AUTOMATIC && _state == State.MANUAL) {
-//            initialize();
-//        }
-//        _state = state;
-//    }
-//
-//    public void initialize() {
-//        _lastInput = _sourceInput.get();
-//        _outputSum = _sourceOutput.get();
-//        if (_outputSum > _outMax) _outputSum = _outMax;
-//        else if (_outputSum < _outMin) _outputSum = _outMin;
-//    }
+    public void setState(State state) {
+        if (state == State.AUTOMATIC && _state == State.MANUAL) {
+            initialize();
+        }
+        _state = state;
+    }
+
+    public void initialize() {
+        _lastInput = _sourceInput.get();
+        _outputSum = 0;
+        if (_outputSum > _outMax) _outputSum = _outMax;
+        else if (_outputSum < _outMin) _outputSum = _outMin;
+    }
 
     public void setControllerDirection(Direction direction) {
         if (_state == State.AUTOMATIC && direction != _direction) {

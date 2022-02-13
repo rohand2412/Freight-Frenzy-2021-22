@@ -5,9 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Control.Robot;
 import org.firstinspires.ftc.teamcode.Control._TeleOp;
 import org.firstinspires.ftc.teamcode.Drivers._Drivetrain;
+import org.firstinspires.ftc.teamcode.Drivers._PID;
 
-@TeleOp(group="TeleOp")
-public class FinalTeleOp extends _TeleOp {
+@TeleOp(group="TeleOpBlue")
+public class FinalTeleOpBlue extends _TeleOp {
 
     private boolean _movingBucket = false;
     private Robot.CranePreset _holdPreset = Robot.CRANE_TOP_LEVEL_HOLD;
@@ -16,7 +17,7 @@ public class FinalTeleOp extends _TeleOp {
     @Override
     public void init() {
         Robot.setup(hardwareMap, telemetry, Robot.SetupType.TeleOp);
-        Robot.setFieldSide(Robot.FieldSide.RED);
+        Robot.setFieldSide(Robot.FieldSide.BLUE);
         Robot.setCranePreset(Robot.CRANE_COLLECTION_DROP);
     }
 
@@ -66,8 +67,8 @@ public class FinalTeleOp extends _TeleOp {
             double left_stick_x = gamepad1.left_stick_x;
             double joyStickAngle = (Math.toDegrees(Math.atan2(left_stick_y, left_stick_x)) + 360) % 360;
             double posAng = Robot.getIMU().getYaw();
-            double speed = Math.hypot(left_stick_x, left_stick_y);
-            Robot.getDrivetrain().runSpeedAngle(speed,-posAng + (joyStickAngle + 90),0);
+            double speed = Math.hypot(left_stick_x, left_stick_y)/1.5;
+            Robot.getDrivetrain().runSpeedAngle(speed,-posAng + (joyStickAngle),0);
         }
         else if(gamepad1.right_stick_x!=0 || gamepad1.right_stick_y!=0){
             double right_stick_y = -gamepad1.right_stick_y;
@@ -75,7 +76,7 @@ public class FinalTeleOp extends _TeleOp {
             double joyStickAngleCrawl = (Math.toDegrees(Math.atan2(right_stick_y, right_stick_x)) + 360) % 360;
             double posAngCrawl = Robot.getIMU().getYaw();
             double speedCrawl = Math.hypot(right_stick_x, right_stick_y)/2.5;
-            Robot.getDrivetrain().runSpeedAngle(speedCrawl,-posAngCrawl + (joyStickAngleCrawl + 90),0);
+            Robot.getDrivetrain().runSpeedAngle(speedCrawl,-posAngCrawl + (joyStickAngleCrawl),0);
         }
 
         else if (gamepad1.left_stick_button) {
@@ -95,7 +96,7 @@ public class FinalTeleOp extends _TeleOp {
             Robot.getIntake().runSpeed(-0.8);
         }
         else if (!_movingBucket) {
-                Robot.getIntake().stop();
+            Robot.getIntake().stop();
         }
 
         if (gamepad2.a
@@ -121,12 +122,19 @@ public class FinalTeleOp extends _TeleOp {
             Robot.getCarousel().stop();
         }
         //pivot ccw
-        if(gamepad2.dpad_left){
-            Robot.setCranePivotDegree(Robot.getCraneIMU().getYaw()-20);
+        if(gamepad1.dpad_right){
+
+            Robot.getCranePivotPID().setState(_PID.State.MANUAL);
+            Robot.getCraneIMU().resetYaw(-15);
+            Robot.getCranePivot().runTime(.4,100);
+            Robot.getCranePivotPID().setState(_PID.State.AUTOMATIC);
         }
         //pivot cw
-        else if(gamepad2.dpad_right){
-            Robot.setCranePivotDegree(Robot.getCraneIMU().getYaw()+20);
+        else if(gamepad1.dpad_left){
+            Robot.getCranePivotPID().setState(_PID.State.MANUAL);
+            Robot.getCraneIMU().resetYaw(15);
+            Robot.getCranePivot().runTime(-.4,100);
+            Robot.getCranePivotPID().setState(_PID.State.AUTOMATIC);
         }
         //arm lift up
         if(gamepad2.dpad_up){
@@ -145,27 +153,23 @@ public class FinalTeleOp extends _TeleOp {
             Robot.getBucket().setDegree(Robot.getBucket().getDegree()-1);
         }
         if(gamepad1.dpad_up
-                && Robot.getCraneIMU().getYaw()<= Robot.CRANE_COLLECTION_DROP.CRANE_PIVOT_DEGREE + Robot.ANGLE_RANGE
-                && Robot.getCraneIMU().getYaw()>= Robot.CRANE_COLLECTION_DROP.CRANE_PIVOT_DEGREE - Robot.ANGLE_RANGE
                 && Robot.getCraneIMU().getRoll()<=Robot.CRANE_COLLECTION_DROP.CRANE_LIFT_DEGREE + Robot.ANGLE_RANGE
                 && Robot.getCraneIMU().getRoll()>=Robot.CRANE_COLLECTION_DROP.CRANE_LIFT_DEGREE - Robot.ANGLE_RANGE
                 && Robot.getBucket().getDegree()<= Robot.CRANE_COLLECTION_DROP.BUCKET_DEGREE + Robot.ANGLE_RANGE
                 && Robot.getBucket().getDegree()>= Robot.CRANE_COLLECTION_DROP.BUCKET_DEGREE - Robot.ANGLE_RANGE) {
-                    Robot.getIntake().runTime(-0.3, 3000);
-                    Robot.getBucket().setSlowDegree(Robot.CRANE_COLLECTION_HOLD.BUCKET_DEGREE,1000);
-                    _movingBucket = true;
+            Robot.getIntake().runTime(-0.3, 3000);
+            Robot.getBucket().setSlowDegree(Robot.CRANE_COLLECTION_HOLD.BUCKET_DEGREE,1000);
+            _movingBucket = true;
         }
         else if(gamepad1.dpad_down
-                && Robot.getCraneIMU().getYaw() <= Robot.CRANE_COLLECTION_HOLD.CRANE_PIVOT_DEGREE + Robot.ANGLE_RANGE
-                && Robot.getCraneIMU().getYaw() >= Robot.CRANE_COLLECTION_HOLD.CRANE_PIVOT_DEGREE - Robot.ANGLE_RANGE
                 && Robot.getCraneIMU().getRoll() <= Robot.CRANE_COLLECTION_HOLD.CRANE_LIFT_DEGREE + Robot.ANGLE_RANGE
                 && Robot.getCraneIMU().getRoll() >= Robot.CRANE_COLLECTION_HOLD.CRANE_LIFT_DEGREE - Robot.ANGLE_RANGE
                 && Robot.getBucket().getDegree() <= Robot.CRANE_COLLECTION_HOLD.BUCKET_DEGREE + Robot.ANGLE_RANGE
                 && Robot.getBucket().getDegree() >= Robot.CRANE_COLLECTION_HOLD.BUCKET_DEGREE - Robot.ANGLE_RANGE) {
-                    //if bucket is outside go to intake
-                    Robot.getIntake().runTime(0.3, 3000);
-                    Robot.getBucket().setSlowDegree(Robot.CRANE_COLLECTION_DROP.BUCKET_DEGREE,1000);
-                    _movingBucket = true;
+            //if bucket is outside go to intake
+            Robot.getIntake().runTime(0.3, 3000);
+            Robot.getBucket().setSlowDegree(Robot.CRANE_COLLECTION_DROP.BUCKET_DEGREE,1000);
+            _movingBucket = true;
         }
         else if (_movingBucket && !Robot.getBucket().isBusy()) {
             _movingBucket = false;
@@ -184,10 +188,10 @@ public class FinalTeleOp extends _TeleOp {
             Robot.getCraneIMU().resetYaw();
         }
 
-        if(gamepad1.dpad_right){
+        if(gamepad2.dpad_right){
             Robot.getCraneIMU().resetYaw(Robot.getCraneIMU().getYaw() - 2);
         }
-        else if(gamepad1.dpad_left) {
+        else if(gamepad2.dpad_left) {
             Robot.getCraneIMU().resetYaw(Robot.getCraneIMU().getYaw() + 2);
         }
     }
