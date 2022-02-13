@@ -168,11 +168,7 @@ public class FinalTeleOp extends _TeleOp {
         else if (_movingBucket && !Robot.getBucket().isBusy()) {
             _movingBucket = false;
         }
-        //reset imu
-        //help
-        if(gamepad2.right_stick_button){
-           // Robot.getIMU().reset();
-        }
+
         if(gamepad2.y){
             Robot.moveCraneToPreset(Robot.CRANE_CAPPING_LIFT, true);
             _holdPreset = Robot.CRANE_CAPPING_LIFT;
@@ -182,31 +178,11 @@ public class FinalTeleOp extends _TeleOp {
             Robot.moveCraneToPreset(Robot.CRANE_CAPPING_COLLECT, false);
         }
 
-        //drop
-        //help with setSlowDegree
-//        if(gamepad2.a){
-//            //Robot.getBucket().setSlowDegree(/*insert degree*/,1.55);
-//        }
-//        if(gamepad2.b){
-//            Robot.getDrivetrain().stop();
-//        }
-        //help
-        //moving collection to preset or preset to preset
-        //capping pickup
-//        if(gamepad2.left_stick_button){
-//
-//        }
-        //help
-        //preset to preset
-        //capping drop off
-//        if(gamepad2.right_stick_button){
-//            if(Robot.getCraneIMU().getPitch()>=-5
-//                    && Robot.getCraneIMU().getPitch()<=5){
-//
-//            }
-//            else{
-//
-//            }
-//        }
+        if(gamepad1.dpad_left){
+            Robot.getCraneIMU().resetYaw(Robot.getCraneIMU().getYaw()-2);
+        }
+        else if(gamepad1.dpad_right) {
+            Robot.getCraneIMU().resetYaw(Robot.getCraneIMU().getYaw() + 2);
+        }
     }
 }

@@ -119,4 +119,14 @@ public class _IMU {
     public double getPitch() {
         return _angles.thirdAngle;
     }
+
+    //blue = true
+    //red = false
+    public void resetYaw() {
+        _yawOffset = -_yawRaw;
+    }
+
+    public void resetYaw(double headingAngle){
+        _yawOffset = -_yawRaw + headingAngle;
+    }
 }
