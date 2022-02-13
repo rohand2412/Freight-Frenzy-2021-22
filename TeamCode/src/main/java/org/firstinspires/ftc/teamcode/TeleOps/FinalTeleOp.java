@@ -178,10 +178,10 @@ public class FinalTeleOp extends _TeleOp {
             Robot.moveCraneToPreset(Robot.CRANE_CAPPING_COLLECT, false);
         }
 
-        if(gamepad1.dpad_left){
-            Robot.getCraneIMU().resetYaw(Robot.getCraneIMU().getYaw()-2);
+        if(gamepad1.dpad_right){
+            Robot.getCraneIMU().resetYaw(Robot.getCraneIMU().getYaw() - 2);
         }
-        else if(gamepad1.dpad_right) {
+        else if(gamepad1.dpad_left) {
             Robot.getCraneIMU().resetYaw(Robot.getCraneIMU().getYaw() + 2);
         }
     }
