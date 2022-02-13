@@ -25,6 +25,7 @@ public class _IMU {
     private double _lastUpdateTime = 0;
     private boolean _willUpdate;
     private boolean _justStartedUpdating;
+    private double _yawOffset;
 
     public _IMU(String name, double elapsedTime, boolean willUpdate, boolean yawOverflowProtection) {
         _NAME = name;
@@ -70,16 +71,16 @@ public class _IMU {
                     //Check if delta raw readings is greater than threshold
                     if (_yawRaw - _lastYawRaw > _OVERFLOW_THRESHOLD) {
                         //Detect and revert overflow
-                        _yaw -= _FULL_CIRCLE_DEG;
+                        _yawOffset -= _FULL_CIRCLE_DEG;
                     }
                     //Check if delta raw readings is less than negative threshold
                     else if (_yawRaw - _lastYawRaw < -_OVERFLOW_THRESHOLD) {
                         //Detect and revert overflow
-                        _yaw += _FULL_CIRCLE_DEG;
+                        _yawOffset += _FULL_CIRCLE_DEG;
                     }
 
                     //Add delta to current software sensor data
-                    _yaw += _yawRaw - _lastYawRaw;
+                    _yaw = _yawRaw + _yawOffset;
                 }
 
                 //Save reading as old reading

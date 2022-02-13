@@ -24,6 +24,11 @@ public class FinalTeleOp extends _TeleOp {
     }
 
     @Override
+    public void start() {
+        Robot.getIMU().willUpdate(true);
+    }
+
+    @Override
     public void loop() {
         Robot.update();
         telemetry.addLine("Lift: " + Robot.getCraneIMU().getRoll());
@@ -68,9 +73,8 @@ public class FinalTeleOp extends _TeleOp {
             Robot.getIntake().runSpeed(-0.8);
         }
         else {
-            Robot.getDrivetrain().stop();
+            Robot.getIntake().stop();
         }
-
         //carousel cw
         if(gamepad2.right_trigger!=0){
             Robot.getCarousel().runSpeed(0.5);
@@ -126,15 +130,23 @@ public class FinalTeleOp extends _TeleOp {
         }
         //reset imu
         //help
-        if(gamepad2.b){
+        if(gamepad2.right_stick_button){
            // Robot.getIMU().reset();
+        }
+        if(gamepad2.x){
+            if(Robot.getCraneIMU().getYaw() >= -5 && Robot.getCraneIMU().getYaw()<=5){
+                Robot.moveCraneToPreset(Robot.CRANE_CAPPING_LIFT, true);
+            }
+        }
+        else if(gamepad2.y){
+            Robot.moveCraneToPreset(Robot.CRANE_CAPPING_COLLECT, true);
         }
         //drop
         //help with setSlowDegree
         if(gamepad2.a){
             //Robot.getBucket().setSlowDegree(/*insert degree*/,1.55);
         }
-        if(gamepad2.x){
+        if(gamepad2.b){
             Robot.getDrivetrain().stop();
         }
         //help

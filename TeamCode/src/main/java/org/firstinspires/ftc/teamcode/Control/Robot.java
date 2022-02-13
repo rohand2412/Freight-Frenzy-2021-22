@@ -70,6 +70,9 @@ public final class Robot {
     public static CranePreset CRANE_BOTTOM_LEVEL_DROP;
     public static CranePreset CRANE_SHARED_LEVEL_HOLD;
     public static CranePreset CRANE_SHARED_LEVEL_DROP;
+    public static CranePreset CRANE_CAPPING_COLLECT = new CranePreset(-65, 180, 167);
+    public static CranePreset CRANE_CAPPING_LIFT = new CranePreset(60, 180, 100);
+    public static CranePreset CRANE_CAPPING_DROP = new CranePreset(20, 180, 100);
 
     private Robot() {};
 
@@ -244,7 +247,7 @@ public final class Robot {
     }
 
     private static void setupCraneIMU() {
-        _craneIMU = new _IMU("armImu", 50, true, false);
+        _craneIMU = new _IMU("armImu", 50, true, true);
     }
 
     public static void update() {
@@ -277,7 +280,7 @@ public final class Robot {
         }
 
         if (_maintainBucketAngle) {
-            getBucket().setDegree(90 + _BUCKET_FLAT_ANGLE_OFFSET + _craneIMU.getRoll() + _bucketAngleMaintainOffset);
+            getBucket().setDegree(90 + _craneIMU.getRoll() + _bucketAngleMaintainOffset);
         }
 
         switch (_craneTransitionState) {
