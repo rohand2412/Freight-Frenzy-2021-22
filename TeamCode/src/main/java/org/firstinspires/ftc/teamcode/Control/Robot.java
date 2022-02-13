@@ -71,7 +71,7 @@ public final class Robot {
     public static CranePreset CRANE_BOTTOM_LEVEL_DROP;
     public static CranePreset CRANE_SHARED_LEVEL_HOLD;
     public static CranePreset CRANE_SHARED_LEVEL_DROP;
-    public static CranePreset CRANE_CAPPING_COLLECT = new CranePreset(-65, 180, 45);
+    public static CranePreset CRANE_CAPPING_COLLECT = new CranePreset(-55, 180, 45);
     public static CranePreset CRANE_CAPPING_LIFT = new CranePreset(60, 180, 100);
     public static CranePreset CRANE_CAPPING_DROP = new CranePreset(17, 180, 100);
 
@@ -148,8 +148,8 @@ public final class Robot {
             CRANE_MIDDLE_LEVEL_DROP = new CranePreset(10, -90, 220);
             CRANE_BOTTOM_LEVEL_HOLD = new CranePreset(-60, -90, 98);
             CRANE_BOTTOM_LEVEL_DROP = new CranePreset(-30, -90, 180);
-            CRANE_SHARED_LEVEL_HOLD = new CranePreset(0, -100, 90);
-            CRANE_SHARED_LEVEL_DROP = new CranePreset(0, -100, 210);
+            CRANE_SHARED_LEVEL_HOLD = new CranePreset(0, -50, 90);
+            CRANE_SHARED_LEVEL_DROP = new CranePreset(0, -50, 210);
         }
         else if (_fieldSide == FieldSide.RED) {
             CRANE_TOP_LEVEL_HOLD = new CranePreset(46, 90, 180-22);
@@ -158,8 +158,8 @@ public final class Robot {
             CRANE_MIDDLE_LEVEL_DROP = new CranePreset(10, 90, 220);
             CRANE_BOTTOM_LEVEL_HOLD = new CranePreset(-60, 90, 98);
             CRANE_BOTTOM_LEVEL_DROP = new CranePreset(-30, 90, 180);
-            CRANE_SHARED_LEVEL_HOLD = new CranePreset(0, 100, 90);
-            CRANE_SHARED_LEVEL_DROP = new CranePreset(0, 100, 210);
+            CRANE_SHARED_LEVEL_HOLD = new CranePreset(0, 50, 90);
+            CRANE_SHARED_LEVEL_DROP = new CranePreset(0, 50, 210);
         }
         _CRANE_LIFT_ABOVE_CAROUSEL_DEGREE = 20;
     }
@@ -405,6 +405,7 @@ public final class Robot {
 
     public static void maintainBucketPosition() {
         _maintainBucketAngle = true;
+        telemetry.addLine("Update12");
         _bucketAngleMaintainOffset = _bucket.getDegree() - 90 - _craneIMU.getRoll();
     }
 
