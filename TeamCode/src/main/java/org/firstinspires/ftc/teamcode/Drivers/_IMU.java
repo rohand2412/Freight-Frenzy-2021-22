@@ -108,6 +108,10 @@ public class _IMU {
         }
     }
 
+    public double getYaw360() {
+        return _yaw % 360;
+    }
+
     public double getRoll() {
         return _angles.secondAngle;
     }

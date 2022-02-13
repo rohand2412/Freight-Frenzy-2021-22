@@ -57,7 +57,7 @@ public final class Robot {
     private static boolean _justEnteredCraneTransitionState;
     private static CranePreset _endCraneTransitionPreset;
     private static double _bucketAngleMaintainOffset;
-    private static boolean _maintainBucketAngle;
+    private static boolean _maintainBucketAngle = false;
 
     //Crane Presets
     public static CranePreset CRANE_COLLECTION_HOLD = new CranePreset(-70, 0, 80);
@@ -70,9 +70,9 @@ public final class Robot {
     public static CranePreset CRANE_BOTTOM_LEVEL_DROP;
     public static CranePreset CRANE_SHARED_LEVEL_HOLD;
     public static CranePreset CRANE_SHARED_LEVEL_DROP;
-    public static CranePreset CRANE_CAPPING_COLLECT = new CranePreset(-65, 180, 167);
+    public static CranePreset CRANE_CAPPING_COLLECT = new CranePreset(-65, 180, 45);
     public static CranePreset CRANE_CAPPING_LIFT = new CranePreset(60, 180, 100);
-    public static CranePreset CRANE_CAPPING_DROP = new CranePreset(20, 180, 100);
+    public static CranePreset CRANE_CAPPING_DROP = new CranePreset(17, 180, 100);
 
     private Robot() {};
 
@@ -220,7 +220,7 @@ public final class Robot {
     private static void setupCranePivot() {
         _cranePivot = new _Motor("cranePivot", _Motor.Type.GOBILDA_117_RPM, DcMotorSimple.Direction.REVERSE,
                 DcMotor.ZeroPowerBehavior.BRAKE, false);
-        _cranePivotPID = new _PID(() -> _craneIMU.getYaw(), (double data) -> _cranePivot.runSpeed(data), () -> _cranePivotSetPoint,
+        _cranePivotPID = new _PID(() -> (_craneIMU.getYaw() - _imu.getYaw()), (double data) -> _cranePivot.runSpeed(data), () -> _cranePivotSetPoint,
                 0.0085, 0.015, 0, _PID.ProportionalMode.MEASUREMENT, _PID.Direction.DIRECT, 50, -1, 1);
     }
 
@@ -251,16 +251,27 @@ public final class Robot {
     }
 
     public static void update() {
+        telemetry.addLine("Update1");
         _imu.update();
+        telemetry.addLine("Update2");
         _drivetrain.update();
+        telemetry.addLine("Update3");
         _bucket.update();
+        telemetry.addLine("Update4");
         _intake.update();
+        telemetry.addLine("Update5");
         _craneIMU.update();
+        telemetry.addLine("Update6");
         _craneLift.update();
+        telemetry.addLine("Update7");
         _craneLiftPID.update();
+        telemetry.addLine("Update8");
         _cranePivot.update();
+        telemetry.addLine("Update9");
         _cranePivotPID.update();
+        telemetry.addLine("Update10");
         _carousel.update();
+        telemetry.addLine("Update11");
 
         if (_isTurning) {
             if (Math.abs(_turnDegrees) > Math.max(_TURN_OFFSET_POSITIVE, _TURN_OFFSET_NEGATIVE)) {
@@ -278,10 +289,13 @@ public final class Robot {
                 _drivetrain.stop();
             }
         }
+        telemetry.addLine("Update12");
 
         if (_maintainBucketAngle) {
             getBucket().setDegree(90 + _craneIMU.getRoll() + _bucketAngleMaintainOffset);
         }
+        telemetry.addLine("Update13");
+
 
         switch (_craneTransitionState) {
             case LIFT_CRANE:
@@ -299,7 +313,7 @@ public final class Robot {
                     _justEnteredCraneTransitionState = false;
                     setCranePivotDegree(_endCraneTransitionPreset.CRANE_PIVOT_DEGREE);
                 }
-                else if (_craneIMU.getYaw() >= _endCraneTransitionPreset.CRANE_PIVOT_DEGREE - ANGLE_RANGE && _craneIMU.getYaw() <= _endCraneTransitionPreset.CRANE_PIVOT_DEGREE + ANGLE_RANGE) {
+                else if ((_craneIMU.getYaw() - _imu.getYaw()) >= _endCraneTransitionPreset.CRANE_PIVOT_DEGREE - ANGLE_RANGE && (_craneIMU.getYaw() - _imu.getYaw()) <= _endCraneTransitionPreset.CRANE_PIVOT_DEGREE + ANGLE_RANGE) {
                     if (_endCraneTransitionPreset.CRANE_LIFT_DEGREE >= _CRANE_LIFT_ABOVE_CAROUSEL_DEGREE) {
                         _craneTransitionState = _CRANE_TRANSITION_STATE.LOWER_BUCKET;
                     }
@@ -322,8 +336,13 @@ public final class Robot {
             case LOWER_BUCKET:
                 if (_justEnteredCraneTransitionState) {
                     _justEnteredCraneTransitionState = false;
-                    neglectBucketPosition();
-                    getBucket().setSlowDegree(_endCraneTransitionPreset.BUCKET_DEGREE, 1000);
+                    if (isMaintainingBucketAngle()) {
+                        neglectBucketPosition();
+                        getBucket().setSlowDegree(_endCraneTransitionPreset.BUCKET_DEGREE, 1000);
+                    }
+                    else {
+                        getBucket().setDegree(_endCraneTransitionPreset.BUCKET_DEGREE);
+                    }
                 }
                 else if (!getBucket().isBusy()) {
                     _craneTransitionState = _CRANE_TRANSITION_STATE.INACTIVE;
@@ -337,6 +356,7 @@ public final class Robot {
                 }
                 break;
         }
+        telemetry.addLine("Update14");
     }
 
     public static void turn(double speed, double degrees, TurnAxis turnAxis) {
@@ -376,6 +396,10 @@ public final class Robot {
     public static void maintainBucketPosition() {
         _maintainBucketAngle = true;
         _bucketAngleMaintainOffset = _bucket.getDegree() - 90 - _craneIMU.getRoll();
+    }
+
+    public static boolean isMaintainingBucketAngle() {
+        return _maintainBucketAngle;
     }
 
     public static void neglectBucketPosition() {

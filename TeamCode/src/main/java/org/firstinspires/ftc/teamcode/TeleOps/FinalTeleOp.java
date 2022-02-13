@@ -31,6 +31,7 @@ public class FinalTeleOp extends _TeleOp {
     @Override
     public void start() {
         Robot.getIMU().willUpdate(true);
+        Robot.setCranePreset(Robot.CRANE_COLLECTION_DROP);
     }
 
     @Override
@@ -65,7 +66,7 @@ public class FinalTeleOp extends _TeleOp {
             double joyStickAngleCrawl = (Math.toDegrees(Math.atan2(left_stick_y, left_stick_x)) + 360) % 360;
             double posAngCrawl = Robot.getIMU().getYaw();
             double speedCrawl = Math.hypot(left_stick_x, left_stick_y)/2.5;
-            Robot.getDrivetrain().runSpeedAngle(speedCrawl,-posAngCrawl + (joyStickAngleCrawl - 90),0);
+            Robot.getDrivetrain().runSpeedAngle(speedCrawl,-posAngCrawl + (joyStickAngleCrawl + 90),0);
         }
         else if(gamepad1.right_stick_x!=0 || gamepad1.right_stick_y!=0){
             double right_stick_y = -gamepad1.right_stick_y;
@@ -73,7 +74,7 @@ public class FinalTeleOp extends _TeleOp {
             double joyStickAngle = (Math.toDegrees(Math.atan2(right_stick_y, right_stick_x)) + 360) % 360;
             double posAng = Robot.getIMU().getYaw();
             double speed = Math.hypot(right_stick_x, right_stick_y);
-            Robot.getDrivetrain().runSpeedAngle(speed,-posAng + (joyStickAngle - 90),0);
+            Robot.getDrivetrain().runSpeedAngle(speed,-posAng + (joyStickAngle + 90),0);
         }
         else if (gamepad1.left_stick_button) {
             Robot.getDrivetrain().runSpeed(0.5, _Drivetrain.Movements.ccw);
@@ -98,7 +99,13 @@ public class FinalTeleOp extends _TeleOp {
         if (gamepad2.a
                 && Robot.getBucket().getDegree() <= _holdPreset.BUCKET_DEGREE + Robot.ANGLE_RANGE
                 && Robot.getBucket().getDegree() >= _holdPreset.BUCKET_DEGREE - Robot.ANGLE_RANGE) {
-            Robot.getBucket().setSlowDegree(_dropPreset.BUCKET_DEGREE, 500);
+            if (_dropPreset == Robot.CRANE_CAPPING_DROP) {
+                Robot.neglectBucketPosition();
+                Robot.setCraneLiftDegree(_dropPreset.CRANE_LIFT_DEGREE);
+            }
+            else {
+                Robot.getBucket().setSlowDegree(_dropPreset.BUCKET_DEGREE, 500);
+            }
         }
         //carousel cw
         if(gamepad2.right_trigger!=0){
@@ -166,39 +173,40 @@ public class FinalTeleOp extends _TeleOp {
         if(gamepad2.right_stick_button){
            // Robot.getIMU().reset();
         }
-        if(gamepad2.x){
-            if(Robot.getCraneIMU().getYaw() >= -5 && Robot.getCraneIMU().getYaw()<=5){
-                Robot.moveCraneToPreset(Robot.CRANE_CAPPING_LIFT, true);
-            }
+        if(gamepad2.y){
+            Robot.moveCraneToPreset(Robot.CRANE_CAPPING_LIFT, true);
+            _holdPreset = Robot.CRANE_CAPPING_LIFT;
+            _dropPreset = Robot.CRANE_CAPPING_DROP;
         }
-        else if(gamepad2.y){
-            Robot.moveCraneToPreset(Robot.CRANE_CAPPING_COLLECT, true);
+        else if(gamepad2.x){
+            Robot.moveCraneToPreset(Robot.CRANE_CAPPING_COLLECT, false);
         }
+
         //drop
         //help with setSlowDegree
-        if(gamepad2.a){
-            //Robot.getBucket().setSlowDegree(/*insert degree*/,1.55);
-        }
-        if(gamepad2.b){
-            Robot.getDrivetrain().stop();
-        }
+//        if(gamepad2.a){
+//            //Robot.getBucket().setSlowDegree(/*insert degree*/,1.55);
+//        }
+//        if(gamepad2.b){
+//            Robot.getDrivetrain().stop();
+//        }
         //help
         //moving collection to preset or preset to preset
         //capping pickup
-        if(gamepad2.left_stick_button){
-
-        }
+//        if(gamepad2.left_stick_button){
+//
+//        }
         //help
         //preset to preset
         //capping drop off
-        if(gamepad2.right_stick_button){
-            if(Robot.getCraneIMU().getPitch()>=-5
-                    && Robot.getCraneIMU().getPitch()<=5){
-
-            }
-            else{
-
-            }
-        }
+//        if(gamepad2.right_stick_button){
+//            if(Robot.getCraneIMU().getPitch()>=-5
+//                    && Robot.getCraneIMU().getPitch()<=5){
+//
+//            }
+//            else{
+//
+//            }
+//        }
     }
 }
