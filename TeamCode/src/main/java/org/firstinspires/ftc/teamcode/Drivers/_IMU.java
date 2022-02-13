@@ -116,7 +116,13 @@ public class _IMU {
         return _angles.thirdAngle;
     }
 
-    public void resetYaw(){
+    //blue = true
+    //red = false
+    public void resetYaw() {
         _yawOffset = -_yawRaw;
+    }
+
+    public void resetYaw(double headingAngle){
+        _yawOffset = -_yawRaw + headingAngle;
     }
 }

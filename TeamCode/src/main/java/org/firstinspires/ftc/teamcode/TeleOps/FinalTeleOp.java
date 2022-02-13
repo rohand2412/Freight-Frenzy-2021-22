@@ -162,10 +162,12 @@ public class FinalTeleOp extends _TeleOp {
             _movingBucket = false;
         }
         //reset imu
-        //help
+        //blue is true, red is false
+        /*
         if(gamepad2.right_stick_button){
-           Robot.getIMU().resetYaw();
+           Robot.getIMU().resetYaw(Robot.DRIVE_IMU_SIDE);
         }
+         */
         if(gamepad2.x){
             if(Robot.getCraneIMU().getYaw() >= -5 && Robot.getCraneIMU().getYaw()<=5){
                 Robot.moveCraneToPreset(Robot.CRANE_CAPPING_LIFT, true);
@@ -188,9 +190,16 @@ public class FinalTeleOp extends _TeleOp {
         if(gamepad2.left_stick_button){
 
         }
+        if(gamepad1.dpad_left){
+            Robot.getCraneIMU().resetYaw(Robot.getCraneIMU().getYaw()-2);
+        }
+        else if(gamepad1.dpad_right) {
+            Robot.getCraneIMU().resetYaw(Robot.getCraneIMU().getYaw() + 2);
+        }
         //help
         //preset to preset
         //capping drop off
+        /*
         if(gamepad2.right_stick_button){
             if(Robot.getCraneIMU().getPitch()>=-5
                     && Robot.getCraneIMU().getPitch()<=5){
@@ -200,5 +209,6 @@ public class FinalTeleOp extends _TeleOp {
 
             }
         }
+         */
     }
 }
