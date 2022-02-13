@@ -60,8 +60,8 @@ public final class Robot {
     private static boolean _maintainBucketAngle;
 
     //Crane Presets
-    public static CranePreset CRANE_COLLECTION_HOLD = new CranePreset(-65.5, 0, 80);
-    public static CranePreset CRANE_COLLECTION_DROP = new CranePreset(-65.5, 0, 130);
+    public static CranePreset CRANE_COLLECTION_HOLD = new CranePreset(-70, 0, 80);
+    public static CranePreset CRANE_COLLECTION_DROP = new CranePreset(-70, 0, 127);
     public static CranePreset CRANE_TOP_LEVEL_HOLD;
     public static CranePreset CRANE_TOP_LEVEL_DROP;
     public static CranePreset CRANE_MIDDLE_LEVEL_HOLD;
@@ -169,8 +169,6 @@ public final class Robot {
     }
 
     private static void setupTeleOp() {
-        setupVuforia();
-        setupTFOD();
         setupIMU();
         setupCraneIMU();
         setupCraneLift();
