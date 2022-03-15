@@ -38,7 +38,7 @@ public final class Robot {
     private static _IMU _craneIMU;
 
     public static final double MM_PER_INCH = 25.4;
-    public static final double ANGLE_RANGE = 5;
+    public static final double ANGLE_RANGE = 3;
 
     private static final double _TURN_OFFSET_POSITIVE = 18;
     private static final double _TURN_OFFSET_NEGATIVE = 15;
@@ -94,8 +94,11 @@ public final class Robot {
                 case AutonomousPart2:
                     setupAutonomousPart2();
                     break;
-                case TeleOp:
-                    setupTeleOp();
+                case TeleOp1:
+                    setupTeleOp1();
+                    break;
+                case TeleOp2:
+                    setupTeleOp2();
                     break;
                 case Drivetrain:
                     setupDrivetrain();
@@ -142,32 +145,30 @@ public final class Robot {
         _fieldSide = fieldSide;
 
         if (_fieldSide == FieldSide.BLUE) {
-            CRANE_TOP_LEVEL_HOLD = new CranePreset(46, -90, 180-22);
-            CRANE_TOP_LEVEL_DROP = new CranePreset(46, -90, 180+46+35);
+            CRANE_TOP_LEVEL_HOLD = new CranePreset(46, 90, 180-22);
+            CRANE_TOP_LEVEL_DROP = new CranePreset(46, 90, 180+46+35);
             CRANE_MIDDLE_LEVEL_HOLD = new CranePreset(-30, -90, 180-55);
             CRANE_MIDDLE_LEVEL_DROP = new CranePreset(10, -90, 220);
             CRANE_BOTTOM_LEVEL_HOLD = new CranePreset(-60, -90, 98);
             CRANE_BOTTOM_LEVEL_DROP = new CranePreset(-30, -90, 180);
-            CRANE_SHARED_LEVEL_HOLD = new CranePreset(0, -50, 90);
-            CRANE_SHARED_LEVEL_DROP = new CranePreset(0, -50, 210);
+            CRANE_SHARED_LEVEL_HOLD = new CranePreset(0, 140, 90);
+            CRANE_SHARED_LEVEL_DROP = new CranePreset(0, 140, 210);
         }
         else if (_fieldSide == FieldSide.RED) {
-            CRANE_TOP_LEVEL_HOLD = new CranePreset(46, 90, 180-22);
-            CRANE_TOP_LEVEL_DROP = new CranePreset(46, 90, 180+46+35);
+            CRANE_TOP_LEVEL_HOLD = new CranePreset(46, -90, 180-22);
+            CRANE_TOP_LEVEL_DROP = new CranePreset(46, -90, 180+46+35);
             CRANE_MIDDLE_LEVEL_HOLD = new CranePreset(-30, 90, 180-55);
             CRANE_MIDDLE_LEVEL_DROP = new CranePreset(10, 90, 220);
             CRANE_BOTTOM_LEVEL_HOLD = new CranePreset(-60, 90, 98);
             CRANE_BOTTOM_LEVEL_DROP = new CranePreset(-30, 90, 180);
-            CRANE_SHARED_LEVEL_HOLD = new CranePreset(0, 50, 90);
-            CRANE_SHARED_LEVEL_DROP = new CranePreset(0, 50, 210);
+            CRANE_SHARED_LEVEL_HOLD = new CranePreset(0, -140, 90);
+            CRANE_SHARED_LEVEL_DROP = new CranePreset(0, -140, 210);
         }
-        _CRANE_LIFT_ABOVE_CAROUSEL_DEGREE = 20;
+        _CRANE_LIFT_ABOVE_CAROUSEL_DEGREE = 30;
     }
 
     private static void setupAutonomousPart1() {
         setupCraneIMU();
-        setupVuforia();
-        setupTFOD();
         setupCraneLift();
         setupBucket(0);
     }
@@ -181,15 +182,18 @@ public final class Robot {
         //OpenCV is just for testing, not actual runs
     }
 
-    private static void setupTeleOp() {
-        setupIMU();
+    private static void setupTeleOp1() {
         setupCraneIMU();
         setupCraneLift();
+        setupBucket(CRANE_COLLECTION_DROP.BUCKET_DEGREE);
+        setupCarousel();
+    }
+
+    private static void setupTeleOp2() {
+        setupIMU();
         setupCranePivot();
         setupDrivetrain();
-        setupBucket(CRANE_COLLECTION_DROP.BUCKET_DEGREE);
         setupIntake();
-        setupCarousel();
         //OpenCV is just for testing, not actual runs
     }
 
@@ -243,11 +247,11 @@ public final class Robot {
         _webcam = new _OpenCV("Webcam 1", 320, 240);
     }
 
-    private static void setupVuforia() {
+    public static void setupVuforia() {
         _vuforia = new _Vuforia("Webcam 1");
     }
 
-    private static void setupTFOD() {
+    public static void setupTFOD() {
         _tfod = new _TFOD(_vuforia.getVuforia(), 0.45f, true, 320, 1.1, 16.0/9.0,
                 "FreightFrenzy_BCDM.tflite", new String[] {"Ball", "Cube", "Duck", "Marker"});
     }
@@ -490,7 +494,8 @@ public final class Robot {
     public enum SetupType {
         AutonomousPart1,
         AutonomousPart2,
-        TeleOp,
+        TeleOp1,
+        TeleOp2,
         Drivetrain,
         Bucket,
         Intake,

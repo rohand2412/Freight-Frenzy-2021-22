@@ -16,12 +16,12 @@ import org.firstinspires.ftc.teamcode.drive.advanced.PoseStorage;
 import java.util.List;
 
 @Autonomous(group="Auton")
-public class RedAutonCarousel extends _Autonomous {
+public class RedAutonNoCarousel extends _Autonomous {
 
     private _TFOD.ValidRecognition _validRecognition;
     private List<Recognition> _recognitions;
     private TeamElementLocations _location;
-    private boolean _tfodRight = true;
+    private boolean _tfodRight = false;
     private SampleMecanumDrive _drive;
     private Trajectory _toCarousel;
     private Trajectory _toAllianceHub;
@@ -43,7 +43,7 @@ public class RedAutonCarousel extends _Autonomous {
 
         _validRecognition = recognition ->
                 ((recognition.getWidth() * recognition.getHeight()) < (320.0 * 640.0 / 8.0))
-                && (recognition.getWidth()/recognition.getHeight()) > 1.0;
+                        && (recognition.getWidth()/recognition.getHeight()) > 1.0;
         _justEntered = true;
     }
 
@@ -70,7 +70,7 @@ public class RedAutonCarousel extends _Autonomous {
         else {
             if (Robot.getTFOD().countValidLabel(_validRecognition, "Marker") == 1) {
                 if ((Robot.getTFOD().getRecognitionValidLabel(_validRecognition, "Marker").getLeft()
-                    + Robot.getTFOD().getRecognitionValidLabel(_validRecognition, "Marker").getRight())/2.0 > 320) {
+                        + Robot.getTFOD().getRecognitionValidLabel(_validRecognition, "Marker").getRight())/2.0 > 320) {
                     _location = _tfodRight ? TeamElementLocations.MIDDLE : TeamElementLocations.LEFT;
                 }
                 else {
@@ -101,49 +101,43 @@ public class RedAutonCarousel extends _Autonomous {
 
         _drive = new SampleMecanumDrive(hardwareMap);
 
-        _toCarousel = _drive.trajectoryBuilder(new Pose2d())
-                .splineTo(new Vector2d(0, 16), Math.toRadians(90),
+        _toAllianceHub = _drive.trajectoryBuilder(new Pose2d())
+                .splineTo(new Vector2d(0, 19), Math.toRadians(90),
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
-        _toAllianceHub = _drive.trajectoryBuilder(_toCarousel.end(), true)
-                .splineToConstantHeading(new Vector2d(0, -23), Math.toRadians(90),
-                SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .build();
-
         _approachHub = _drive.trajectoryBuilder(_toAllianceHub.end())
-                .strafeRight(22,
+                .forward(20,
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
         _toWall = _drive.trajectoryBuilder(_approachHub.end())
-                .strafeLeft(22,
+                .strafeLeft(21,
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
         _toWarehouse = _drive.trajectoryBuilder(_toWall.end())
-                .strafeLeft(50,
+                .strafeLeft(48,
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
         _toLeft = _drive.trajectoryBuilder(_toWarehouse.end())
-                .strafeRight(22,
+                .strafeRight(24,
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
         _toDeep = _drive.trajectoryBuilder(_toLeft.end())
-                .back(50,
+                .back(24,
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
-        _state = State.MOVE_TO_CAROUSEL;
+        _state = State.APPROACH_HUB;
         _justEntered = true;
     }
 
@@ -154,26 +148,6 @@ public class RedAutonCarousel extends _Autonomous {
         PoseStorage.currentPose = _drive.getPoseEstimate();
 
         switch (_state) {
-            case MOVE_TO_CAROUSEL:
-                if (_justEntered) {
-                    _justEntered = false;
-                    _drive.followTrajectoryAsync(_toCarousel);
-                }
-                else if (!_drive.isBusy()) {
-                    _state = State.ROTATE_CAROUSEL;
-                    _justEntered = true;
-                }
-                break;
-            case ROTATE_CAROUSEL:
-                if (_justEntered) {
-                    _justEntered = false;
-                    Robot.getCarousel().runTime(-0.01, 4000);
-                }
-                else if (!Robot.getCarousel().isBusy()) {
-                    _state = State.MOVE_TO_ALLIANCE_HUB_PLUS_CRANE;
-                    _justEntered = true;
-                }
-                break;
             case MOVE_TO_ALLIANCE_HUB_PLUS_CRANE:
                 if (_justEntered) {
                     _justEntered = false;
@@ -205,7 +179,7 @@ public class RedAutonCarousel extends _Autonomous {
                     _drive.followTrajectoryAsync(_approachHub);
                 }
                 else if (!_drive.isBusy()) {
-                    _state = State.DROP_PRELOADED_CUBE;
+                    _state = State.IDLE;
                     _justEntered = true;
                 }
                 break;
@@ -216,8 +190,8 @@ public class RedAutonCarousel extends _Autonomous {
                     Robot.getBucket().setSlowDegree(_dropPreset.BUCKET_DEGREE, 1000);
                 }
                 else if (Robot.getCraneIMU().getRoll() >= _dropPreset.CRANE_LIFT_DEGREE - Robot.ANGLE_RANGE
-                    && Robot.getCraneIMU().getRoll() <= _dropPreset.CRANE_LIFT_DEGREE + Robot.ANGLE_RANGE
-                    && !Robot.getBucket().isBusy()) {
+                        && Robot.getCraneIMU().getRoll() <= _dropPreset.CRANE_LIFT_DEGREE + Robot.ANGLE_RANGE
+                        && !Robot.getBucket().isBusy()) {
                     _state = State.MOVE_TO_WALL;
                     _justEntered = true;
                 }
@@ -226,35 +200,35 @@ public class RedAutonCarousel extends _Autonomous {
                 if (_justEntered) {
                     _justEntered = false;
                     _drive.followTrajectoryAsync(_toWall);
-                    Robot.getBucket().setDegree(Robot.CRANE_COLLECTION_HOLD.BUCKET_DEGREE);
-                    Robot.moveCraneToPreset(Robot.CRANE_COLLECTION_HOLD, false);
                 }
-                else if (!_drive.isBusy() && !Robot.isCraneTransitioning()) {
+                else if (!_drive.isBusy()) {
                     _state = State.MOVE_TO_WAREHOUSE;
-                    _justEntered = false;
+                    _justEntered = true;
                 }
                 break;
             case MOVE_TO_WAREHOUSE:
                 if (_justEntered) {
                     _justEntered = false;
                     _drive.followTrajectoryAsync(_toWarehouse);
-                    Robot.getBucket().setSlowDegree(Robot.CRANE_COLLECTION_DROP.BUCKET_DEGREE, 1000);
-                    Robot.getIntake().runSpeed(0.3);
+//                    Robot.getBucket().setDegree(Robot.CRANE_COLLECTION_HOLD.BUCKET_DEGREE);
+//                    Robot.moveCraneToPreset(Robot.CRANE_COLLECTION_HOLD, false);
                 }
-                else if (!_drive.isBusy() && !Robot.getBucket().isBusy()) {
+                else if (!_drive.isBusy() /* && !Robot.isCraneTransitioning()*/) {
                     _state = State.MOVE_LEFT_WAREHOUSE;
                     _justEntered = true;
-                    Robot.getIntake().stop();
                 }
                 break;
             case MOVE_LEFT_WAREHOUSE:
                 if (_justEntered) {
                     _justEntered = false;
                     _drive.followTrajectoryAsync(_toLeft);
+//                    Robot.getBucket().setSlowDegree(Robot.CRANE_COLLECTION_DROP.BUCKET_DEGREE, 1000);
+//                    Robot.getIntake().runSpeed(0.3);
                 }
-                else if (!_drive.isBusy()) {
+                else if (!_drive.isBusy()/* && !Robot.getBucket().isBusy()*/) {
                     _state = State.MOVE_DEEP;
                     _justEntered = true;
+                    Robot.getIntake().stop();
                 }
                 break;
             case MOVE_DEEP:
@@ -288,8 +262,6 @@ public class RedAutonCarousel extends _Autonomous {
     }
 
     private enum State {
-        MOVE_TO_CAROUSEL,
-        ROTATE_CAROUSEL,
         MOVE_TO_ALLIANCE_HUB_PLUS_CRANE,
         APPROACH_HUB,
         DROP_PRELOADED_CUBE,

@@ -16,14 +16,20 @@ public class FinalTeleOpRed extends _TeleOp {
 
     @Override
     public void init() {
-        Robot.setup(hardwareMap, telemetry, Robot.SetupType.TeleOp);
+        Robot.setup(hardwareMap, telemetry, Robot.SetupType.TeleOp1);
         Robot.setFieldSide(Robot.FieldSide.RED);
-        Robot.setCranePreset(Robot.CRANE_COLLECTION_DROP);
+        Robot.setCraneLiftDegree(Robot.CRANE_COLLECTION_DROP.CRANE_LIFT_DEGREE);
+        Robot.getBucket().setDegree(Robot.CRANE_COLLECTION_DROP.BUCKET_DEGREE);
     }
 
     @Override
     public void init_loop() {
-        Robot.update();
+        Robot.getCraneIMU().update();
+        Robot.getCraneLift().update();
+        Robot.getCraneLiftPID().update();
+        Robot.getBucket().update();
+        Robot.getCarousel().update();
+
         telemetry.addLine("Bucket: " + String.valueOf(Robot.getBucket().getDegree()));
         telemetry.addLine("Lift: " + String.valueOf(Robot.getCraneIMU().getRoll()));
         telemetry.update();
@@ -31,6 +37,7 @@ public class FinalTeleOpRed extends _TeleOp {
 
     @Override
     public void start() {
+        Robot.setup(hardwareMap, telemetry, Robot.SetupType.TeleOp2);
         Robot.getIMU().willUpdate(true);
         Robot.setCranePreset(Robot.CRANE_COLLECTION_DROP);
     }
@@ -66,17 +73,15 @@ public class FinalTeleOpRed extends _TeleOp {
             double left_stick_y = -gamepad1.left_stick_y;
             double left_stick_x = gamepad1.left_stick_x;
             double joyStickAngle = (Math.toDegrees(Math.atan2(left_stick_y, left_stick_x)) + 360) % 360;
-            double posAng = Robot.getIMU().getYaw();
-            double speed = Math.hypot(left_stick_x, left_stick_y)/1.5;
-            Robot.getDrivetrain().runSpeedAngle(speed,-posAng + (joyStickAngle),0);
+            double speed = Math.hypot(left_stick_x, left_stick_y)/2.5;
+            Robot.getDrivetrain().runSpeedAngle(speed, joyStickAngle,0);
         }
         else if(gamepad1.right_stick_x!=0 || gamepad1.right_stick_y!=0){
             double right_stick_y = -gamepad1.right_stick_y;
             double right_stick_x = gamepad1.right_stick_x;
             double joyStickAngleCrawl = (Math.toDegrees(Math.atan2(right_stick_y, right_stick_x)) + 360) % 360;
-            double posAngCrawl = Robot.getIMU().getYaw();
             double speedCrawl = Math.hypot(right_stick_x, right_stick_y)/2.5;
-            Robot.getDrivetrain().runSpeedAngle(speedCrawl,-posAngCrawl + (joyStickAngleCrawl),0);
+            Robot.getDrivetrain().runSpeedAngle(speedCrawl, joyStickAngleCrawl ,0);
         }
 
         else if (gamepad1.left_stick_button) {
@@ -112,11 +117,11 @@ public class FinalTeleOpRed extends _TeleOp {
         }
         //carousel cw
         if(gamepad2.right_trigger!=0){
-            Robot.getCarousel().runSpeed(0.5);
+            Robot.getCarousel().runSpeed(0.3);
         }
         //carouselccw
         else if(gamepad2.left_trigger!=0){
-            Robot.getCarousel().runSpeed(-0.5);
+            Robot.getCarousel().runSpeed(-0.3);
         }
         else{
             Robot.getCarousel().stop();
@@ -193,6 +198,10 @@ public class FinalTeleOpRed extends _TeleOp {
         }
         else if(gamepad2.dpad_left) {
             Robot.getCraneIMU().resetYaw(Robot.getCraneIMU().getYaw() + 2);
+        }
+
+        if (gamepad2.right_stick_button) {
+            Robot.getCraneIMU().resetYaw(0);
         }
     }
 }
